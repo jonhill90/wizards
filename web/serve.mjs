@@ -5,7 +5,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// SITE_ROOT serves a built folder (web/site) instead of the repository root, to prove it stands alone.
+const root = process.env.SITE_ROOT ? path.resolve(process.env.SITE_ROOT) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const port = Number(process.argv[2] ?? process.env.PORT ?? 4173);
 const types = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8",
@@ -16,7 +17,7 @@ const types = {
 http.createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost");
   let rel = decodeURIComponent(url.pathname);
-  if (rel === "/") rel = "/web/index.html";
+  if (rel === "/") rel = process.env.SITE_ROOT ? "/index.html" : "/web/index.html";
   const file = path.resolve(root, "." + rel);
   if (!file.startsWith(root + path.sep)) { res.writeHead(403).end("forbidden"); return; }
   try {

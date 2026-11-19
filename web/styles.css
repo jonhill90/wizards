@@ -24,7 +24,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .subtle { color: var(--muted); }
 .small { font-size: 12px; line-height: 16px; }
 .grid { max-width: 1280px; margin: 0 auto; padding: 16px 24px 32px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
-@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .top, .grid { padding-inline: 16px; } }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } .top, .grid { padding-inline: 16px; } }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); padding: 24px; margin: 0; }
 @media (min-width: 901px) { .right { position: sticky; top: 16px; } }
 
@@ -39,7 +39,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .now .lbl { color: var(--muted); }
 
 .content { outline: none; max-width: 60ch; } /* Windows type guidance: 50 to 60 characters a line */
-.content h2, .content [id="question"], .content [id="result-title"] { margin: 0 0 8px; }
+.heading { margin: 0; font: inherit; }
+.content h2 { margin: 0 0 8px; }
 .help { margin-bottom: 8px; }
 .options { display: grid; gap: 8px; margin: 16px 0; }
 .options fluent-button { width: 100%; justify-content: flex-start; text-align: left; }
@@ -61,3 +62,17 @@ a { color: var(--colorBrandForegroundLink, #115ea3); }
 .content:focus-visible { outline: none; }
 :focus-visible { outline: 2px solid var(--colorStrokeFocus2, #000); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Phone width: keep the drawing readable and let the canvas, not the page, scroll sideways. */
+.canvas { overflow-x: auto; }
+@media (max-width: 600px) { .canvas svg { min-width: 560px; } }
+
+/* Touch (Windows "Touch interactions": touchable is 40 x 40 epx; touch-optimized is 44 x 44 with 4 epx between targets). */
+@media (pointer: coarse), (max-width: 900px) {
+  fluent-button { min-height: 44px; min-width: 44px; }
+  .nav { gap: 8px; }
+}
+@media (forced-colors: active) {
+  .canvas { forced-color-adjust: none; } /* the drawing keeps its own colours on its white canvas; the frame uses system colours */
+  .canvas { border: 1px solid CanvasText; }
+}

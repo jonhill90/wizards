@@ -9,6 +9,8 @@ cd web && npm ci && npm run build        # tools/diagrams/web/diagrams.mjs is co
 npm run serve        # http://127.0.0.1:4173/
 ```
 
+To get a copy that needs no `node_modules` and no checkout, run `npm run build && node build-site.mjs` in `web/`. It writes `web/site/` (about 2 MB: the page, the compiled scripts, the Fluent bundle and tokens, the diagram module and `wizards/`), which any static file host can serve; the layout mirrors the repository, so no path changes. Locally: `SITE_ROOT=site node serve.mjs 4174`. This repository does not publish it anywhere; hosting is a separate decision.
+
 `?w=<slug>` picks the wizard (default `azure-resiliency`). The answers are in the address after `#a=`, as comma-separated option ids, so any state can be linked and the same link always gives the same screen: `/web/index.html#a=yes,vm,region`.
 
 ## What you see
@@ -43,8 +45,14 @@ npm test
 |---|---|
 | `tests/parity.spec.ts` | The TypeScript evaluator gives the same paths, steps and result as the Python engine for every path |
 | `tests/diagrams.spec.ts` | The static manifest matches the tree, files exist and are self-contained, the fallback rule works |
+| `tests/quality.spec.ts` | axe-core (the engine of Microsoft's Accessibility Insights) finds no WCAG 2.2 AA violations on the question and result screens in light, dark and Windows high contrast; keyboard-only use works; the diagram has a text description; on a phone (390 px) the page does not grow wider, the drawing scrolls inside its own box and every button is at least 44 x 44; at 320 px (400% zoom) the page does not scroll sideways |
+| `tests/static.spec.ts` | The built `web/site/` served alone (no repository, no node_modules) loads Fluent, the tree and the live diagram with no failed request |
 | `tests/ui.spec.ts` | Click-through, back, start over, deep links, all 62 results render with the right diagram, the ribbon grows, the theme switch works, reduced motion works, and the browser's drawing is byte-identical to the committed SVG for every diagram |
+
+## Accessibility and phone
+
+Checked against Microsoft's Learn guidance: [Touch interactions](https://learn.microsoft.com/windows/apps/develop/input/touch-interactions) (touchable is 40 x 40 epx, touch-optimized 44 x 44 with 4 epx between targets) and the [Accessibility checklist](https://learn.microsoft.com/windows/apps/design/accessibility/accessibility-checklist) (names, keyboard, contrast of at least 4.5:1, high contrast, automated checks in CI). The headings are real `h1`/`h2` elements, Back and Start over appear only when there is something to go back to, and on a phone the drawing keeps a readable size and scrolls sideways inside its own focusable box. A manual pass with Narrator and a real phone has not been done: the automated checks cannot replace it.
 
 ## Not built yet
 
-A hosted copy (the page reads `web/node_modules` and `tools/diagrams/web` from the repository root, so it needs a build step to publish); a keyboard and screen-reader pass; any work on a phone-sized layout beyond stacking the two cards.
+A hosted copy (the build above is ready to host, but nothing publishes it); a Narrator and real-device pass; the Fluent 2 design site's own pages (blocked from the build environment, so the design follows Learn and the package source); the layout on a phone puts the drawing below the questions.

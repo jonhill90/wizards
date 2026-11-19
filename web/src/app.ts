@@ -29,6 +29,9 @@ function h(tag: string, attrs: Attrs = {}, ...kids: (Node | string)[]): HTMLElem
 }
 const text = (s: string, size = "300", weight = "regular", extra: Attrs = {}): HTMLElement =>
   h("fluent-text", { block: true, size, weight, ...extra }, s);
+// A real heading element (so assistive technology sees the outline) that wraps the Fluent text styling.
+const heading = (tag: "h1" | "h2", s: string, size: string, id: string): HTMLElement =>
+  h(tag, { id, class: "heading" }, h("fluent-text", { block: true, size, weight: "semibold" }, s));
 
 function readAnswers(): string[] {
   const m = /(?:^#|&)a=([^&]*)/.exec(location.hash);
@@ -98,7 +101,7 @@ async function main(): Promise<void> {
     applyTheme();
   });
   const header = h("header", { class: "top" },
-    h("div", { class: "title" }, text(tree.title, "600", "semibold", { as: "h1", id: "title" }),
+    h("div", { class: "title" }, heading("h1", tree.title, "600", "title"),
       text("Answer a few plain questions. The same answers always give the same result; no AI runs.", "300", "regular", { class: "subtle" })),
     h("div", { class: "tools" }, h("fluent-badge", { appearance: "tint", color: "brand" }, "Temporary front end"), h("label", { class: "switch" }, "Dark", dark)));
 
@@ -107,7 +110,7 @@ async function main(): Promise<void> {
   const nav = h("div", { class: "nav" });
   const left = h("section", { class: "card left" }, ribbon, content, nav);
 
-  const canvas = h("div", { class: "canvas", id: "diagram" });
+  const canvas = h("div", { class: "canvas", id: "diagram", tabindex: "0", role: "group", "aria-label": "Diagram. On a narrow screen, scroll sideways to see all of it." });
   const caption = h("figcaption", { class: "caption" });
   const right = h("figure", { class: "card right" }, canvas, caption);
   root.replaceChildren(header, h("main", { class: "grid" }, left, right));
@@ -133,7 +136,7 @@ async function main(): Promise<void> {
     content.replaceChildren();
     const node = pos.node;
     if (node.type === "question") {
-      content.append(text(node.text, "500", "semibold", { id: "question", as: "h2" }));
+      content.append(heading("h2", node.text, "500", "question"));
       if (node.help) content.append(text(node.help, "300", "regular", { class: "subtle help" }));
       const opts = h("div", { class: "options", role: "group", "aria-labelledby": "question" });
       for (const o of node.options) {
@@ -143,7 +146,7 @@ async function main(): Promise<void> {
       }
       content.append(opts, h("fluent-accordion", { class: "sources" }, item(`Sources (${node.sources.length})`, sourcesBody(node.sources))));
     } else {
-      content.append(text(node.title, "500", "semibold", { id: "result-title", as: "h2" }), h("fluent-message-bar", { intent: "success", shape: "square", class: "summary" }, node.summary));
+      content.append(heading("h2", node.title, "500", "result-title"), h("fluent-message-bar", { intent: "success", shape: "square", class: "summary" }, node.summary));
       const acc = h("fluent-accordion", { class: "sources" });
       if (node.actions.length) acc.append(item("What to do", list(node.actions), true));
       if (node.caveats.length) acc.append(item("Keep in mind", list(node.caveats), true));
@@ -153,9 +156,10 @@ async function main(): Promise<void> {
     enter(content);
 
     nav.replaceChildren();
-    const back = h("fluent-button", { appearance: "subtle", id: "back", disabled: answers.length === 0 }, "Back");
+    if (answers.length === 0) return; // nothing to go back to: no disabled buttons for assistive technology to trip on
+    const back = h("fluent-button", { appearance: "subtle", id: "back" }, "Back");
     back.addEventListener("click", () => writeAnswers(answers.slice(0, -1)));
-    const restart = h("fluent-button", { appearance: "subtle", id: "restart", disabled: answers.length === 0 }, "Start over");
+    const restart = h("fluent-button", { appearance: "subtle", id: "restart" }, "Start over");
     restart.addEventListener("click", () => writeAnswers([]));
     nav.append(back, restart);
   }

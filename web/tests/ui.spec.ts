@@ -41,7 +41,7 @@ test("back and start over", async ({ page }) => {
   await expect(page.locator("#question")).toContainText("which failure");
   await page.locator("#restart").click();
   await expect(page.locator("#question")).toContainText("recovery time objective");
-  await expect(page.locator("#back")).toHaveAttribute("disabled", "");
+  await expect(page.locator("#back")).toHaveCount(0);
 });
 
 test("a bad deep link falls back to the start", async ({ page }) => {

@@ -3,3 +3,4 @@ web/dist/
 web/test-results/
 web/playwright-report/
 tools/diagrams/dist/
+web/site/
