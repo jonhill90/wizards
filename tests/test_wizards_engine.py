@@ -51,8 +51,8 @@ class RealTree(unittest.TestCase):
 
     def test_paths_counts(self):
         ps = w.paths(self.tree)
-        self.assertEqual(len(ps), 62)
-        self.assertEqual(len({r for _, r in ps}), 62)
+        self.assertEqual(len(ps), 64)
+        self.assertEqual(len({r for _, r in ps}), 64)
         # every result node is reachable by at least one path
         results = {n for n, v in self.tree["nodes"].items() if v["type"] == "result"}
         self.assertEqual({r for _, r in ps}, results)
@@ -64,97 +64,97 @@ class RealTree(unittest.TestCase):
             self.assertEqual(len(res["steps"]), len(trail))
 
     def test_sql_regional_failover_group_path(self):
-        res = w.run(self.tree, ["yes", "sql-database", "region", "no", "yes"])
+        res = w.run(self.tree, ["yes", "azure", "sql-database", "region", "no", "yes"])
         self.assertEqual(res["result"]["node"], "r-sqldb-failover-group")
         urls = {s["url"] for s in res["sources"]}
         self.assertIn("https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db", urls)
 
     def test_sql_managed_instance_branches(self):
-        for trail, rid in [(["yes", "sql-mi", "zone"], "r-sqlmi-zone"),
-                           (["yes", "sql-mi", "region", "yes"], "r-sqlmi-georestore"),
-                           (["yes", "sql-mi", "region", "no"], "r-sqlmi-failover-group"),
-                           (["yes", "sql-mi", "data-loss"], "r-sqlmi-pitr")]:
+        for trail, rid in [(["yes", "azure", "sql-mi", "zone"], "r-sqlmi-zone"),
+                           (["yes", "azure", "sql-mi", "region", "yes"], "r-sqlmi-georestore"),
+                           (["yes", "azure", "sql-mi", "region", "no"], "r-sqlmi-failover-group"),
+                           (["yes", "azure", "sql-mi", "data-loss"], "r-sqlmi-pitr")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_aks_and_app_service_branches(self):
-        for trail, rid in [(["yes", "aks", "zone"], "r-aks-zone"), (["yes", "aks", "region"], "r-aks-region"),
-                           (["yes", "aks", "data-loss"], "r-aks-backup"), (["yes", "app-service", "zone"], "r-appsvc-zone"),
-                           (["yes", "app-service", "region"], "r-appsvc-region"),
-                           (["yes", "app-service", "data-loss"], "r-appsvc-backup")]:
+        for trail, rid in [(["yes", "azure", "aks", "zone"], "r-aks-zone"), (["yes", "azure", "aks", "region"], "r-aks-region"),
+                           (["yes", "azure", "aks", "data-loss"], "r-aks-backup"), (["yes", "azure", "app-service", "zone"], "r-appsvc-zone"),
+                           (["yes", "azure", "app-service", "region"], "r-appsvc-region"),
+                           (["yes", "azure", "app-service", "data-loss"], "r-appsvc-backup")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_service_bus_and_event_hubs_branches(self):
-        for trail, rid in [(["yes", "service-bus", "zone"], "r-sb-zone"),
-                           (["yes", "service-bus", "region"], "r-sb-region"),
-                           (["yes", "service-bus", "data-loss"], "r-sb-data"),
-                           (["yes", "event-hubs", "zone"], "r-eh-zone"),
-                           (["yes", "event-hubs", "region"], "r-eh-region"),
-                           (["yes", "event-hubs", "data-loss"], "r-eh-data")]:
+        for trail, rid in [(["yes", "azure", "service-bus", "zone"], "r-sb-zone"),
+                           (["yes", "azure", "service-bus", "region"], "r-sb-region"),
+                           (["yes", "azure", "service-bus", "data-loss"], "r-sb-data"),
+                           (["yes", "azure", "event-hubs", "zone"], "r-eh-zone"),
+                           (["yes", "azure", "event-hubs", "region"], "r-eh-region"),
+                           (["yes", "azure", "event-hubs", "data-loss"], "r-eh-data")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_synapse_branches(self):
-        for trail, rid in [(["yes", "synapse", "zone"], "r-synapse-zone"),
-                           (["yes", "synapse", "region"], "r-synapse-region"),
-                           (["yes", "synapse", "data-loss"], "r-synapse-restore")]:
+        for trail, rid in [(["yes", "azure", "synapse", "zone"], "r-synapse-zone"),
+                           (["yes", "azure", "synapse", "region"], "r-synapse-region"),
+                           (["yes", "azure", "synapse", "data-loss"], "r-synapse-restore")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_traffic_routing_branches(self):
-        for trail, rid in [(["yes", "traffic-routing", "web"], "r-routing-frontdoor"),
-                           (["yes", "traffic-routing", "dns"], "r-routing-tm")]:
+        for trail, rid in [(["yes", "azure", "traffic-routing", "web"], "r-routing-frontdoor"),
+                           (["yes", "azure", "traffic-routing", "dns"], "r-routing-tm")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_fabric_branches(self):
-        for trail, rid in [(["yes", "fabric", "zone"], "r-fabric-zone"),
-                           (["yes", "fabric", "region"], "r-fabric-region"),
-                           (["yes", "fabric", "data-loss"], "r-fabric-data")]:
+        for trail, rid in [(["yes", "azure", "fabric", "zone"], "r-fabric-zone"),
+                           (["yes", "azure", "fabric", "region"], "r-fabric-region"),
+                           (["yes", "azure", "fabric", "data-loss"], "r-fabric-data")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_managed_disk_branches(self):
-        for trail, rid in [(["yes", "managed-disks", "zone"], "r-disk-zone"),
-                           (["yes", "managed-disks", "region"], "r-disk-region"),
-                           (["yes", "managed-disks", "data-loss"], "r-disk-backup")]:
+        for trail, rid in [(["yes", "azure", "managed-disks", "zone"], "r-disk-zone"),
+                           (["yes", "azure", "managed-disks", "region"], "r-disk-region"),
+                           (["yes", "azure", "managed-disks", "data-loss"], "r-disk-backup")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_storage_data_loss_branches(self):
-        for trail, rid in [(["yes", "storage", "data-loss", "blobs"], "r-storage-blob-backup"),
-                           (["yes", "storage", "data-loss", "files"], "r-storage-files-backup"),
-                           (["yes", "storage", "data-loss", "other"], "r-storage-other-backup")]:
+        for trail, rid in [(["yes", "azure", "storage", "data-loss", "blobs"], "r-storage-blob-backup"),
+                           (["yes", "azure", "storage", "data-loss", "files"], "r-storage-files-backup"),
+                           (["yes", "azure", "storage", "data-loss", "other"], "r-storage-other-backup")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_key_vault_and_sql_server_in_a_vm_branches(self):
-        for trail, rid in [(["yes", "key-vault", "zone"], "r-kv-zone"),
-                           (["yes", "key-vault", "region", "yes"], "r-kv-managed-failover"),
-                           (["yes", "key-vault", "region", "no"], "r-kv-custom"),
-                           (["yes", "key-vault", "data-loss"], "r-kv-recovery"),
-                           (["yes", "sql-vm", "zone"], "r-sqlvm-zone"),
-                           (["yes", "sql-vm", "region"], "r-sqlvm-region"),
-                           (["yes", "sql-vm", "data-loss"], "r-sqlvm-backup")]:
+        for trail, rid in [(["yes", "azure", "key-vault", "zone"], "r-kv-zone"),
+                           (["yes", "azure", "key-vault", "region", "yes"], "r-kv-managed-failover"),
+                           (["yes", "azure", "key-vault", "region", "no"], "r-kv-custom"),
+                           (["yes", "azure", "key-vault", "data-loss"], "r-kv-recovery"),
+                           (["yes", "azure", "sql-vm", "zone"], "r-sqlvm-zone"),
+                           (["yes", "azure", "sql-vm", "region"], "r-sqlvm-region"),
+                           (["yes", "azure", "sql-vm", "data-loss"], "r-sqlvm-backup")]:
             self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
     def test_vm_region_names_site_recovery(self):
-        res = w.run(self.tree, ["yes", "vm", "region"])
+        res = w.run(self.tree, ["yes", "azure", "vm", "region"])
         self.assertIn("Site Recovery", res["result"]["title"])
 
     def test_no_targets_stops_at_define_targets(self):
         self.assertEqual(w.run(self.tree, ["no"])["result"]["node"], "r-define-targets")
 
     def test_databricks_branches(self):
-        self.assertEqual(w.run(self.tree, ["yes", "databricks", "region", "yes"])["result"]["node"], "r-dbx-managed-dr")
-        self.assertEqual(w.run(self.tree, ["yes", "databricks", "region", "no"])["result"]["node"], "r-dbx-diy-dr")
+        self.assertEqual(w.run(self.tree, ["yes", "azure", "databricks", "region", "yes"])["result"]["node"], "r-dbx-managed-dr")
+        self.assertEqual(w.run(self.tree, ["yes", "azure", "databricks", "region", "no"])["result"]["node"], "r-dbx-diy-dr")
 
     def test_pending_question_when_answers_run_out(self):
-        res = w.run(self.tree, ["yes", "sql-database"])
+        res = w.run(self.tree, ["yes", "azure", "sql-database"])
         self.assertIsNone(res["result"])
         self.assertEqual(res["pending"]["node"], "q-sqldb-failure")
         self.assertIn("[zone]", w.render(res))
 
     def test_deterministic(self):
-        a = json.dumps(w.run(self.tree, ["yes", "cosmos", "region", "yes"]), sort_keys=True)
-        b = json.dumps(w.run(self.tree, ["yes", "cosmos", "region", "yes"]), sort_keys=True)
+        a = json.dumps(w.run(self.tree, ["yes", "azure", "cosmos", "region", "yes"]), sort_keys=True)
+        b = json.dumps(w.run(self.tree, ["yes", "azure", "cosmos", "region", "yes"]), sort_keys=True)
         self.assertEqual(a, b)
 
     def test_render_lists_each_source_once(self):
-        text = w.render(w.run(self.tree, ["yes", "storage", "zone"]))
+        text = w.render(w.run(self.tree, ["yes", "azure", "storage", "zone"]))
         urls = [ln for ln in text.splitlines() if ln.startswith("  - ") and "https://" in ln]
         self.assertEqual(len(urls), len(set(urls)))
 
@@ -165,9 +165,9 @@ class RealTree(unittest.TestCase):
             w.run(self.tree, ["no", "yes"])
 
     def test_ask_walks_with_fed_input(self):
-        out, feed = [], iter(["1", "18", "x", "1"])  # yes, other (18th), junk ignored... then end at result
+        out, feed = [], iter(["1", "1", "x", "18"])  # yes, in Azure, junk ignored, other (18th service)
         answers = w.ask(self.tree, read=lambda _p: next(feed), say=out.append)
-        self.assertEqual(answers, ["yes", "other"])
+        self.assertEqual(answers, ["yes", "azure", "other"])
         self.assertTrue(any("RESULT:" in line for line in out))
 
 
@@ -261,13 +261,13 @@ class Cli(unittest.TestCase):
         code, out = self.run_cli("validate", TREE_PATH)
         self.assertEqual(code, 0)
         self.assertIn("0 problems", out)
-        code, out = self.run_cli("run", TREE_PATH, "--answers", "yes,vm,zone")
+        code, out = self.run_cli("run", TREE_PATH, "--answers", "yes,azure,vm,zone")
         self.assertEqual(code, 0)
         self.assertIn("RESULT: Spread the VMs across availability zones", out)
         code, out = self.run_cli("run", TREE_PATH, "--answers", "no", "--json")
         self.assertEqual(json.loads(out)["result"]["node"], "r-define-targets")
         code, out = self.run_cli("paths", TREE_PATH)
-        self.assertIn("62 paths", out)
+        self.assertIn("64 paths", out)
         self.assertEqual(self.run_cli("bogus", TREE_PATH)[0], 2)
         self.assertEqual(self.run_cli("run", TREE_PATH)[0], 2)
 
@@ -281,6 +281,51 @@ class Cli(unittest.TestCase):
             self.assertEqual(self.run_cli("validate", path)[0], 1)
         finally:
             os.remove(path)
+
+
+class Shapes(unittest.TestCase):
+    """The shape step: sizing questions on a result that change the drawing and add no paths."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tree = w.load(TREE_PATH)
+        cls.regions = w.load(os.path.join(os.path.dirname(TREE_PATH), "regions.json"))
+
+    def test_every_named_shape_exists_and_is_valid(self):
+        self.assertEqual(w.validate(self.tree), [])
+        names = {n["shape"] for n in self.tree["nodes"].values() if "shape" in n}
+        self.assertTrue(names and names <= set(self.tree["shapes"]))
+
+    def test_shape_questions_add_no_paths(self):
+        self.assertEqual(len(w.paths(self.tree)), 64)
+
+    def test_shape_sources_are_checked(self):
+        where = {nid for nid, _ in w.cited(self.tree)}
+        self.assertIn("shape zone-shape/zones", where)
+
+    def test_regions_file_is_consistent(self):
+        regs = {r["id"]: r for r in self.regions["regions"]}
+        for r in regs.values():
+            self.assertTrue(r["pair"] is None or r["pair"] in regs, r)
+            self.assertIn(r["zones"], (0, 3, 4))
+        self.assertEqual(regs["east-us"]["pair"], "west-us")
+        self.assertEqual(regs["east-us-2"]["zones"], 4)
+        self.assertIsNone(regs["italy-north"]["pair"])
+        self.assertTrue(self.regions["sources"])
+
+    def test_bad_shapes_are_reported(self):
+        t = copy.deepcopy(self.tree)
+        t["nodes"]["r-vm-zone"]["shape"] = "missing"
+        t["shapes"]["zone-shape"]["questions"][1]["options"] = t["shapes"]["zone-shape"]["questions"][1]["options"][:1]
+        t["shapes"]["zone-shape"]["questions"][0]["kind"] = "bogus"
+        text = "\n".join(w.validate(t))
+        self.assertIn("shape 'missing' is not defined", text)
+        self.assertIn("a choice needs two or more options", text)
+        self.assertIn("kind must be one of", text)
+
+    def test_onpremises_branch(self):
+        for trail, rid in [(["yes", "on-premises", "vmware"], "r-mabs-vmware"), (["yes", "on-premises", "servers"], "r-mabs-agent")]:
+            self.assertEqual(w.run(self.tree, trail)["result"]["node"], rid)
 
 
 if __name__ == "__main__":

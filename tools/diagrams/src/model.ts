@@ -13,8 +13,34 @@ export interface OverviewSpec {
   asks?: string[];
 }
 
+/** What a person's answers to a shape step change in a drawing. Names, counts and choices only; nothing is guessed. */
+export interface DrawParams {
+  primaryName?: string;
+  secondaryName?: string;
+  /** Availability zones to draw (2 or 3). */
+  zones?: number;
+  /** Copies of each item drawn per zone or per region. */
+  instances?: number;
+  /** MABS: how backup traffic reaches Azure. */
+  link?: "internet" | "private-endpoint";
+  /** MABS: whether the first backup is seeded offline. */
+  seeding?: "yes" | "no";
+  /** MABS: whether one backup server protects more than 75 TB. */
+  data?: "under" | "over";
+}
+
+/** A drawing built by code from answers, for scenes too detailed to write by hand once per size. */
+export interface SceneFnSpec {
+  template: "scene-fn";
+  scene: "sql-vm-ha-dr" | "mabs";
+  /** Settings the scene needs that no question sets: whether it has a second region, or which MABS variant. */
+  defaults?: { twoRegion?: boolean; kind?: "vmware" | "agent" };
+}
+
 export interface ZoneSpec {
   template: "zone";
+  /** Name drawn on the region box. Default "Region". */
+  regionName?: string;
   /** Drawn once in each zone. */
   items: Item[];
   zones?: 2 | 3;
@@ -58,7 +84,63 @@ export interface BackupSpec {
   noRestore?: boolean;
 }
 
-export type Spec = OverviewSpec | ZoneSpec | RegionSpec | BackupSpec;
+/** A free-form area: a region, a network, a zone, a server. Drawn first, in array order, so list parents before children. */
+export interface SceneGroup {
+  title?: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** outline: white, thin black; blue: active panel; grey: standby or not in use; vnet: dashed blue network boundary; dashed: dashed black scope. */
+  kind?: "outline" | "blue" | "grey" | "vnet" | "dashed";
+  titleSize?: number;
+  titleAnchor?: "start" | "middle";
+}
+
+/** A thing at a fixed place. With an icon it is drawn as the official icon and its name; with box it is a plain labelled box. */
+export interface SceneNode {
+  id: string;
+  /** Centre of the icon or box. */
+  x: number;
+  y: number;
+  icon?: string;
+  label: string;
+  box?: { w: number; h: number };
+  grey?: boolean;
+  maxChars?: number;
+}
+
+export interface SceneEdge {
+  /** Node ids. The line starts and ends at the node edge. `via` gives the bends between them. */
+  from?: string;
+  to?: string;
+  via?: [number, number][];
+  /** Exact points instead of from, to and via. */
+  points?: [number, number][];
+  label?: string;
+  labelAt?: [number, number];
+  labelAnchor?: "start" | "middle" | "end";
+  dashed?: boolean;
+  red?: boolean;
+  /** A head at each end. */
+  both?: boolean;
+  /** A green numbered circle, explained by the same-numbered note. */
+  n?: number;
+  nAt?: [number, number];
+}
+
+export interface SceneSpec {
+  template: "scene";
+  width: number;
+  height: number;
+  groups: SceneGroup[];
+  nodes: SceneNode[];
+  edges: SceneEdge[];
+  /** Notes under the drawing, one per numbered circle, in order. */
+  notes?: string[];
+}
+
+export type Spec = OverviewSpec | ZoneSpec | RegionSpec | BackupSpec | SceneSpec | SceneFnSpec;
 
 export interface DiagramEntry {
   title: string;

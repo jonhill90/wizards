@@ -91,3 +91,22 @@ a { color: var(--colorBrandForegroundLink, #115ea3); text-underline-offset: 3px;
 .num { font-variant-numeric: tabular-nums; }
 .num svg { display: block; }
 .caption:empty { display: none; }
+
+/* Shape step: sizing questions under a result. Native selects, themed from the Fluent tokens. */
+.shape { margin-block-start: 20px; padding-block-start: 16px; border-block-start: 1px solid var(--colorNeutralStroke2, #e0e0e0); }
+.shape-fields { display: grid; gap: 12px; margin-block: 12px; }
+.shape-field { display: grid; gap: 4px; }
+.shape-label { font-weight: 600; font-size: 14px; }
+.shape-select {
+  min-height: 44px; padding-inline: 10px; border-radius: 4px; font: inherit; color: inherit;
+  background: var(--colorNeutralBackground1, #fff); border: 1px solid var(--colorNeutralStroke1, #8a8a8a);
+}
+.shape-select:focus-visible { outline: 2px solid var(--colorStrokeFocus2, #000); outline-offset: 2px; }
+.shape-notes { display: grid; gap: 8px; margin-block-end: 8px; }
+
+dialog.fullsize { width: min(96vw, 1400px); max-height: 94vh; padding: 12px; border: 1px solid var(--colorNeutralStroke1, #8a8a8a); border-radius: 8px; background: #fff; color: #242424; }
+dialog.fullsize::backdrop { background: rgba(0, 0, 0, 0.5); }
+.fullsize-body { overflow: auto; max-height: calc(94vh - 80px); margin-block-start: 8px; }
+.fullsize-body svg { display: block; max-width: none; }
+.shape, .shape-fields, .shape-field { min-width: 0; }
+.shape-select { width: 100%; max-width: 100%; box-sizing: border-box; }

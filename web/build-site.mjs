@@ -10,7 +10,7 @@ const repo = path.resolve(web, "..");
 const out = path.join(web, "site");
 const files = [
   ["web/index.html"], ["web/styles.css"],
-  ["web/dist/app.js"], ["web/dist/diagrams.js"], ["web/dist/evaluator.js"],
+  ["web/dist/app.js"], ["web/dist/diagrams.js"], ["web/dist/evaluator.js"], ["web/dist/shape.js"],
   ["web/node_modules/@fluentui/web-components/dist/web-components-all.min.js"],
   ["tools/diagrams/web/diagrams.mjs"],
 ];

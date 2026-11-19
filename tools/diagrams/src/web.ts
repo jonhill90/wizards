@@ -4,10 +4,10 @@
  */
 import { parseIcon } from "./iconparse.js";
 import type { Icon, IconSource } from "./iconparse.js";
-import type { DiagramEntry, SpecFile } from "./model.js";
+import type { DiagramEntry, DrawParams, SpecFile } from "./model.js";
 import { renderDiagram } from "./render.js";
 
-export type { DiagramEntry, SpecFile };
+export type { DiagramEntry, DrawParams, SpecFile };
 
 export interface Drawn {
   /** The diagram id the node maps to. */
@@ -21,12 +21,12 @@ export interface Drawn {
 
 export interface Renderer {
   /** Draw one diagram by id. */
-  render(spec: SpecFile, id: string, opts?: { animate?: boolean }): string;
+  render(spec: SpecFile, id: string, opts?: { animate?: boolean; params?: DrawParams }): string;
   /**
    * Diagram for a walk through the tree. `path` is the node ids visited, oldest first.
    * A node with no diagram of its own keeps the last one earlier on the path; null before any.
    */
-  forPath(spec: SpecFile, path: string[], opts?: { animate?: boolean }): Drawn | null;
+  forPath(spec: SpecFile, path: string[], opts?: { animate?: boolean; params?: DrawParams }): Drawn | null;
 }
 
 export function createRenderer(iconSvgs: Record<string, string>): Renderer {
@@ -40,7 +40,7 @@ export function createRenderer(iconSvgs: Record<string, string>): Renderer {
     cache.set(name, icon);
     return icon;
   };
-  const render = (spec: SpecFile, id: string, opts: { animate?: boolean } = {}): string => {
+  const render = (spec: SpecFile, id: string, opts: { animate?: boolean; params?: DrawParams } = {}): string => {
     const entry = spec.diagrams[id];
     if (!entry) throw new Error(`unknown diagram "${id}"`);
     return renderDiagram(entry, icons, opts);

@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 // Accessibility (axe-core rules, the engine behind Microsoft's Accessibility Insights), keyboard and phone-width checks.
-const WALK = ["yes", "vm", "region"];
+const WALK = ["yes", "azure", "vm", "region"];
 
 async function answer(page: Page, ids: string[]): Promise<void> {
   for (const id of ids) await page.locator(`[data-option="${id}"]`).click();

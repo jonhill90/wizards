@@ -1,0 +1,574 @@
+{
+ "title": "Azure Backup Server protecting on-premises VMware VMs to a Recovery Services vault",
+ "alt": "On-premises VMware vCenter and ESXi hosts with Windows and Linux VMs are backed up by an Azure Backup Server running as a Windows VM. The server keeps recovery points on a local storage pool and its MARS agent sends them to an Azure Recovery Services vault, with optional private endpoint and offline seeding paths.",
+ "spec": {
+  "template": "scene",
+  "width": 1200,
+  "height": 660,
+  "groups": [
+   {
+    "title": "On-premises datacenter",
+    "x": 20,
+    "y": 60,
+    "w": 770,
+    "h": 580,
+    "kind": "outline",
+    "titleSize": 12
+   },
+   {
+    "title": "VMware vSphere environment",
+    "x": 35,
+    "y": 95,
+    "w": 300,
+    "h": 520,
+    "kind": "blue"
+   },
+   {
+    "title": "ESXi host",
+    "x": 48,
+    "y": 185,
+    "w": 274,
+    "h": 185,
+    "kind": "outline"
+   },
+   {
+    "title": "ESXi host",
+    "x": 48,
+    "y": 385,
+    "w": 274,
+    "h": 110,
+    "kind": "outline"
+   },
+   {
+    "title": "vCenter VM folder",
+    "x": 58,
+    "y": 410,
+    "w": 254,
+    "h": 76,
+    "kind": "dashed"
+   },
+   {
+    "title": "MABS server (Windows Server VM)",
+    "x": 420,
+    "y": 95,
+    "w": 350,
+    "h": 365,
+    "kind": "outline"
+   },
+   {
+    "title": "Other production servers",
+    "x": 420,
+    "y": 475,
+    "w": 350,
+    "h": 120,
+    "kind": "grey"
+   },
+   {
+    "title": "Azure",
+    "x": 850,
+    "y": 60,
+    "w": 330,
+    "h": 420,
+    "kind": "outline",
+    "titleSize": 12
+   },
+   {
+    "title": "Virtual network",
+    "x": 900,
+    "y": 335,
+    "w": 265,
+    "h": 120,
+    "kind": "vnet"
+   },
+   {
+    "title": "Key",
+    "x": 850,
+    "y": 500,
+    "w": 330,
+    "h": 120,
+    "kind": "grey"
+   }
+  ],
+  "nodes": [
+   {
+    "id": "vc",
+    "x": 185,
+    "y": 140,
+    "label": "vCenter Server",
+    "box": {
+     "w": 150,
+     "h": 30
+    }
+   },
+   {
+    "id": "w1",
+    "x": 95,
+    "y": 240,
+    "label": "Windows VM",
+    "icon": "vm"
+   },
+   {
+    "id": "l1",
+    "x": 185,
+    "y": 240,
+    "label": "Linux VM\n(file-consistent only)",
+    "maxChars": 14,
+    "icon": "vm"
+   },
+   {
+    "id": "x1",
+    "x": 275,
+    "y": 240,
+    "label": "VM with pass-through disk",
+    "grey": true,
+    "maxChars": 14,
+    "icon": "vm"
+   },
+   {
+    "id": "w2",
+    "x": 110,
+    "y": 449,
+    "label": "Windows VM",
+    "icon": "vm"
+   },
+   {
+    "id": "w3",
+    "x": 260,
+    "y": 449,
+    "label": "Windows VM",
+    "icon": "vm"
+   },
+   {
+    "id": "lim",
+    "x": 185,
+    "y": 535,
+    "label": "Not supported: vApps, VMs with existing snapshots, pass-through disks or pRDM",
+    "grey": true,
+    "box": {
+     "w": 250,
+     "h": 44
+    }
+   },
+   {
+    "id": "ver",
+    "x": 185,
+    "y": 585,
+    "label": "vSphere 6.5 to 8.0 with MABS v4; 9.0 needs v4 UR2 or later",
+    "grey": true,
+    "box": {
+     "w": 250,
+     "h": 36
+    }
+   },
+   {
+    "id": "mv",
+    "x": 470,
+    "y": 190,
+    "label": "MABS server",
+    "maxChars": 14,
+    "icon": "vm"
+   },
+   {
+    "id": "cred",
+    "x": 680,
+    "y": 140,
+    "label": "VMware account with a limited role",
+    "box": {
+     "w": 160,
+     "h": 34
+    }
+   },
+   {
+    "id": "pg",
+    "x": 680,
+    "y": 205,
+    "label": "Protection group: disk short term, online protection",
+    "box": {
+     "w": 160,
+     "h": 44
+    }
+   },
+   {
+    "id": "pool",
+    "x": 485,
+    "y": 262,
+    "label": "Storage pool\n(DAS, Fibre Channel SAN or iSCSI)",
+    "maxChars": 18,
+    "icon": "disks"
+   },
+   {
+    "id": "mars",
+    "x": 670,
+    "y": 262,
+    "label": "MARS agent",
+    "box": {
+     "w": 110,
+     "h": 30
+    }
+   },
+   {
+    "id": "db",
+    "x": 495,
+    "y": 400,
+    "label": "MABS database (DPMDB)",
+    "box": {
+     "w": 130,
+     "h": 30
+    }
+   },
+   {
+    "id": "cert",
+    "x": 680,
+    "y": 400,
+    "label": "VMware CA certificate in the trusted root store",
+    "box": {
+     "w": 150,
+     "h": 34
+    }
+   },
+   {
+    "id": "fs",
+    "x": 545,
+    "y": 545,
+    "label": "Windows file server with the MABS protection agent",
+    "box": {
+     "w": 200,
+     "h": 44
+    }
+   },
+   {
+    "id": "vault",
+    "x": 1015,
+    "y": 262,
+    "label": "Recovery Services vault",
+    "maxChars": 14,
+    "icon": "recovery-vault"
+   },
+   {
+    "id": "off",
+    "x": 1015,
+    "y": 170,
+    "label": "Offline seeding: initial backup on disks",
+    "box": {
+     "w": 170,
+     "h": 44
+    }
+   },
+   {
+    "id": "pe",
+    "x": 1015,
+    "y": 400,
+    "label": "Private endpoint",
+    "box": {
+     "w": 110,
+     "h": 30
+    }
+   }
+  ],
+  "edges": [
+   {
+    "points": [
+     [
+      598,
+      140
+     ],
+     [
+      262,
+      140
+     ]
+    ],
+    "both": true,
+    "label": "TCP 443",
+    "labelAt": [
+     377,
+     130
+    ],
+    "n": 1,
+    "nAt": [
+     340,
+     140
+    ]
+   },
+   {
+    "points": [
+     [
+      323,
+      262
+     ],
+     [
+      441,
+      262
+     ]
+    ],
+    "label": "TCP 443 and 902",
+    "labelAt": [
+     381,
+     250
+    ],
+    "n": 2,
+    "nAt": [
+     377,
+     262
+    ]
+   },
+   {
+    "points": [
+     [
+      323,
+      440
+     ],
+     [
+      385,
+      440
+     ],
+     [
+      385,
+      276
+     ],
+     [
+      441,
+      276
+     ]
+    ]
+   },
+   {
+    "points": [
+     [
+      505,
+      262
+     ],
+     [
+      613,
+      262
+     ]
+    ],
+    "n": 3,
+    "nAt": [
+     560,
+     262
+    ]
+   },
+   {
+    "points": [
+     [
+      726,
+      262
+     ],
+     [
+      996,
+      262
+     ]
+    ],
+    "label": "Online backup",
+    "labelAt": [
+     905,
+     254
+    ],
+    "n": 4,
+    "nAt": [
+     800,
+     262
+    ]
+   },
+   {
+    "points": [
+     [
+      996,
+      282
+     ],
+     [
+      773,
+      282
+     ]
+    ],
+    "dashed": true,
+    "label": "Restore",
+    "labelAt": [
+     905,
+     300
+    ],
+    "n": 5,
+    "nAt": [
+     800,
+     282
+    ]
+   },
+   {
+    "points": [
+     [
+      620,
+      523
+     ],
+     [
+      620,
+      462
+     ]
+    ],
+    "label": "Agent-based",
+    "labelAt": [
+     632,
+     508
+    ],
+    "labelAnchor": "start",
+    "n": 6,
+    "nAt": [
+     620,
+     492
+    ]
+   },
+   {
+    "points": [
+     [
+      772,
+      400
+     ],
+     [
+      958,
+      400
+     ]
+    ],
+    "dashed": true,
+    "label": "Optional",
+    "labelAt": [
+     810,
+     390
+    ],
+    "n": 7,
+    "nAt": [
+     810,
+     410
+    ]
+   },
+   {
+    "points": [
+     [
+      1015,
+      385
+     ],
+     [
+      1015,
+      322
+     ]
+    ],
+    "dashed": true
+   },
+   {
+    "points": [
+     [
+      1015,
+      193
+     ],
+     [
+      1015,
+      244
+     ]
+    ],
+    "dashed": true,
+    "n": 8,
+    "nAt": [
+     1015,
+     222
+    ]
+   },
+   {
+    "points": [
+     [
+      495,
+      385
+     ],
+     [
+      495,
+      340
+     ],
+     [
+      670,
+      340
+     ],
+     [
+      670,
+      278
+     ]
+    ],
+    "dashed": true,
+    "label": "DPMDB backup to Azure",
+    "labelAt": [
+     505,
+     332
+    ],
+    "labelAnchor": "start",
+    "n": 9,
+    "nAt": [
+     640,
+     340
+    ]
+   },
+   {
+    "points": [
+     [
+      865,
+      545
+     ],
+     [
+      925,
+      545
+     ]
+    ],
+    "label": "Traffic or data path",
+    "labelAt": [
+     935,
+     548
+    ],
+    "labelAnchor": "start"
+   },
+   {
+    "points": [
+     [
+      865,
+      570
+     ],
+     [
+      925,
+      570
+     ]
+    ],
+    "dashed": true,
+    "label": "Optional or restore",
+    "labelAt": [
+     935,
+     573
+    ],
+    "labelAnchor": "start"
+   },
+   {
+    "points": [
+     [
+      865,
+      595
+     ],
+     [
+      925,
+      595
+     ]
+    ],
+    "both": true,
+    "label": "Two-way link",
+    "labelAt": [
+     935,
+     598
+    ],
+    "labelAnchor": "start"
+   }
+  ],
+  "notes": [
+   "MABS needs no agent on vCenter or the ESXi hosts. It talks to vCenter over HTTPS on TCP 443, using a VMware account that holds a role with only the privileges backup needs. Where vCenter manages the ESXi hosts, add vCenter, not the hosts, to the protection group. For HTTPS, import the VMware CA certificate on the MABS server.",
+   "MABS reads the VM data from the ESXi hosts over TCP 443 and TCP 902 and keeps it first on local disk, in a storage pool that can be direct attached storage, a Fibre Channel SAN or iSCSI storage. A vCenter VM folder can be protected as one unit and new VMs in it are picked up daily.",
+   "The protection group sets the short-term disk retention. The MARS agent that runs on the MABS server then backs up the MABS disks to the Recovery Services vault.",
+   "Online protection sends recovery points from MABS to the vault on the schedule you set. There is no time limit on retention; the limit is 9999 recovery points per protected instance.",
+   "For recovery you can restore the whole VM or, for Windows VMs, files and folders without restoring the whole VM. Recovery goes through MABS.",
+   "Machines outside VMware, such as a physical Windows file server, run the MABS protection agent and back up to the same MABS server. Linux VMs on VMware are protected as a whole VM, with file-consistent snapshots only.",
+   "Optional: with a private endpoint on the vault, connect the on-premises network to the virtual network that hosts the endpoint, so the MARS agent's backup traffic goes through it.",
+   "Optional: for a large first backup, offline seeding copies the initial backup to disks that are transferred to Azure.",
+   "The MABS database, DPMDB, holds the MABS configuration and backup data. Back it up to Azure too, so any MABS server registered in the vault can recover it."
+  ]
+ }
+}

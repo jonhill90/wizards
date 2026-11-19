@@ -5,9 +5,12 @@
 export interface Source { title: string; url: string; quote: string; retrieved: string }
 export interface Option { id: string; label: string; next: string }
 export interface QuestionNode { type: "question"; text: string; help?: string; options: Option[]; sources: Source[] }
-export interface ResultNode { type: "result"; title: string; summary: string; actions: string[]; caveats: string[]; sources: Source[] }
+export interface ResultNode { type: "result"; title: string; summary: string; actions: string[]; caveats: string[]; sources: Source[]; shape?: string }
 export type TreeNode = QuestionNode | ResultNode;
-export interface Tree { wizard: string; version: number; title: string; start: string; nodes: Record<string, TreeNode> }
+export interface ShapeOption { id: string; label: string }
+export interface ShapeQuestion { id: string; kind?: "region" | "second-region" | "choice"; text: string; help?: string; options?: ShapeOption[]; default?: string; sources: Source[] }
+export interface Shape { title: string; questions: ShapeQuestion[] }
+export interface Tree { wizard: string; version: number; title: string; start: string; nodes: Record<string, TreeNode>; shapes?: Record<string, Shape> }
 
 export interface Step { node: string; question: string; answer: string; label: string }
 export interface Position {

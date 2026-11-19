@@ -19,6 +19,11 @@ Tree format (JSON, version 1). The design and the reason for each choice are in 
                   "sources": [...]}
   source:        {"title": "...", "url": "https://learn.microsoft.com/...", "quote": "text that is on that page",
                   "retrieved": "YYYY-MM-DD"}
+Optional shape step (docs/reference/tree-format.md, "Shape step"): a result may name a `shape`, a set of sizing
+  questions asked after the answer (how many zones, which regions). They never add paths; they change the drawing.
+  {"shapes": {"<id>": {"title": "...", "questions": [{"id": "<slug>", "kind": "region" | "second-region" | "choice",
+                        "text": "...", "help": "...", "options": [{"id": "<slug>", "label": "..."}], "sources": [...]}]}},
+   result node: {..., "shape": "<id>"}}
 Rules `validate` enforces: the start node exists; every `next` names a node; every node is reachable from start;
 no loops; a question has two or more options with unique ids; a result has none; every node has at least one
 source on learn.microsoft.com with a non-empty quote and a `retrieved` date; node ids are lowercase slugs.
@@ -28,6 +33,7 @@ Exit path: the tree is plain JSON; any other evaluator can read it.
 """
 import html
 import json
+import os
 import re
 import sys
 import urllib.request
@@ -103,6 +109,7 @@ def validate(tree):
                 out.append(f"{nid}: source {i} has no title")
             if not DATE.match(str(s.get("retrieved", ""))):
                 out.append(f"{nid}: source {i} needs retrieved as YYYY-MM-DD")
+    out.extend(_check_shapes(tree, nodes))
     if start in nodes:
         seen, stack = set(), [start]
         while stack:
@@ -114,6 +121,77 @@ def validate(tree):
         for nid in sorted(set(nodes) - seen):
             out.append(f"{nid}: not reachable from start")
         out.extend(_cycles(nodes, start))
+    return out
+
+
+SHAPE_KINDS = {"region", "second-region", "choice"}
+
+
+def _check_sources(where, srcs, out):
+    if not srcs:
+        out.append(f"{where}: no source")
+    for i, s in enumerate(srcs):
+        if not s.get("url", "").startswith(SOURCE_HOST):
+            out.append(f"{where}: source {i} url must start with {SOURCE_HOST}")
+        if not s.get("quote", "").strip():
+            out.append(f"{where}: source {i} has no quote")
+        if not s.get("title"):
+            out.append(f"{where}: source {i} has no title")
+        if not DATE.match(str(s.get("retrieved", ""))):
+            out.append(f"{where}: source {i} needs retrieved as YYYY-MM-DD")
+
+
+def _check_shapes(tree, nodes):
+    """Problems in the optional shape step: shape ids, question kinds, options, sources, and results that name a shape."""
+    out = []
+    shapes = tree.get("shapes", {})
+    if not isinstance(shapes, dict):
+        return ["shapes must be an object"]
+    for sid, shape in sorted(shapes.items()):
+        if not SLUG.match(sid):
+            out.append(f"shape {sid}: id must be a lowercase slug")
+        qs = shape.get("questions") or []
+        if not qs:
+            out.append(f"shape {sid}: needs one or more questions")
+        seen = set()
+        for q in qs:
+            qid = q.get("id")
+            where = f"shape {sid}/{qid}"
+            if not qid or not SLUG.match(str(qid)):
+                out.append(f"{where}: question id must be a lowercase slug")
+            if qid in seen:
+                out.append(f"{where}: question id repeats")
+            seen.add(qid)
+            kind = q.get("kind", "choice")
+            if kind not in SHAPE_KINDS:
+                out.append(f"{where}: kind must be one of {sorted(SHAPE_KINDS)}")
+            if not q.get("text"):
+                out.append(f"{where}: question has no text")
+            if kind == "choice":
+                opts = q.get("options") or []
+                if len(opts) < 2:
+                    out.append(f"{where}: a choice needs two or more options")
+                oseen = set()
+                for o in opts:
+                    oid = o.get("id")
+                    if not oid or not SLUG.match(str(oid)):
+                        out.append(f"{where}: option id {oid!r} must be a lowercase slug")
+                    if oid in oseen:
+                        out.append(f"{where}: option id {oid!r} repeats")
+                    oseen.add(oid)
+                    if not o.get("label"):
+                        out.append(f"{where}/{oid}: option has no label")
+                if q.get("default") is not None and q["default"] not in oseen:
+                    out.append(f"{where}: default {q['default']!r} is not an option")
+            _check_sources(where, q.get("sources") or [], out)
+        if "second-region" in {q.get("kind") for q in qs} and "region" not in {q.get("kind") for q in qs}:
+            out.append(f"shape {sid}: a second-region question needs a region question")
+    for nid, node in sorted(nodes.items()):
+        if "shape" in node:
+            if node.get("type") != "result":
+                out.append(f"{nid}: only a result may name a shape")
+            if node["shape"] not in shapes:
+                out.append(f"{nid}: shape {node['shape']!r} is not defined")
     return out
 
 
@@ -241,27 +319,46 @@ def fetch_page(url):
         return r.read().decode("utf-8", "ignore")
 
 
-def verify_sources(tree, fetch=fetch_page, only=None):
-    """[(node, url, ok, reason)] for every cited quote. Network only through `fetch`."""
-    cache, out = {}, []
+def cited(tree, extra=()):
+    """(where, source) for every cited quote: tree nodes, shape questions, then `extra` pairs."""
     for nid, node in sorted(tree["nodes"].items()):
         for s in node.get("sources", []):
-            if only and only not in s["url"]:
-                continue
-            url = s["url"]
-            if url not in cache:
-                try:
-                    cache[url] = _norm(fetch(url))
-                except Exception as e:  # report, never hide, a page that cannot be read
-                    cache[url] = e
-            page = cache[url]
-            if isinstance(page, Exception):
-                out.append((nid, url, False, f"could not fetch: {page}"))
-            elif _norm(s["quote"]) in page:
-                out.append((nid, url, True, ""))
-            else:
-                out.append((nid, url, False, "quote not found on the page"))
+            yield nid, s
+    for sid, shape in sorted(tree.get("shapes", {}).items()):
+        for q in shape.get("questions", []):
+            for s in q.get("sources", []):
+                yield f"shape {sid}/{q.get('id')}", s
+    yield from extra
+
+
+def verify_sources(tree, fetch=fetch_page, only=None, extra=()):
+    """[(node, url, ok, reason)] for every cited quote. Network only through `fetch`."""
+    cache, out = {}, []
+    for nid, s in cited(tree, extra):
+        if only and only not in s["url"]:
+            continue
+        url = s["url"]
+        if url not in cache:
+            try:
+                cache[url] = _norm(fetch(url))
+            except Exception as e:  # report, never hide, a page that cannot be read
+                cache[url] = e
+        page = cache[url]
+        if isinstance(page, Exception):
+            out.append((nid, url, False, f"could not fetch: {page}"))
+        elif _norm(s["quote"]) in page:
+            out.append((nid, url, True, ""))
+        else:
+            out.append((nid, url, False, "quote not found on the page"))
     return out
+
+
+def _regions_sources(tree_path):
+    """Sources cited by regions.json next to the tree, if there is one."""
+    path = os.path.join(os.path.dirname(os.path.abspath(tree_path)), "regions.json")
+    if not os.path.exists(path):
+        return []
+    return [("regions.json", s) for s in load(path).get("sources", [])]
 
 
 def main(argv):
@@ -298,7 +395,8 @@ def main(argv):
               f"{sum(1 for n in tree['nodes'].values() if n['type'] == 'question')} questions")
         return 0
     only = argv[argv.index("--only-url") + 1] if "--only-url" in argv else None
-    rows = verify_sources(tree, only=only)
+    extra = _regions_sources(argv[2])
+    rows = verify_sources(tree, only=only, extra=extra)
     for nid, url, ok, why in rows:
         print("ok  " if ok else "FAIL", nid, url, why)
     failed = sum(1 for r in rows if not r[2])
