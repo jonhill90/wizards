@@ -1,5 +1,5 @@
 import { Canvas, STYLE, wrap } from "./canvas.js";
-import type { IconSource } from "./icons.js";
+import type { IconSource } from "./iconparse.js";
 import type { BackupSpec, Item, OverviewSpec, RegionSpec, Spec, ZoneSpec } from "./model.js";
 
 const W = 700;
@@ -26,8 +26,8 @@ function rowsHeight(icons: IconSource, items: Item[], w: number): number {
   return rows(scratch, items, 0, w, 0, false);
 }
 
-function overview(s: OverviewSpec, icons: IconSource): Canvas {
-  const c = new Canvas(W, 250, icons);
+function overview(s: OverviewSpec, icons: IconSource, animate: boolean): Canvas {
+  const c = new Canvas(W, 250, icons, animate);
   const chips = s.asks ?? ["Zone failure", "Region failure", "Data loss"];
   c.box(30, 30, 260, 190, { fill: STYLE.panelFill, stroke: STYLE.panelStroke, sw: 1 });
   const size = 64;
@@ -44,7 +44,7 @@ function overview(s: OverviewSpec, icons: IconSource): Canvas {
   return c;
 }
 
-function zone(s: ZoneSpec, icons: IconSource): Canvas {
+function zone(s: ZoneSpec, icons: IconSource, animate: boolean): Canvas {
   const n = s.zones ?? 3;
   const colGap = 16;
   const colW = (600 - colGap * (n - 1)) / n;
@@ -54,7 +54,7 @@ function zone(s: ZoneSpec, icons: IconSource): Canvas {
   const bottomLink = s.link ? 40 : 14;
   const regionH = colTop - 52 + colH + bottomLink + 8;
   const badgeH = s.badge ? 34 : 0;
-  const c = new Canvas(W, 52 + regionH + badgeH + 20, icons);
+  const c = new Canvas(W, 52 + regionH + badgeH + 20, icons, animate);
   c.box(30, 52, 640, regionH, { rx: 0 });
   c.text(50, 70, "Region", { size: STYLE.title, bold: true, anchor: "start" });
   c.boundary(36, 76, 628, regionH - 30 + (s.link ? 0 : 0));
@@ -80,13 +80,13 @@ function zone(s: ZoneSpec, icons: IconSource): Canvas {
   return c;
 }
 
-function region(s: RegionSpec, icons: IconSource): Canvas {
+function region(s: RegionSpec, icons: IconSource, animate: boolean): Canvas {
   const kind = s.secondaryKind ?? "standby";
   const boxW = 270;
   const itemsH = Math.max(rowsHeight(icons, s.primary, boxW - 16), rowsHeight(icons, s.secondary, boxW - 16));
   const boxH = 30 + itemsH + 14;
   const top = s.router ? 130 : 56;
-  const c = new Canvas(W, top + boxH + 24, icons);
+  const c = new Canvas(W, top + boxH + 24, icons, animate);
   const grey = kind === "standby" || kind === "restore";
   const lx = 30;
   const rx = 400;
@@ -124,7 +124,7 @@ function region(s: RegionSpec, icons: IconSource): Canvas {
   return c;
 }
 
-function backup(s: BackupSpec, icons: IconSource): Canvas {
+function backup(s: BackupSpec, icons: IconSource, animate: boolean): Canvas {
   const srcW = 250;
   const vaultW = s.guard ? 290 : 250;
   const vaultX = 700 - 30 - vaultW;
@@ -134,7 +134,7 @@ function backup(s: BackupSpec, icons: IconSource): Canvas {
   const vaultH = rowsHeight(icons, vaultItems, vaultW - 16);
   const innerH = Math.max(srcH, vaultH + feats.length * 30 + (feats.length ? 10 : 0));
   const boxH = innerH + 30;
-  const c = new Canvas(W, 40 + boxH + 20, icons);
+  const c = new Canvas(W, 40 + boxH + 20, icons, animate);
   const top = 40;
   c.box(30, top, srcW, boxH);
   c.text(30 + srcW / 2, top + 20, "Protected data", { size: STYLE.title });
@@ -171,12 +171,12 @@ function backup(s: BackupSpec, icons: IconSource): Canvas {
   return c;
 }
 
-export function draw(spec: Spec, icons: IconSource): Canvas {
+export function draw(spec: Spec, icons: IconSource, animate = false): Canvas {
   switch (spec.template) {
-    case "overview": return overview(spec, icons);
-    case "zone": return zone(spec, icons);
-    case "region": return region(spec, icons);
-    case "backup": return backup(spec, icons);
+    case "overview": return overview(spec, icons, animate);
+    case "zone": return zone(spec, icons, animate);
+    case "region": return region(spec, icons, animate);
+    case "backup": return backup(spec, icons, animate);
     default: {
       const never: never = spec;
       throw new Error(`unknown template ${JSON.stringify(never)}`);
