@@ -1,0 +1,3976 @@
+{
+ "wizard": "azure-resiliency",
+ "version": 1,
+ "title": "Azure resiliency: backup, disaster recovery and high availability",
+ "start": "q-targets",
+ "nodes": {
+  "q-targets": {
+   "type": "question",
+   "text": "Have you written down a recovery time objective (RTO) and a recovery point objective (RPO) for this workload?",
+   "help": "RTO is how long it may be down; RPO is how much recent data it may lose. Every choice below trades cost against them.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes, both are written down",
+     "next": "q-service"
+    },
+    {
+     "id": "no",
+     "label": "No, or only one of them",
+     "next": "r-define-targets"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Architecture strategies for defining reliability targets",
+     "url": "https://learn.microsoft.com/azure/well-architected/reliability/metrics",
+     "quote": "The maximum acceptable time that an application can be unavailable after an incident.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture strategies for defining reliability targets",
+     "url": "https://learn.microsoft.com/azure/well-architected/reliability/metrics",
+     "quote": "The maximum acceptable duration of data loss during an incident.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-define-targets": {
+   "type": "result",
+   "title": "Set the recovery targets first",
+   "summary": "Without an RTO and an RPO there is no way to tell whether a design is enough or too much.",
+   "actions": [
+    "Agree an RTO and an RPO with the business owner of the workload.",
+    "Check what Microsoft publishes for the services you use, because it publishes RTO and RPO guarantees only for some products.",
+    "Run this wizard again once the targets exist."
+   ],
+   "caveats": [
+    "Workloads not thoroughly tested for recovery metrics should not have guaranteed SLAs."
+   ],
+   "sources": [
+    {
+     "title": "Architecture strategies for defining reliability targets",
+     "url": "https://learn.microsoft.com/azure/well-architected/reliability/metrics",
+     "quote": "The maximum acceptable time that an application can be unavailable after an incident.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture strategies for defining reliability targets",
+     "url": "https://learn.microsoft.com/azure/well-architected/reliability/metrics",
+     "quote": "The maximum acceptable duration of data loss during an incident.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture strategies for defining reliability targets",
+     "url": "https://learn.microsoft.com/azure/well-architected/reliability/metrics",
+     "quote": "Microsoft publishes RTO and RPO guarantees only for some products",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture strategies for defining reliability targets",
+     "url": "https://learn.microsoft.com/azure/well-architected/reliability/metrics",
+     "quote": "Clearly communicate to stakeholders that any flows or entire workloads that aren't thoroughly tested for recovery metrics shouldn't have guaranteed SLAs.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-service": {
+   "type": "question",
+   "text": "Which service holds the data or runs the workload?",
+   "help": "The answer picks the service's own resilience features. A workload that uses several services needs one run per service.",
+   "options": [
+    {
+     "id": "vm",
+     "label": "Azure virtual machines",
+     "next": "q-vm-failure"
+    },
+    {
+     "id": "sql-database",
+     "label": "Azure SQL Database",
+     "next": "q-sqldb-failure"
+    },
+    {
+     "id": "sql-mi",
+     "label": "Azure SQL Managed Instance",
+     "next": "q-sqlmi-failure"
+    },
+    {
+     "id": "aks",
+     "label": "Azure Kubernetes Service (AKS)",
+     "next": "q-aks-failure"
+    },
+    {
+     "id": "app-service",
+     "label": "Azure App Service (web apps)",
+     "next": "q-appsvc-failure"
+    },
+    {
+     "id": "sql-vm",
+     "label": "SQL Server running in a virtual machine",
+     "next": "q-sqlvm-failure"
+    },
+    {
+     "id": "key-vault",
+     "label": "Azure Key Vault",
+     "next": "q-kv-failure"
+    },
+    {
+     "id": "postgres",
+     "label": "Azure Database for PostgreSQL flexible server",
+     "next": "q-pg-failure"
+    },
+    {
+     "id": "cosmos",
+     "label": "Azure Cosmos DB",
+     "next": "q-cosmos-failure"
+    },
+    {
+     "id": "storage",
+     "label": "Azure Storage (blobs or files)",
+     "next": "q-storage-failure"
+    },
+    {
+     "id": "databricks",
+     "label": "Azure Databricks",
+     "next": "q-dbx-failure"
+    },
+    {
+     "id": "managed-disks",
+     "label": "Azure managed disks",
+     "next": "q-disk-failure"
+    },
+    {
+     "id": "service-bus",
+     "label": "Azure Service Bus",
+     "next": "q-sb-failure"
+    },
+    {
+     "id": "event-hubs",
+     "label": "Azure Event Hubs",
+     "next": "q-eh-failure"
+    },
+    {
+     "id": "fabric",
+     "label": "Microsoft Fabric (OneLake, lakehouses, warehouses)",
+     "next": "q-fabric-failure"
+    },
+    {
+     "id": "traffic-routing",
+     "label": "Routing traffic between regions (Front Door, Traffic Manager)",
+     "next": "q-routing-kind"
+    },
+    {
+     "id": "synapse",
+     "label": "Azure Synapse Analytics dedicated SQL pool",
+     "next": "q-synapse-failure"
+    },
+    {
+     "id": "other",
+     "label": "Another service",
+     "next": "r-other-service"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Azure services that support availability zones",
+     "url": "https://learn.microsoft.com/azure/reliability/availability-zones-service-support",
+     "quote": "Some services might support availability zones but require specific configurations to enable them on your resources.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-other-service": {
+   "type": "result",
+   "title": "This wizard has no branch for that service yet",
+   "summary": "Microsoft keeps one reliability page per service, and the list of services with zone support links to each.",
+   "actions": [
+    "Open the list of services that support availability zones and follow the link for your service.",
+    "File the service as a request for a new branch of this wizard."
+   ],
+   "caveats": [
+    "Zone support can depend on the tier or region, so read the service's own page before you rely on it."
+   ],
+   "sources": [
+    {
+     "title": "Azure services that support availability zones",
+     "url": "https://learn.microsoft.com/azure/reliability/availability-zones-service-support",
+     "quote": "Some services might support availability zones but require specific configurations to enable them on your resources.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What are availability zones?",
+     "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+     "quote": "A resource is resilient to a zone failure as long as it uses two or more zones.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-vm-failure": {
+   "type": "question",
+   "text": "For virtual machines, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-vm-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-vm-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "q-vm-attacker"
+    }
+   ],
+   "sources": [
+    {
+     "title": "What are availability zones?",
+     "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+     "quote": "A resource is resilient to a zone failure as long as it uses two or more zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Virtual Machine Scale Sets",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-virtual-machine-scale-sets",
+     "quote": "We recommend that you use zone-spanning scale sets for most VM-based workloads in Azure.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-vm-zone": {
+   "type": "result",
+   "title": "Spread the VMs across availability zones",
+   "summary": "Zone-spanning scale sets are Microsoft's recommended way to survive the loss of one zone for VM workloads.",
+   "actions": [
+    "Deploy the VMs in a zone-spanning scale set, with at least two zones.",
+    "Plan the traffic routing between zones yourself, for example with a load balancer or Application Gateway."
+   ],
+   "caveats": [
+    "Rerouting traffic to healthy zones is your job.",
+    "You own any data replication between VMs.",
+    "Availability sets provide high availability but not the resiliency of availability zones."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Virtual Machine Scale Sets",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-virtual-machine-scale-sets",
+     "quote": "We recommend that you use zone-spanning scale sets for most VM-based workloads in Azure.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Virtual Machine Scale Sets",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-virtual-machine-scale-sets",
+     "quote": "You're responsible for rerouting traffic to other VMs in healthy zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Virtual Machine Scale Sets",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-virtual-machine-scale-sets",
+     "quote": "Common approaches include Load Balancer and Application Gateway, which provide built-in integration with scale sets.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Virtual Machine Scale Sets",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-virtual-machine-scale-sets",
+     "quote": "You're responsible for any data replication that needs to happen between VMs",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What are availability zones?",
+     "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+     "quote": "A resource is resilient to a zone failure as long as it uses two or more zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Availability sets overview",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/availability-set-overview",
+     "quote": "Availability sets provide high availability but don't offer the same level of resiliency as availability zones.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-vm-region": {
+   "type": "result",
+   "title": "Replicate the VMs to a second region with Azure Site Recovery",
+   "summary": "Site Recovery continuously replicates Azure VMs to a target region and fails them over there.",
+   "actions": [
+    "Enable Azure-to-Azure disaster recovery for the VMs and choose the target region.",
+    "Plan the target region's network, capacity and failover order before you enable replication."
+   ],
+   "caveats": [
+    "VMs must use managed disks.",
+    "Scale sets are single-region resources.",
+    "Site Recovery handles replication and failover; Azure Backup is the separate service that keeps data safe and recoverable."
+   ],
+   "sources": [
+    {
+     "title": "About Site Recovery",
+     "url": "https://learn.microsoft.com/azure/site-recovery/site-recovery-overview",
+     "quote": "ASR supports your disaster recovery (DR) strategy by protecting virtual machines against planned and unplanned disruptions, ranging from zonal failures to regional outages",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure to Azure disaster recovery architecture",
+     "url": "https://learn.microsoft.com/azure/site-recovery/azure-to-azure-architecture",
+     "quote": "Azure VMs must use managed disks.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Support matrix for Azure VM disaster recovery between Azure regions",
+     "url": "https://learn.microsoft.com/azure/site-recovery/azure-to-azure-support-matrix",
+     "quote": "With Site Recovery, you can perform global disaster recovery.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "About Site Recovery",
+     "url": "https://learn.microsoft.com/azure/site-recovery/site-recovery-overview",
+     "quote": "Before configuring replication, assess application dependencies, recovery requirements, plan network connectivity, target environment capacity, and failover requirements for the recovery environment.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Virtual Machine Scale Sets",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-virtual-machine-scale-sets",
+     "quote": "Scale sets are single-region resources.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "About Site Recovery",
+     "url": "https://learn.microsoft.com/azure/site-recovery/site-recovery-overview",
+     "quote": "service keeps your data safe and recoverable.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-vm-attacker": {
+   "type": "question",
+   "text": "Must the backups survive someone who has stolen backup administrator credentials?",
+   "help": "Attackers delete backups first. Resource Guard and immutable vaults are the controls built for that.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes, assume the backup admin account can be compromised",
+     "next": "r-vm-backup-hardened"
+    },
+    {
+     "id": "no",
+     "label": "No, accidental deletion and corruption are the concern",
+     "next": "r-vm-backup"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Design a ransomware-resilient backup architecture by using Azure Backup",
+     "url": "https://learn.microsoft.com/azure/architecture/security/ransomware-resilient-backup-architecture/",
+     "quote": "Ransomware operators frequently target backup infrastructure first to eliminate recovery options before they attack production systems.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Secure your Azure Backup deployment",
+     "url": "https://learn.microsoft.com/azure/backup/secure-backup",
+     "quote": "Require separate Resource Guard authorization before critical operations such as disabling soft delete, stopping backups with data deletion, or reducing retention can proceed.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-vm-backup": {
+   "type": "result",
+   "title": "Back up the VMs with Azure Backup",
+   "summary": "Azure Backup stores VM recovery points in a Recovery Services vault with soft delete on by default.",
+   "actions": [
+    "Create a Recovery Services vault and a backup policy that matches your RPO and retention.",
+    "Keep the default soft delete and extend its retention if the business needs more than 14 days."
+   ],
+   "caveats": [
+    "The support matrix lists one Azure VM backup a day; a newer policy type allows several a day.",
+    "Site Recovery, not Azure Backup, is the service for keeping VMs running through a regional outage."
+   ],
+   "sources": [
+    {
+     "title": "What is the Azure Backup service?",
+     "url": "https://learn.microsoft.com/azure/backup/backup-overview",
+     "quote": "Define your Recovery Point Objective (RPO) and Recovery Time Objective (RTO) to determine how often backups run and how quickly you must restore data during a failure.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Support matrix for Azure Backup",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix",
+     "quote": "Azure VM backup: One per day",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Archived release notes in Azure Backup",
+     "url": "https://learn.microsoft.com/azure/backup/backup-release-notes-archived",
+     "quote": "Azure Backup now enables you to create a backup policy to take multiple backups a day.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Secure by default with soft delete for Azure Backup",
+     "url": "https://learn.microsoft.com/azure/backup/secure-by-default",
+     "quote": "The retention period is 14 days by default. You can extend it up to 180 days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "About Site Recovery",
+     "url": "https://learn.microsoft.com/azure/site-recovery/site-recovery-overview",
+     "quote": "service keeps your data safe and recoverable.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-vm-backup-hardened": {
+   "type": "result",
+   "title": "Back up the VMs with Azure Backup and harden the vault",
+   "summary": "Add Resource Guard approval and an immutable vault so a stolen admin login cannot delete the recovery points.",
+   "actions": [
+    "Create the Resource Guard in a separate subscription or tenant and turn on multi-user authorization.",
+    "Turn on immutability for the vault and decide whether to lock it.",
+    "Keep soft delete on, with a retention that fits your detection time."
+   ],
+   "caveats": [
+    "Locked immutability cannot be reversed, so test the policy before you lock.",
+    "Support for these controls varies by vault type, workload and region."
+   ],
+   "sources": [
+    {
+     "title": "Secure your Azure Backup deployment",
+     "url": "https://learn.microsoft.com/azure/backup/secure-backup",
+     "quote": "Require separate Resource Guard authorization before critical operations such as disabling soft delete, stopping backups with data deletion, or reducing retention can proceed.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Secure your Azure Backup deployment",
+     "url": "https://learn.microsoft.com/azure/backup/secure-backup",
+     "quote": "Locked immutability blocks destructive operations for the configured retention or immutability duration and can't be reversed.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Secure by default with soft delete for Azure Backup",
+     "url": "https://learn.microsoft.com/azure/backup/secure-by-default",
+     "quote": "The retention period is 14 days by default. You can extend it up to 180 days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Design a ransomware-resilient backup architecture by using Azure Backup",
+     "url": "https://learn.microsoft.com/azure/architecture/security/ransomware-resilient-backup-architecture/",
+     "quote": "Ransomware operators frequently target backup infrastructure first to eliminate recovery options before they attack production systems.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-sqldb-failure": {
+   "type": "question",
+   "text": "For Azure SQL Database, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-sqldb-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "q-sqldb-downtime"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "r-sqldb-pitr"
+    }
+   ],
+   "sources": [
+    {
+     "title": "What is Azure SQL Database?",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview",
+     "quote": "SQL Database allows you to provision Premium or Business Critical databases or elastic pools across multiple availability zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Geo-restore allows you to recover from a regional outage by restoring from geo replicated backups",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqldb-zone": {
+   "type": "result",
+   "title": "Turn on zone redundancy for the database or elastic pool",
+   "summary": "Zone-redundant Premium or Business Critical databases keep replicas in several zones and recover from a zone loss.",
+   "actions": [
+    "Enable zone redundancy on the database or elastic pool."
+   ],
+   "caveats": [
+    "The sql-database-paas-overview page names Premium and Business Critical for zone redundancy; the failover group page also covers Hyperscale. Check your tier's page.",
+    "The overview table gives a typical RTO under 30 seconds and an RPO of 0 for zone redundancy.",
+    "In a failover group, secondaries of non-Hyperscale databases do not have high availability on by default, so turn it on after you create the group; Hyperscale secondaries inherit the primary's setting."
+   ],
+   "sources": [
+    {
+     "title": "What is Azure SQL Database?",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview",
+     "quote": "SQL Database allows you to provision Premium or Business Critical databases or elastic pools across multiple availability zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically less than 30 seconds",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices (Azure SQL Database)",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db",
+     "quote": "Secondary databases created through the failover group will not have high availability enabled by default.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview - Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db",
+     "quote": "Secondary databases created through the failover group will inherit the high availability settings of their respective primary databases.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-sqldb-downtime": {
+   "type": "question",
+   "text": "In a regional outage, can the application stay down for hours while a restore runs?",
+   "help": "Geo-restore is cheapest but slow. Replication to a second region is fast but costs a running copy.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes, hours of downtime are acceptable",
+     "next": "r-sqldb-georestore"
+    },
+    {
+     "id": "no",
+     "label": "No, it must come back in about a minute",
+     "next": "q-sqldb-grouped"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Geo-restore allows you to recover from a regional outage by restoring from geo replicated backups",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Regardless of which business continuity features you use, you must prepare the secondary database in another region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically less than 60 seconds",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically minutes or hours, dependent on Azure storage replication",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqldb-georestore": {
+   "type": "result",
+   "title": "Use geo-redundant backups and geo-restore",
+   "summary": "Geo-restore recreates the database in any region from geo-replicated backups.",
+   "actions": [
+    "Check that the backup storage redundancy is geo-redundant (the page says backups are stored in geo-redundant storage by default).",
+    "Write down and rehearse the restore steps, the firewall rules and the connection string change."
+   ],
+   "caveats": [
+    "The overview table gives a typical RTO of minutes or hours, dependent on Azure storage replication.",
+    "If you do not prepare the secondary, bringing applications online takes longer.",
+    "The same table gives an RPO of typically minutes or hours, dependent on the size of the database backup, so recent data can be lost."
+   ],
+   "sources": [
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Geo-restore allows you to recover from a regional outage by restoring from geo replicated backups",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Regardless of which business continuity features you use, you must prepare the secondary database in another region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically minutes or hours, dependent on Azure storage replication",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "High availability and disaster recovery overview - Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "By default, backups are stored in geo-redundant storage",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "High availability and disaster recovery overview - Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically minutes or hours, dependent on size of database backup",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-sqldb-grouped": {
+   "type": "question",
+   "text": "Do you need several databases to fail over together, or connection strings that do not change?",
+   "help": "Failover groups manage many databases and keep their endpoints stable. Active geo-replication manages one database at a time.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes, one of those",
+     "next": "r-sqldb-failover-group"
+    },
+    {
+     "id": "no",
+     "label": "No, a single database or several readable copies",
+     "next": "r-sqldb-geo-replication"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Failover groups overview & best practices (Azure SQL Database)",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db",
+     "quote": "Failover groups provide read-write and read-only listener endpoints that remain unchanged during geo-failovers.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What is Azure SQL Database?",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview",
+     "quote": "The single database and pooled databases options allow you to configure up to four readable secondary databases in either the same or globally distributed Azure datacenters.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqldb-failover-group": {
+   "type": "result",
+   "title": "Use a failover group",
+   "summary": "A failover group replicates and fails over some or all databases on a server together and keeps the listener endpoints.",
+   "actions": [
+    "Create a failover group between the primary server and a server in another region.",
+    "Plan failover of the rest of the application, not only the databases."
+   ],
+   "caveats": [
+    "Set up authentication and network access on the secondary so it works after a geo-failover.",
+    "The overview table gives a typical RTO under 60 seconds for failover groups with a customer managed failover policy, and an RPO of zero or more, depending on changes not yet replicated."
+   ],
+   "sources": [
+    {
+     "title": "Failover groups overview & best practices (Azure SQL Database)",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db",
+     "quote": "Failover groups provide read-write and read-only listener endpoints that remain unchanged during geo-failovers.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices (Azure SQL Database)",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db",
+     "quote": "Recovering an application (service) end-to-end after a catastrophic failure requires recovery of all components that constitute the service and any dependent services.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices (Azure SQL Database)",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db",
+     "quote": "ensure that authentication and network access on the secondary is set up to function correctly after geo-failover",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Regardless of which business continuity features you use, you must prepare the secondary database in another region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically less than 60 seconds",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "High availability and disaster recovery overview - Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Disaster Recovery (Using failover groups with customer managed failover policy or active geo-replication)",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqldb-geo-replication": {
+   "type": "result",
+   "title": "Use active geo-replication",
+   "summary": "Active geo-replication keeps a readable, continuously synchronized secondary and supports up to four secondaries.",
+   "actions": [
+    "Create the geo-secondary in another region and test a failover.",
+    "Change the application's connection string as part of failover."
+   ],
+   "caveats": [
+    "The overview table says the connection string does not stay unchanged after failover with active geo-replication; failover groups keep it.",
+    "The same table says active geo-replication does not fail over multiple databases simultaneously."
+   ],
+   "sources": [
+    {
+     "title": "What is Azure SQL Database?",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview",
+     "quote": "The single database and pooled databases options allow you to configure up to four readable secondary databases in either the same or globally distributed Azure datacenters.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Connection string remains unchanged after failover",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Fail over multiple databases simultaneously",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity in Azure SQL Database",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Regardless of which business continuity features you use, you must prepare the secondary database in another region.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqldb-pitr": {
+   "type": "result",
+   "title": "Rely on automatic backups and point-in-time restore",
+   "summary": "Azure SQL Database backs up automatically and restores to any point in the retention period.",
+   "actions": [
+    "Check that the automatic backup retention period covers how long it takes you to notice bad data.",
+    "Configure long-term backup retention for single and pooled databases if rules require older backups."
+   ],
+   "caveats": [],
+   "sources": [
+    {
+     "title": "What is Azure SQL Database?",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview",
+     "quote": "All SQL Database deployment options support recovery to any point in time within the automatic backup retention period for any database.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What is Azure SQL Database?",
+     "url": "https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview",
+     "quote": "you can configure SQL Database to store full database backups to Azure Storage for long-term backup retention",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-pg-failure": {
+   "type": "question",
+   "text": "For Azure Database for PostgreSQL flexible server, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-pg-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "q-pg-downtime"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "r-pg-pitr"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Overview of business continuity in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-business-continuity",
+     "quote": "RTO in most cases is expected to be less than 120 seconds. RPO is expected to be zero (no data loss).",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Geo-disaster recovery in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-geo-disaster-recovery",
+     "quote": "You can configure geo-redundant backup only at the time of server creation.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-pg-zone": {
+   "type": "result",
+   "title": "Turn on zone-redundant high availability",
+   "summary": "A synchronous standby in another zone takes over automatically.",
+   "actions": [
+    "Enable high availability with zone redundancy on a General purpose or Memory optimized server."
+   ],
+   "caveats": [
+    "The docs give an RTO under 120 seconds in most cases and an RPO of zero for this option.",
+    "The Burstable tier has no high availability.",
+    "High availability with zone redundancy is available only in certain regions.",
+    "If a region lacks zonal capacity, you can allow the standby in the same zone as the primary; check that the high availability mode is zone redundant."
+   ],
+   "sources": [
+    {
+     "title": "Overview of business continuity in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-business-continuity",
+     "quote": "RTO in most cases is expected to be less than 120 seconds. RPO is expected to be zero (no data loss).",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Configure high availability for Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/postgresql/high-availability/how-to-configure-high-availability",
+     "quote": "The Burstable tier doesn't support high availability. Only the General purpose and Memory optimized tiers support high availability.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Configure high availability for Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/postgresql/high-availability/how-to-configure-high-availability",
+     "quote": "However, high availability with zone redundancy is available only in certain regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Configure high availability for Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/postgresql/high-availability/how-to-configure-high-availability",
+     "quote": "Select this checkbox to allow the standby server to be created in the same zone as the primary server.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-pg-downtime": {
+   "type": "question",
+   "text": "In a regional outage, can you accept recovering from a geo-redundant backup, which the docs say takes a longer RTO and a higher RPO than the other option?",
+   "help": "A geo-restore builds a new server from backups copied to the paired region. A cross-region read replica is a running second server that you promote yourself.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes",
+     "next": "r-pg-geo-restore"
+    },
+    {
+     "id": "no",
+     "label": "No",
+     "next": "r-pg-replica"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Overview of business continuity in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-business-continuity",
+     "quote": "It takes a longer RTO and a higher RPO depending on the size of the data to restore and amount of recovery to perform.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Geo-disaster recovery in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-geo-disaster-recovery",
+     "quote": "RPO is expected to be up to five minutes (data loss possible)",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-pg-geo-restore": {
+   "type": "result",
+   "title": "Use geo-redundant backup and restore to the paired region",
+   "summary": "Backups are copied to the paired region, where a restore creates a new server.",
+   "actions": [
+    "Choose geo-redundant backup when you create the server."
+   ],
+   "caveats": [
+    "Geo-redundant backup can only be configured at server creation.",
+    "The docs say it takes a longer RTO and a higher RPO, depending on the data to restore.",
+    "Use geo-replicas instead if the primary region does not support geo-redundant backups.",
+    "After you create a server, wait at least one hour before you can geo-restore it."
+   ],
+   "sources": [
+    {
+     "title": "Geo-disaster recovery in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-geo-disaster-recovery",
+     "quote": "You can configure geo-redundant backup only at the time of server creation.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-business-continuity",
+     "quote": "It takes a longer RTO and a higher RPO depending on the size of the data to restore and amount of recovery to perform.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-backup-restore",
+     "quote": "Use geo-replicas as your disaster recovery (DR) strategy if you need to configure DR to any region, or if the primary region doesn't support geo-redundant backups.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore in Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-backup-restore",
+     "quote": "After you create a server, wait at least one hour before initiating a geo-restore.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-pg-replica": {
+   "type": "result",
+   "title": "Use a cross-region read replica and promote it",
+   "summary": "A replica in another region is promoted to a read-write server in a regional failure.",
+   "actions": [
+    "Create a cross-region read replica and rehearse the promotion."
+   ],
+   "caveats": [
+    "The docs give an RPO of up to five minutes, so data loss is possible.",
+    "Replicas update asynchronously, so they can lag the primary.",
+    "There is no automatic failover: you promote the replica yourself, then point clients at it.",
+    "The General purpose and Memory optimized tiers support read replicas; Burstable does not.",
+    "In a severe regional failure the RPO can be close to the replication lag at the time of failure."
+   ],
+   "sources": [
+    {
+     "title": "Geo-disaster recovery in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-geo-disaster-recovery",
+     "quote": "RPO is expected to be up to five minutes (data loss possible)",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Geo-disaster recovery in Azure Database for PostgreSQL flexible server",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-geo-disaster-recovery",
+     "quote": "use physical replication technology to update read replicas asynchronously, so they can lag the primary.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Geo-disaster recovery - Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-geo-disaster-recovery",
+     "quote": "In the event of region failure, you can perform disaster recovery operation by promoting your read replica to be a standalone read-writeable server.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-database-postgresql",
+     "quote": "The Burstable tier doesn't support read replicas.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Geo-disaster recovery - Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-geo-disaster-recovery",
+     "quote": "the RPO can be close to the replication lag at the time of failure",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-pg-pitr": {
+   "type": "result",
+   "title": "Rely on automatic backups and point-in-time restore",
+   "summary": "The service backs up automatically and restores to any point in the retention period.",
+   "actions": [
+    "Raise retention from the seven-day default up to 35 days if needed.",
+    "Use Azure Backup for long-term storage up to 10 years."
+   ],
+   "caveats": [
+    "A restore creates a new server with a new name, so clients must be pointed at it.",
+    "Backups do not keep your server available during an outage.",
+    "Long-term retention v2 does not support servers on the Burstable tier."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-database-postgresql",
+     "quote": "The default backup retention period is seven days, but you can extend retention up to 35 days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-database-postgresql",
+     "quote": "You can also use Azure Backup for long-term storage of manual backups for up to 10 years.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-database-postgresql",
+     "quote": "The restore process creates a new database server with a new user-provided server name.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-database-postgresql",
+     "quote": "Backups provide a recovery path for data loss, but they don't keep your server available during an outage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore in Azure Database for PostgreSQL",
+     "url": "https://learn.microsoft.com/azure/postgresql/backup-restore/concepts-backup-restore",
+     "quote": "LTR v2 doesn't support servers on the Burstable compute tier.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-cosmos-failure": {
+   "type": "question",
+   "text": "For Azure Cosmos DB, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-cosmos-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "q-cosmos-writes"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "r-cosmos-backup"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "We highly recommend enabling zone redundancy when your account is configured to use a single region, or if it's configured to use a single write region with multiple read regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "Service-managed failover allows Azure Cosmos DB to automatically perform region offline operations for affected regions to preserve business continuity.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-cosmos-zone": {
+   "type": "result",
+   "title": "Turn on zone redundancy in each region",
+   "summary": "Zone redundancy spreads replicas across zones, and it is set per region.",
+   "actions": [
+    "Enable zone redundancy for each region of the account that supports zones."
+   ],
+   "caveats": [
+    "A single-region account loses read and write access if the outage spans several zones or the whole region.",
+    "For most accounts you enable zone redundancy when you add a new region."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "We highly recommend enabling zone redundancy when your account is configured to use a single region, or if it's configured to use a single write region with multiple read regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "You configure zone redundancy separately for each region in your account.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "if the outage affects multiple availability zones or the entire region, single-region accounts lose read and write access until service is restored.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "For most accounts, you enable zone redundancy only when you add a new region to an Azure Cosmos DB account.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-cosmos-writes": {
+   "type": "question",
+   "text": "Must writes keep working during a region outage with no failover step?",
+   "help": "Multi-region writes keep accepting writes everywhere. A single write region needs a failover, which can be automatic.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes, writes must never pause",
+     "next": "r-cosmos-multiwrite"
+    },
+    {
+     "id": "no",
+     "label": "No, an automatic failover is fine",
+     "next": "r-cosmos-managed-failover"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "You can configure Azure Cosmos DB to accept writes in multiple regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "Service-managed failover allows Azure Cosmos DB to automatically perform region offline operations for affected regions to preserve business continuity.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-cosmos-multiwrite": {
+   "type": "result",
+   "title": "Use multiple write regions",
+   "summary": "Accepting writes in several regions gives very high resilience to a region outage.",
+   "actions": [
+    "Enable multi-region writes and have the application handle conflicts."
+   ],
+   "caveats": [
+    "Writes not replicated before a region went offline can be read from the conflict feed; plan to resolve them.",
+    "Strong consistency is not supported with multiple write regions, and write conflicts might arise.",
+    "Each additional write region increases your costs.",
+    "The docs name the Business Critical tier for using multiple regions for writing."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "You can configure Azure Cosmos DB to accept writes in multiple regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "If any writes weren't replicated before the region went offline, you can read the unreplicated writes from the conflict feed.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "When you configure an Azure Cosmos DB account for multiple write regions, strong consistency isn't supported and write conflicts might arise.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "Adding an additional write region to an Azure Cosmos DB account increases your existing costs for each region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "if you use the Business Critical tier, you can use multiple regions for writing.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-cosmos-managed-failover": {
+   "type": "result",
+   "title": "Add a read region and turn on service-managed failover",
+   "summary": "Service-managed failover lets Azure Cosmos DB take an affected write region offline automatically.",
+   "actions": [
+    "Add a read region in another region and enable service-managed failover.",
+    "Test the application with a forced failover as part of a recovery drill."
+   ],
+   "caveats": [
+    "Without it you take the affected write region offline yourself.",
+    "Failover timing depends on the outage and might take an hour or more; the docs say to take the region offline yourself to restore write availability quickly.",
+    "To test failover in a drill, first temporarily disable service-managed failover, then force the failover.",
+    "A single-region account has no region to fail over to: it loses read and write access until service is restored, or you request a restore to another region through Azure Support."
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "Service-managed failover allows Azure Cosmos DB to automatically perform region offline operations for affected regions to preserve business continuity.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "The region offline operation removes the affected region from the account configuration",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-cosmos-db",
+     "quote": "temporarily disable service-managed failover for the account",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "In these scenarios, failover might take up to one hour or more.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "To quickly restore write availability during outages, perform the region offline operation instead of waiting for service-managed failover.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "However, if multiple availability zones or the entire region is impacted, single-region accounts lose read and write access until service is restored.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "If the outage duration exceeds your RTO, request a restore to a different region through Azure Support.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-cosmos-backup": {
+   "type": "result",
+   "title": "Use continuous backup with point-in-time restore",
+   "summary": "Continuous backup restores an account, database or container to any point in the retention tier.",
+   "actions": [
+    "Choose a continuous backup tier of 7, 30 or 35 days when you create the account, or migrate to it."
+   ],
+   "caveats": [
+    "After you create an account with continuous mode you cannot switch it to periodic mode.",
+    "The 30-day and 35-day tiers are charged for backup storage.",
+    "Point-in-time restore is available for the NoSQL, MongoDB, Table and Gremlin APIs only."
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery guidance for Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/disaster-recovery-guidance",
+     "quote": "use Azure Cosmos DB's continuous backup mode with point-in-time restore (PITR)",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "The time window available for restore (also known as the retention period) depends on the continuous backup tier you select: 35 days, 30 days, or 7 days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Restore an Azure Cosmos DB account that uses continuous backup mode",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-resource-model",
+     "quote": "After you create an account with continuous mode, you can't switch it to periodic mode.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "The 30-day and 35-day tiers are charged for backup storage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Continuous backup and point-in-time restore resource model",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-resource-model",
+     "quote": "Currently, the point-in-time restore feature is available for Azure Cosmos DB accounts that use the API for NoSQL, API for MongoDB, API for Table, or API for Gremlin.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-storage-failure": {
+   "type": "question",
+   "text": "For Azure Storage (blobs or files), which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-storage-zrs"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-storage-geo"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "q-storage-kind"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "Microsoft recommends using ZRS in the primary region for scenarios that require high availability.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "Redundancy protects against hardware failure, not against data-modifying operations.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-storage-zrs": {
+   "type": "result",
+   "title": "Use zone-redundant storage (ZRS)",
+   "summary": "ZRS copies data across three zones and stays readable and writable if a zone fails.",
+   "actions": [
+    "Choose ZRS for the account, or convert the existing account."
+   ],
+   "caveats": [
+    "Follow transient fault handling, including retry policies with exponential back-off, when you design for ZRS."
+   ],
+   "sources": [
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "Microsoft recommends using ZRS in the primary region for scenarios that require high availability.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "When designing applications for ZRS, follow practices for transient fault handling, including implementing retry policies with exponential back-off.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-storage-geo": {
+   "type": "result",
+   "title": "Use geo-zone-redundant storage (GZRS)",
+   "summary": "GZRS is ZRS in the primary region plus asynchronous copying to a secondary region.",
+   "actions": [
+    "Choose GZRS, or RA-GZRS if you need to read from the secondary.",
+    "Decide who starts an account failover and rehearse it."
+   ],
+   "caveats": [
+    "Copies to the secondary are asynchronous, so recent writes can be lost.",
+    "The secondary is not readable or writable until a failover, unless you use an RA option.",
+    "Azure Files typically has an RPO of 15 minutes or less, with no SLA on replication time.",
+    "GRS and GZRS are not supported for SSD file shares."
+   ],
+   "sources": [
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "It then copies your data asynchronously to the secondary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "When you use GRS or GZRS, the data in the secondary region isn't available for read or write access unless there's a failover to the secondary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "For read access to the secondary region, configure your storage account to use read-access geo-redundant storage (RA-GRS) or read-access geo-zone-redundant storage (RA-GZRS).",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure storage disaster recovery planning and failover",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-disaster-recovery-guidance",
+     "quote": "geo-redundant storage also provides support for an unplanned failover to a secondary region if there's an outage in the primary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery and failover for Azure Files",
+     "url": "https://learn.microsoft.com/azure/storage/files/files-disaster-recovery",
+     "quote": "Azure Files typically has an RPO of 15 minutes or less, although there's currently no SLA on how long it takes to replicate data to the secondary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery and failover for Azure Files",
+     "url": "https://learn.microsoft.com/azure/storage/files/files-disaster-recovery",
+     "quote": "GRS and GZRS aren't supported for SSD file shares.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-storage-kind": {
+   "type": "question",
+   "text": "What kind of data is it?",
+   "help": "Azure Backup protects block blobs and Azure file shares on separate paths.",
+   "options": [
+    {
+     "id": "blobs",
+     "label": "Block blobs",
+     "next": "r-storage-blob-backup"
+    },
+    {
+     "id": "files",
+     "label": "Azure file shares",
+     "next": "r-storage-files-backup"
+    },
+    {
+     "id": "other",
+     "label": "Something else, or not sure",
+     "next": "r-storage-other-backup"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Overview of Azure Blob backup",
+     "url": "https://learn.microsoft.com/azure/backup/blob-backup-overview",
+     "quote": "The vaulted blob backup solution allows you to retain your data for up to 10 years.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "Redundancy protects against hardware failure, not against data-modifying operations.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-storage-blob-backup": {
+   "type": "result",
+   "title": "Use Azure Backup for blobs",
+   "summary": "Operational backup keeps changes in the same account; vaulted backup copies data to a vault for up to 10 years.",
+   "actions": [
+    "Configure vaulted backup for protection against deletion or a rogue admin, and operational backup for fast restores."
+   ],
+   "caveats": [
+    "Operational backup supports operations on block blobs only, and its restores go to the source account.",
+    "Redundancy protects against hardware failure, not against data-modifying operations."
+   ],
+   "sources": [
+    {
+     "title": "Overview of Azure Blob backup",
+     "url": "https://learn.microsoft.com/azure/backup/blob-backup-overview",
+     "quote": "The vaulted blob backup solution allows you to retain your data for up to 10 years.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Blob backup",
+     "url": "https://learn.microsoft.com/azure/backup/blob-backup-overview",
+     "quote": "Operational backup supports operations on block blobs only",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Blob backup",
+     "url": "https://learn.microsoft.com/azure/backup/blob-backup-overview",
+     "quote": "All restores can be performed to the source storage account only.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "Redundancy protects against hardware failure, not against data-modifying operations.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-storage-other-backup": {
+   "type": "result",
+   "title": "Use Azure Backup for the data type, and do not rely on redundancy",
+   "summary": "Redundancy protects against hardware failure, not against data-modifying operations.",
+   "actions": [
+    "Azure Backup lists the workloads it protects in Recovery Services vaults; read its support matrix for yours."
+   ],
+   "caveats": [
+    "This wizard has no deeper branch for this data type yet."
+   ],
+   "sources": [
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "Redundancy protects against hardware failure, not against data-modifying operations.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Support matrix for Azure Backup",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix",
+     "quote": "Azure VMs, SQL in Azure VMs, SAP HANA in Azure VMs, Azure File shares and on-premises workloads",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-dbx-failure": {
+   "type": "question",
+   "text": "For Azure Databricks, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-dbx-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "q-dbx-managed"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "r-dbx-data"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "The Azure Databricks control plane is resilient to zone failures and recovers automatically within approximately 15 minutes of a zone failure.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "HA avoids cross-region complexity but doesn't protect against a full-region outage.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-dbx-zone": {
+   "type": "result",
+   "title": "Rely on the control plane and make your own compute plane zone-redundant",
+   "summary": "The control plane recovers automatically from a zone failure; the compute plane is your job.",
+   "actions": [
+    "Choose zone-redundant storage for the workspace root bucket and use instance pools that span availability zones."
+   ],
+   "caveats": [
+    "Recovery of the control plane takes about 15 minutes.",
+    "This does not protect against a full-region outage."
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "The Azure Databricks control plane is resilient to zone failures and recovers automatically within approximately 15 minutes of a zone failure.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "You are responsible for compute-plane zone redundancy, for example, choosing zone-redundant storage for the workspace root bucket and using instance pools that span availability zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "HA avoids cross-region complexity but doesn't protect against a full-region outage.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-dbx-managed": {
+   "type": "question",
+   "text": "Is your account approved for managed disaster recovery, in a region pair that supports it?",
+   "help": "Managed DR is the recommended route but is a gated feature, and not every pair of regions can be paired.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes",
+     "next": "r-dbx-managed-dr"
+    },
+    {
+     "id": "no",
+     "label": "No, or not sure",
+     "next": "r-dbx-diy-dr"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Managed disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "Managed DR is gated. Apply for access through your Azure Databricks account team.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Features with limited regional availability (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/resources/feature-region-support",
+     "quote": "Certain region pairs are not compatible.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-dbx-managed-dr": {
+   "type": "result",
+   "title": "Use managed disaster recovery",
+   "summary": "Managed DR replicates, on a continuous schedule, the categories you choose (Unity Catalog metadata and managed table data, and workspace assets) from your primary region's workspace to one in a second region.",
+   "actions": [
+    "Create the storage in the secondary region, register it in Unity Catalog and allow network access between the regions before you create the failover group."
+   ],
+   "caveats": [
+    "Managed DR does not create or replicate your cloud storage.",
+    "Managed DR is gated; apply through your account team.",
+    "You bring two workspaces and a metastore in each region; managed DR does not create them.",
+    "Shallow clones of replicated tables can become unreadable after a failover; use deep clones. UNDROP is not propagated to the secondary.",
+    "Region pairs: regions in the same group cannot be paired (australiaeast with australiasoutheast; eastasia with southeastasia; southcentralus, westus and westus2 with each other). For canadacentral with canadaeast, and uksouth with ukwest, confirm the pair with your account team first."
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "Azure Databricks recommends managed disaster recovery for cross-region DR on AWS and Azure.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "It replicates Unity Catalog metadata, managed table data, and workspace assets on a continuous schedule",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Managed disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "You create the storage in the secondary region, register it in Unity Catalog, and allow network access between the two regions before you create a failover group.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Managed disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "Managed DR does not create or replicate your cloud storage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Managed disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "Managed DR is gated. Apply for access through your Azure Databricks account team.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Managed disaster recovery for Azure Databricks",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "You can opt into either or both categories: Unity Catalog metadata and managed table data, and workspace assets such as notebooks, jobs, SQL warehouses, clusters, and access control lists (ACLs).",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Managed disaster recovery for Azure Databricks",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "You bring two Azure Databricks workspaces, one in your primary region and one in your secondary region, and a metastore in each region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Managed disaster recovery for Azure Databricks",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "Shallow clones of tables in a failover group's scope can become unreadable after a failover.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Managed disaster recovery for Azure Databricks",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/managed-disaster-recovery",
+     "quote": "UNDROP is not propagated to the secondary.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Databricks feature support by region",
+     "url": "https://learn.microsoft.com/azure/databricks/resources/feature-region-support",
+     "quote": "Regions within the same group cannot be paired with one another.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Databricks feature support by region",
+     "url": "https://learn.microsoft.com/azure/databricks/resources/feature-region-support",
+     "quote": "Before you pair workspaces within one of the following groups, contact your Azure Databricks account team to confirm the pair is compatible:",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-dbx-diy-dr": {
+   "type": "result",
+   "title": "Build a second workspace and replicate it yourself",
+   "summary": "Without managed DR, keep another set of workspaces in a secondary region and replicate with Terraform and Delta Deep Clone.",
+   "actions": [
+    "Provision the secondary workspace with Terraform and replicate data with Delta Deep Clone."
+   ],
+   "caveats": [
+    "Microsoft recommends managed DR for cross-region DR where you can get it; this route is the fallback and you own the replication and failover steps."
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "DR solutions typically involve two (or more) workspaces.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "For DIY DR pipelines, use the Databricks Terraform provider to manage workspace assets as code and co-deploy to primary and secondary regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "To replicate managed table data, use Delta Deep Clone",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "Azure Databricks recommends managed disaster recovery for cross-region DR on AWS and Azure.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-dbx-data": {
+   "type": "result",
+   "title": "Protect the underlying storage",
+   "summary": "Production data belongs in your own storage accounts, so protecting it from deletion is a storage matter.",
+   "actions": [
+    "Run this wizard for the Azure Storage that holds the data and answer data loss."
+   ],
+   "caveats": [
+    "Redundancy protects against hardware failure, not against data-modifying operations."
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery (Azure Databricks)",
+     "url": "https://learn.microsoft.com/azure/databricks/admin/disaster-recovery",
+     "quote": "DBFS root storage is unsupported for production customer data.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Storage redundancy",
+     "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+     "quote": "Redundancy protects against hardware failure, not against data-modifying operations.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-sqlmi-failure": {
+   "type": "question",
+   "text": "For Azure SQL Managed Instance, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-sqlmi-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "q-sqlmi-downtime"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "r-sqlmi-pitr"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Availability through local and zone redundancy - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/high-availability-sla-local-zone-redundancy",
+     "quote": "By using a zone-redundant configuration, you can make your Business Critical, General Purpose, or Next-gen General Purpose instances resilient to a much larger set of failures, including catastrophic datacenter outages, without any changes to the application logic.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Geo-restore allows you to recover from a regional outage by restoring from geo replicated backups",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqlmi-zone": {
+   "type": "result",
+   "title": "Turn on zone redundancy for the managed instance",
+   "summary": "A zone-redundant instance is spread across availability zones, so the loss of one zone does not take it down.",
+   "actions": [
+    "Enable zone redundancy on the instance (new or existing).",
+    "Set the backup storage redundancy to zone-redundant or geo-zone-redundant first."
+   ],
+   "caveats": [
+    "Zone redundancy is available in select regions.",
+    "Next-gen General Purpose zone redundancy needs Azure Elastic SAN zone-redundant storage, which is not in every region that supports it for SQL Managed Instance.",
+    "Replicas sit in different datacenters, so commit latency can rise and slow some OLTP workloads.",
+    "Enabling or disabling zone redundancy is an online scaling operation run in the background.",
+    "The business continuity overview table gives a typical RTO under 30 seconds and an RPO of 0 for zone redundancy."
+   ],
+   "sources": [
+    {
+     "title": "Availability through local and zone redundancy - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/high-availability-sla-local-zone-redundancy",
+     "quote": "By using a zone-redundant configuration, you can make your Business Critical, General Purpose, or Next-gen General Purpose instances resilient to a much larger set of failures, including catastrophic datacenter outages, without any changes to the application logic.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Configure zone redundancy - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/instance-zone-redundancy-configure",
+     "quote": "To enable zone redundancy, your SQL managed instance Backup storage redundancy must use Zone-redundant or Geo-zone-redundant storage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Configure zone redundancy - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/instance-zone-redundancy-configure",
+     "quote": "Zone redundancy is available in select regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Availability through local and zone redundancy - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/high-availability-sla-local-zone-redundancy",
+     "quote": "the increased network latency might increase the transaction commit time",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Configure zone redundancy - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/instance-zone-redundancy-configure",
+     "quote": "Next-gen General Purpose zone redundancy requires Azure Elastic SAN zone-redundant storage (ZRS).",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically less than 30 seconds",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Configure zone redundancy - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/instance-zone-redundancy-configure",
+     "quote": "The operation to enable or disable zone redundancy is a fully online scaling operation executed in the background.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-sqlmi-downtime": {
+   "type": "question",
+   "text": "In a regional outage, can the application stay down for up to 12 hours and lose up to an hour of data while a restore runs?",
+   "help": "Geo-restore is the cheapest route but slow and lossy. A failover group fails over in seconds to minutes but runs a second instance.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes, hours of downtime and some data loss are acceptable",
+     "next": "r-sqlmi-georestore"
+    },
+    {
+     "id": "no",
+     "label": "No, it must come back quickly with little data loss",
+     "next": "r-sqlmi-failover-group"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Recovery usually takes place within 12 hours - with data loss of up to one hour",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Has a service level agreement (SLA) that doesn't allow for 12 hours or more of downtime.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqlmi-georestore": {
+   "type": "result",
+   "title": "Use geo-redundant backups and geo-restore",
+   "summary": "Geo-restore recreates a database on an instance in any region from geo-replicated backups.",
+   "actions": [
+    "Keep the backup storage redundancy geo-redundant or geo-zone-redundant (geo-redundant is the default).",
+    "Prepare the target instance, its firewall rules, logins and the way clients are redirected, and rehearse the restore."
+   ],
+   "caveats": [
+    "Recovery usually takes within 12 hours, with data loss of up to one hour.",
+    "Geo-restore works only for instances in the same subscription.",
+    "Microsoft says geo-restore suits relatively small, non-critical databases; use failover groups for business-critical ones.",
+    "Unprepared target instances make recovery slower."
+   ],
+   "sources": [
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Recovery usually takes place within 12 hours - with data loss of up to one hour",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Restore a database from a backup in Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/recovery-using-backups",
+     "quote": "Geo-restore is available only for SQL managed instances configured with geo-redundant or geo-zone redundant (GZRS) backup storage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Restore a database from a backup in Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/recovery-using-backups",
+     "quote": "You can perform geo-restore on managed instances that reside in the same subscription only.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Restore a database from a backup in Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/recovery-using-backups",
+     "quote": "geo-restore serves as an appropriate disaster-recovery solution for applications with relatively small databases that aren't critical to the business.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "If you don't prepare properly, bringing your applications online after a failover or a database recovery takes additional time",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "automated backups with geo-redundant storage (the default storage option when you create your instance)",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqlmi-failover-group": {
+   "type": "result",
+   "title": "Use a failover group",
+   "summary": "A failover group replicates user databases to an instance in another region and keeps the listener endpoints unchanged through a geo-failover.",
+   "actions": [
+    "Create a failover group between the primary instance and a secondary instance in another region.",
+    "Put both instances in the same DNS zone, and connect their virtual networks, for example with global virtual network peering.",
+    "Plan failover of the rest of the application, not only the databases."
+   ],
+   "caveats": [
+    "The secondary cannot be in the same region as the primary, and has the same service tier, compute tier and size.",
+    "System databases are not replicated; create the objects you need on the secondary.",
+    "Replication is asynchronous, so a forced failover can lose data.",
+    "The business continuity overview table gives a typical RTO under 60 seconds for failover groups with a customer managed failover policy, and an RPO of zero or more, depending on changes not yet replicated."
+   ],
+   "sources": [
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "Failover groups provide read-write and read-only listener endpoints that remain unchanged during geo-failovers.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "The secondary can't be in the same Azure region as the primary.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "The primary and secondary replicas in the failover group have the same service tier, compute tier, and compute size.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "both the primary and secondary instances must be in the same DNS zone.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "Global virtual network peering (VNet peering) is the recommended way to establish connectivity between two instances in a failover group.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "System databases are not replicated to the secondary instance in a failover group.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "forced failover of groups with Microsoft managed failover policies can result in data loss.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Failover groups overview & best practices - Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/failover-group-sql-mi",
+     "quote": "Recovering an application (service) end-to-end after a catastrophic failure requires recovery of all components that constitute the service and any dependent services.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Typically less than 60 seconds",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of business continuity with Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/business-continuity-high-availability-disaster-recover-hadr-overview",
+     "quote": "Disaster Recovery (Using failover groups with customer managed failover policy )",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqlmi-pitr": {
+   "type": "result",
+   "title": "Rely on automatic backups and point-in-time restore",
+   "summary": "Azure SQL Managed Instance backs up automatically and restores to a point in time within the retention period.",
+   "actions": [
+    "Check that the retention period covers how long it takes you to notice bad data (1 to 35 days).",
+    "Configure long-term retention if rules require older backups; it is not enabled by default."
+   ],
+   "caveats": [
+    "A point-in-time restore creates a new database, so applications must be pointed at it.",
+    "Backups do not keep the instance available during an outage."
+   ],
+   "sources": [
+    {
+     "title": "Automated backups in Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/automated-backups-overview",
+     "quote": "Use these backups to restore your database to a specific point in time within the configured retention period, up to 35 days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated backups in Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/automated-backups-overview",
+     "quote": "Not enabled by default. Retention is up to 10 years.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated backups in Azure SQL Managed Instance",
+     "url": "https://learn.microsoft.com/azure/azure-sql/managed-instance/automated-backups-overview",
+     "quote": "This operation creates a new database on either the same instance",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-aks-failure": {
+   "type": "question",
+   "text": "For Azure Kubernetes Service, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-aks-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-aks-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Cluster resources or volume data are deleted, corrupted or encrypted by ransomware",
+     "next": "r-aks-backup"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "AKS clusters are single-region resources.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "The AKS control plane is zone resilient by default.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-aks-zone": {
+   "type": "result",
+   "title": "Spread the node pools and the pods across zones",
+   "summary": "Microsoft keeps the control plane zone resilient; you make the node pools, the pod replicas and any disks zone resilient.",
+   "actions": [
+    "Enable availability zone support on the system node pool and on every user node pool.",
+    "Run several replicas of each pod, and turn on autoscaling so pods can be scheduled in the healthy zones.",
+    "Keep cluster state on zone-redundant storage."
+   ],
+   "caveats": [
+    "Control plane resilience alone is not enough for the cluster to stay up when a zone fails.",
+    "A single replica of a pod in a three-zone node pool is not zone resilient.",
+    "With manual scaling, pods can stay Pending when no nodes are available in healthy zones; scaling is also subject to quota and capacity."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "The AKS control plane is zone resilient by default.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "you must enable availability zone support to help ensure that your workloads are resilient to availability zone failures.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "Deploy multiple replicas.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "Enable automatic scaling.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "use Azure zone-redundant storage to help ensure that your data is replicated across multiple availability zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "If you choose to manually scale your node pool in a zone-down scenario, your pods might remain in the Pending state when there are no nodes available in the healthy zones.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-aks-region": {
+   "type": "result",
+   "title": "Run clusters in two regions and route traffic between them",
+   "summary": "An AKS cluster lives in one region, so surviving a region loss means a second cluster elsewhere, managed with Azure Kubernetes Fleet Manager or by an active-active or active-passive design you run yourself.",
+   "actions": [
+    "Choose Fleet Manager for a simpler managed route, or a manual active-active or active-passive model if you need finer control of the failover.",
+    "Deploy the same applications to both clusters and replicate the data they depend on."
+   ],
+   "caveats": [
+    "If the region is unavailable, the cluster is unavailable too.",
+    "Backups stored in geo-redundant storage can be restored into the paired region, but that restores state rather than keeping the service running.",
+    "Microsoft advises keeping clusters stateless where you can and storing data in external storage systems and databases."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "AKS clusters are single-region resources. If the region is unavailable, your AKS cluster is also unavailable.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "Use Azure Kubernetes Fleet Manager if you want a simpler, managed experience.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "Orchestrate failover by using a manual active-active or active-passive deployment model",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "If your AKS cluster is in a region that's paired, you can configure backups to be stored in geo-redundant storage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "Strive to use stateless clusters that minimize the need for backup.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-aks-backup": {
+   "type": "result",
+   "title": "Use Azure Backup for AKS",
+   "summary": "Azure Backup for AKS backs up cluster resources and persistent volumes through a Backup extension installed in the cluster, with a Backup vault holding the recovery points.",
+   "actions": [
+    "Create a Backup vault, install the Backup extension in the cluster and enable Trusted Access between the cluster and the vault.",
+    "Set a backup policy for your recovery point objective, and use the Vault Tier if you need a copy outside your tenant.",
+    "Restore into a scratch cluster or namespace first to prove the restore works."
+   ],
+   "caveats": [
+    "The Backup vault and the cluster must be in the same region.",
+    "Vault Tier covers Azure Disk volumes only (up to 100 disks and 1 TB per disk); Azure Files volumes are Operational Tier only, kept at most 30 days.",
+    "Operational Tier restores must go to a cluster in the same region as the backups; Vault Tier backups in geo-redundant storage with Cross-Region Restore can go to the paired region.",
+    "The minimum backup frequency is every 4 hours.",
+    "Backups complement availability features and do not keep a workload running during an outage.",
+    "The AKS backup pages disagree on subscriptions: the overview says the Backup vault and the cluster \"must be in the same region and subscription\", while the support matrix says they can be in different subscriptions within the same tenant. Using the same subscription is the safe choice; if you need different ones, confirm it against the current pages first."
+   ],
+   "sources": [
+    {
+     "title": "What is Azure Kubernetes Service backup?",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-backup-overview",
+     "quote": "The solution requires the Backup extension to be installed inside the AKS cluster.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What is Azure Kubernetes Service backup?",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-backup-overview",
+     "quote": "AKS backup requires that you enable the Trusted Access feature between the AKS cluster and the Backup vault.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What is Azure Kubernetes Service backup?",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-backup-overview",
+     "quote": "AKS backup allows you to store backups in both the Operational Tier and the Vault Tier.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Kubernetes Service backup support matrix",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-cluster-backup-support-matrix",
+     "quote": "Backup Vault and the AKS cluster should be located in the same region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What is Azure Kubernetes Service backup?",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-backup-overview",
+     "quote": "Vault Tier support is available only when the backup configuration includes Azure Disk–based volumes exclusively, with a limit of up to 100 disks and 1 TB per disk.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Kubernetes Service backup support matrix",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-cluster-backup-support-matrix",
+     "quote": "For Azure Files-based volumes, backup retention is limited to a maximum of 30 days in the Operational Tier.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Kubernetes Service backup support matrix",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-cluster-backup-support-matrix",
+     "quote": "When restoring from the Operational Tier, the target AKS cluster must be in the same region as the backups.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Kubernetes Service backup support matrix",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-cluster-backup-support-matrix",
+     "quote": "The minimum supported backup frequency in Azure Backup for AKS is every 4 hours",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Kubernetes Service (AKS)",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-aks",
+     "quote": "Backups complement the availability features that keep an AKS workload running during infrastructure failures.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "What is Azure Kubernetes Service backup?",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-backup-overview",
+     "quote": "The Backup vault and the AKS cluster that you want to back up or restore must be in the same region and subscription.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Kubernetes Service backup support matrix",
+     "url": "https://learn.microsoft.com/azure/backup/azure-kubernetes-service-cluster-backup-support-matrix",
+     "quote": "However, they can reside in different subscriptions as long as they are within the same tenant.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-appsvc-failure": {
+   "type": "question",
+   "text": "For Azure App Service, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-appsvc-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-appsvc-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "The app's files or settings are deleted, corrupted or encrypted by ransomware",
+     "next": "r-appsvc-backup"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "App Service is a single-region service. If the region becomes unavailable, your application is also unavailable.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "If your App Service plan isn't configured as zone redundant, it's considered nonzonal",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-appsvc-zone": {
+   "type": "result",
+   "title": "Make the App Service plan zone redundant",
+   "summary": "A zone-redundant plan spreads its instances across availability zones, and every app on the plan becomes zone redundant.",
+   "actions": [
+    "Use a Premium v2 to v4 plan with at least two instances, in a region that supports availability zones.",
+    "Turn on zone redundancy for the plan, after checking that its scale unit supports it."
+   ],
+   "caveats": [
+    "You don't choose the scale unit; if yours does not support zone redundancy, you must redeploy the apps to a new plan on a different scale unit.",
+    "For Premium v4 plans, confirm the region supports v4 plans as well as availability zones.",
+    "A plan that is not zone redundant can have downtime during an outage in any zone in that region."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "When you configure zone redundancy on App Service plans, all apps that use the plan become zone redundant.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "Plan type: Use Premium v2 to v4 plan types.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "Minimum number of instances: Deploy a minimum of two instances in your plan.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "Your app must be deployed to a scale unit that supports availability zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "If your App Service plan is on a scale unit that doesn't support zone redundancy, you can't enable zone redundancy on your plan.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "To enable zone redundancy for App Service Premium v4 plans, you must confirm that your desired region supports v4 plans and that it supports availability zones.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-appsvc-region": {
+   "type": "result",
+   "title": "Deploy the app to plans in two regions and put failover in front",
+   "summary": "App Service runs in one region, so surviving a region loss means a second deployment in another region with load balancing and failover in front and your data replicated.",
+   "actions": [
+    "Deploy the app to a plan in each region.",
+    "Configure load balancing and failover policies.",
+    "Replicate your data across regions so that you can recover the last application state."
+   ],
+   "caveats": [
+    "If the region is unavailable, the app is unavailable too.",
+    "App Service backups are files you restore; they are not a failover mechanism."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "App Service is a single-region service. If the region becomes unavailable, your application is also unavailable.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "To reduce the risk of a single-region failure affecting your application, you can deploy plans across multiple regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "Configure load balancing and failover policies.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "Replicate your data across regions so that you can recover your last application state.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "Most solutions shouldn't rely exclusively on backups.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-appsvc-backup": {
+   "type": "result",
+   "title": "Use App Service backup and restore, with custom backups to your own storage",
+   "summary": "App Service can back up an app's files and configuration to a file and restore it over the app or to a new app or slot.",
+   "actions": [
+    "Configure custom backups with a storage account, and set a schedule and retention that match how long it takes you to notice bad data.",
+    "Rehearse a restore to a new app or slot before you need it.",
+    "Back up any linked or external database with its own native backup tools."
+   ],
+   "caveats": [
+    "Custom backups can run every 2 hours at minimum, up to 12 a day (manual and scheduled together).",
+    "Custom backups are limited to 10 GB, of which 4 GB can be a linked database.",
+    "From 31 March 2028 custom backups no longer back up linked databases.",
+    "Backups need the Basic tier or higher.",
+    "Custom backups need a storage account that supports SAS-based authorization, not managed identity."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "When you use the Basic tier or higher, you can back up your App Service apps to a file by using the App Service backup and restore capabilities.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Back up and restore your app in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/app-service/manage-backup",
+     "quote": "You can restore a backup by overwriting an existing app or by restoring to a new app or slot.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Back up and restore your app in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/app-service/manage-backup",
+     "quote": "Configurable (every 2 hours minimum, up to 12 backups per day (manual + scheduled)).",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Back up and restore your app in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/app-service/manage-backup",
+     "quote": "10 GB, 4 GB of which can be the linked database.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Back up and restore your app in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/app-service/manage-backup",
+     "quote": "Starting 3/31/2028, Azure App Service custom backups will no longer support backing up linked databases.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Back up and restore your app in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/app-service/manage-backup",
+     "quote": "Managed Identity–based authentication to the storage account isn't supported for App Service backup and restore operations.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure App Service",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-app-service",
+     "quote": "Instead, use the native backup and restore tools of your linked database.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-kv-failure": {
+   "type": "question",
+   "text": "For Azure Key Vault, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-kv-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "q-kv-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Vaults or secrets are deleted or destroyed, by mistake or by an attacker",
+     "next": "r-kv-recovery"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Key Vault resources are deployed into a single Azure region. If the region becomes unavailable, your key vault is also unavailable.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Key Vault automatically provides zone redundancy in regions that support availability zones.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-kv-zone": {
+   "type": "result",
+   "title": "Nothing to turn on: Key Vault is zone redundant by default",
+   "summary": "In a region with availability zones, Key Vault spreads and synchronously replicates its data across zones, with no configuration and no extra cost.",
+   "actions": [
+    "Check that your vault's region supports availability zones.",
+    "Make clients retry failed requests, because in-flight requests to the failed zone can fail."
+   ],
+   "caveats": [
+    "Reads should stay available, but writes might be briefly unavailable while the service adjusts to a zone failure.",
+    "No data loss is expected, because replication across zones is synchronous."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Key Vault automatically provides zone redundancy in regions that support availability zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "There are no extra costs associated with zone redundancy in Key Vault.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Client applications should follow transient fault handling practices to ensure that they can retry requests if a zone failure occurs.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Write operations might experience temporary unavailability while the service adjusts to the zone failure.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "No data loss is expected during a zone failure because of the synchronous replication between zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Read operations are expected to remain available during zone failures.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-kv-region": {
+   "type": "question",
+   "text": "Is your vault in a paired region that supports Microsoft-managed failover, and can you accept Microsoft deciding when it fails over?",
+   "help": "Microsoft-managed failover is best effort and can come after a long delay, and the vault is read-only afterwards. A vault in a region without it, or a recovery time you cannot accept, needs a design of your own.",
+   "options": [
+    {
+     "id": "yes",
+     "label": "Yes, a long delay and a read-only vault afterwards are acceptable",
+     "next": "r-kv-managed-failover"
+    },
+    {
+     "id": "no",
+     "label": "No, or not sure",
+     "next": "r-kv-custom"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Key Vault supports Microsoft-managed replication and failover for key vaults in most paired regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Microsoft triggers Microsoft-managed failover. It's likely to occur after a significant delay and is done on a best-effort basis.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-kv-managed-failover": {
+   "type": "result",
+   "title": "Rely on Microsoft-managed replication and failover to the paired region",
+   "summary": "Key Vault replicates your vault to its paired region and Microsoft can fail it over there in a prolonged regional failure.",
+   "actions": [
+    "Check that your region is not one of those without managed cross-region failover.",
+    "Design applications to work with a read-only vault after a failover."
+   ],
+   "caveats": [
+    "Brazil South, Brazil Southeast, West US 3 and any region without a pair do not support managed failover.",
+    "Microsoft triggers it, likely after a significant delay and on a best-effort basis.",
+    "The vault might be unavailable for a few minutes during failover, and is read-only afterwards: you cannot change vault properties, access policies or firewall settings in the secondary region."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Key Vault supports Microsoft-managed replication and failover for key vaults in most paired regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Any region that doesn't have a paired region",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Microsoft triggers Microsoft-managed failover. It's likely to occur after a significant delay and is done on a best-effort basis.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Downtime: While the failover is in progress, your key vault might be unavailable for a few minutes.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "After failover, the key vault becomes read-only and only supports limited actions.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-kv-custom": {
+   "type": "result",
+   "title": "Run separate vaults in two regions and keep them in step yourself",
+   "summary": "Where Microsoft-managed failover does not fit, keep a vault in each region, copy secrets between them with backup and restore, and fail over in the application.",
+   "actions": [
+    "Create separate key vaults in different regions.",
+    "Use backup and restore to keep the secrets the same across regions.",
+    "Build the failover between vaults into the application."
+   ],
+   "caveats": [
+    "A backup can only be restored to a key vault in the same subscription and Azure geography.",
+    "A backup is a point-in-time snapshot and does not update when secrets change, so repeat it.",
+    "Backups cover at most 500 past versions of each key, secret or certificate."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Create separate key vaults in different regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Use the backup and restore functionality to maintain consistent secrets across regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Implement application-level logic to fail over between key vaults.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Backups can only be restored to a key vault within the same Azure subscription and Azure geography.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "Backups are point-in-time snapshots and don't automatically update when secrets change.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Key Vault",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-key-vault",
+     "quote": "There's a limitation of backing up no more than 500 past versions of a key, secret, or certificate object.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-kv-recovery": {
+   "type": "result",
+   "title": "Keep soft delete on, turn on purge protection, and back up what you cannot recreate",
+   "summary": "Soft delete keeps deleted vaults and objects recoverable, and purge protection stops anyone, including an attacker with admin rights, purging them before the retention period ends.",
+   "actions": [
+    "Leave soft delete on and set the retention period you want when you create the vault; it cannot be changed afterwards.",
+    "Turn on purge protection; it is not on by default.",
+    "Back up individual secrets, keys and certificates only where you have a real need for an offline copy."
+   ],
+   "caveats": [
+    "Once soft delete or purge protection is on, it cannot be turned off.",
+    "The retention period is 7 to 90 days, 90 by default, and a deleted vault's name cannot be reused until it ends.",
+    "Recovering a soft-deleted vault does not restore services integrated with it, such as role assignments and Event Grid subscriptions; recreate them.",
+    "Microsoft says to back up secrets only with a critical business justification."
+   ],
+   "sources": [
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "When creating a new key vault, soft-delete is on by default.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "Purge protection is an optional Key Vault behavior and is not enabled by default.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "The retention policy interval can only be configured during key vault creation and can't be changed afterwards.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "Once soft-delete is enabled on a key vault, it can't be disabled.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "Recovering a soft-deleted Key Vault does not restore these services.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault backup and restore",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/backup",
+     "quote": "Back up secrets only if you have a critical business justification.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "You can set it anywhere from 7 to 90 days, with 90 days being the default.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "You can't reuse the name of a key vault that was soft-deleted, until the retention period expires.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault soft-delete overview",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/soft-delete-overview",
+     "quote": "When purge protection is on, a vault or an object in the deleted state can't be purged until the retention period passes.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Azure Key Vault recovery management with soft delete and purge protection",
+     "url": "https://learn.microsoft.com/azure/key-vault/general/key-vault-recovery",
+     "quote": "When purge protection is enabled, it cannot be disabled or overridden by anyone including Microsoft.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-sqlvm-failure": {
+   "type": "question",
+   "text": "For SQL Server running in a virtual machine, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. A copy that follows every write also copies a deletion, so redundancy never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-sqlvm-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-sqlvm-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "r-sqlvm-backup"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "It's up to you to ensure that your database systems have HADR capabilities that meet your business requirements for recovery time objective (RTO), recovery point objective (RPO), and service-level agreement (SLA).",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqlvm-zone": {
+   "type": "result",
+   "title": "Use an Always On availability group with replicas in different zones",
+   "summary": "Azure's own VM healing does not protect SQL Server inside the VM, so you build the high availability with SQL Server features, such as an availability group across zones.",
+   "actions": [
+    "Deploy the availability group replicas on VMs in different availability zones.",
+    "Plan a domain controller VM, because Windows Server Failover Clustering needs an Active Directory domain."
+   ],
+   "caveats": [
+    "Azure's built-in high-availability mechanisms help protect the VM but not SQL Server running inside it, and they do not guarantee your SLA, RTO or RPO.",
+    "You own the RTO and RPO; this page gives no figure for an availability group.",
+    "Failover cluster instances use shared storage and protect at the instance level; this wizard does not cover that route."
+   ],
+   "sources": [
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "The built-in high-availability mechanisms provided by Azure, such as service healing for cloud services and failure recovery detection for virtual machines, don't guarantee that you can meet the SLA, RTO, or RPO.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "For higher redundancy, availability, and disaster recovery protection, the Azure VMs can be deployed to different availability zones",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "A domain controller VM is needed since Windows Server Failover Clustering requires an Active Directory domain.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "Uses shared storage to provide protection at the instance level.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "It's up to you to ensure that your database systems have HADR capabilities that meet your business requirements for recovery time objective (RTO), recovery point objective (RPO), and service-level agreement (SLA).",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqlvm-region": {
+   "type": "result",
+   "title": "Extend the availability group to a second region, or use log shipping, blob backups or Site Recovery",
+   "summary": "For a regional outage you run replicas, shipped logs or restorable backups in another region; Azure does not do it for you.",
+   "actions": [
+    "For the smallest data loss, add availability group replicas in another region and connect the two virtual networks.",
+    "If that is too costly, choose from log shipping, SQL Server backups in Azure Blob storage, or Azure Site Recovery for the VM."
+   ],
+   "caveats": [
+    "Each region has its own virtual network, so cross-region replicas need network-to-network connectivity.",
+    "Log shipping needs an Azure file share.",
+    "Site Recovery replicates the whole VM, not the database."
+   ],
+   "sources": [
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "A cross-region solution helps protect against a complete site outage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "Because each region has a separate virtual network, these solutions require network-to-network connectivity.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "Database level protection for disaster recovery involves sending transaction log backups from a primary server and restoring them to a secondary server. An Azure file share is needed.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "Production database backups stored in Azure Blob storage for disaster recovery protection.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Business continuity and HADR for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+     "quote": "A disaster recovery solution that replicates VMs from a primary site to a secondary site.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sqlvm-backup": {
+   "type": "result",
+   "title": "Back up the databases with Automated Backup or Azure Backup, and test a restore",
+   "summary": "SQL Server on Azure VMs can back up user databases on a schedule to a storage account you choose, with retention up to 90 days.",
+   "actions": [
+    "Enable Automated Backup with a retention period that covers how long it takes you to notice bad data, in a container you create (not the default $logs).",
+    "Keep the user databases in the full recovery model, and restore a backup to prove it works.",
+    "If you encrypt the backups, confirm the encryption certificate was backed up and that you know its password."
+   ],
+   "caveats": [
+    "Automated Backup needs the SQL IaaS Agent extension, SQL Server 2016 or later, and works only for the default instance or a single named instance.",
+    "Without the encryption certificate and its password you cannot restore the backups.",
+    "On an availability group secondary, the replica must be readable for backups to succeed."
+   ],
+   "sources": [
+    {
+     "title": "Automated Backup for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/automated-backup",
+     "quote": "You can configure the retention period (up to 90 days), the container for the storage account where you want to store your backups, the encryption, and the backup schedule.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated Backup for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/automated-backup",
+     "quote": "A SQL Server on Azure VMs registered with the SQL IaaS Agent extension.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated Backup for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/automated-backup",
+     "quote": "SQL Server 2016 and later.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated Backup for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/automated-backup",
+     "quote": "Target user databases must use the full recovery model.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated Backup for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/automated-backup",
+     "quote": "Automated Backup is only supported on target databases from the default instance, or a single named instance.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated Backup for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/automated-backup",
+     "quote": "you won't be able to decrypt and restore your backups.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Automated Backup for SQL Server on Azure VMs",
+     "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/automated-backup",
+     "quote": "the replica must be Readable for the backups to succeed.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-storage-files-backup": {
+   "type": "result",
+   "title": "Use Azure Backup for Azure file shares",
+   "summary": "Azure Backup protects file shares with snapshots and, for offsite copies, a vaulted tier.",
+   "actions": [
+    "Create a Recovery Services vault, register the storage account and set a backup policy that picks the tier, schedule and retention.",
+    "Choose the vault-standard tier if you need protection that does not depend on the source share staying available.",
+    "Keep the soft delete that Azure Backup turns on at the storage account level."
+   ],
+   "caveats": [
+    "The snapshot tier keeps only a snapshot URL in the metadata store; the data stays in the source storage account.",
+    "Read the Azure Files backup support matrix for regions and limits before you commit."
+   ],
+   "sources": [
+    {
+     "title": "About Azure Files backup",
+     "url": "https://learn.microsoft.com/azure/backup/azure-file-share-backup-overview",
+     "quote": "The vaulted backup for Azure Files enables you to protect data from any type of data loss irrespective of the severity or blast radius.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "About Azure Files backup",
+     "url": "https://learn.microsoft.com/azure/backup/azure-file-share-backup-overview",
+     "quote": "The snapshot URL is stored in the metadata store only.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "About Azure Files backup",
+     "url": "https://learn.microsoft.com/azure/backup/azure-file-share-backup-overview",
+     "quote": "Azure Backup acquires a lease on the snapshots taken by scheduled/on-demand backup jobs.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "About Azure Files backup",
+     "url": "https://learn.microsoft.com/azure/backup/azure-file-share-backup-overview",
+     "quote": "If a malicious actor deletes the File Share, its contents and snapshots are retained for a set period, ensuring complete recovery with no data loss.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-disk-failure": {
+   "type": "question",
+   "text": "For managed disks, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different tools. Redundancy copies a deletion as faithfully as a write, so it never replaces a backup. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-disk-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-disk-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is deleted, corrupted or encrypted by ransomware",
+     "next": "r-disk-backup"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Redundancy options for managed disks",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/disks-redundancy",
+     "quote": "Azure managed disks offer two storage redundancy options, zone-redundant storage (ZRS), and locally redundant storage.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-disk-zone": {
+   "type": "result",
+   "title": "Choose zone-redundant disks, or replicate at the application level",
+   "summary": "ZRS disks copy synchronously across three zones; LRS disks need the application or Site Recovery to cover a zone loss.",
+   "actions": [
+    "Use ZRS Premium SSD or Standard SSD disks if the application cannot write synchronously to two zones or must meet zero RPO.",
+    "Otherwise keep LRS disks and use an application that writes synchronously to two zones, such as SQL Server Always On, plus frequent backups with ZRS snapshots."
+   ],
+   "caveats": [
+    "ZRS is not supported on Premium SSD v2 or Ultra Disks.",
+    "ZRS disks write more slowly than LRS disks, so benchmark your workload first.",
+    "Force detach, which frees a ZRS disk from a failed VM, supports data disks only, not OS disks.",
+    "Cross-zone disaster recovery with Azure Site Recovery does not provide zero RPO."
+   ],
+   "sources": [
+    {
+     "title": "Redundancy options for managed disks",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/disks-redundancy",
+     "quote": "If your workflow doesn't support application-level synchronous writes across zones, or your application must meet zero RPO, then ZRS disks are appropriate.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Redundancy options for managed disks",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/disks-redundancy",
+     "quote": "ZRS for managed disks is only supported with Premium SSD and Standard SSD managed disks.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Redundancy options for managed disks",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/disks-redundancy",
+     "quote": "However, the write latency for LRS disks is better than ZRS disks because LRS disks synchronously write data to three copies in a single data center.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Redundancy options for managed disks",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/disks-redundancy",
+     "quote": "Force detach doesn't support OS disks.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Redundancy options for managed disks",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/disks-redundancy",
+     "quote": "However, cross-zone disaster recovery doesn't provide zero Recovery Point Objective (RPO).",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-disk-region": {
+   "type": "result",
+   "title": "Managed disks have no geo option: replicate the VM with Azure Site Recovery",
+   "summary": "Managed disks offer only LRS and ZRS, so a region failure needs Site Recovery or a VM backup that restores to a secondary region.",
+   "actions": [
+    "Enable Azure-to-Azure disaster recovery for the VM that uses the disks, and plan the target region before you enable replication.",
+    "If you only need to recover data, use Azure VM backup, which can restore to a secondary region."
+   ],
+   "caveats": [
+    "Disk Backup stores snapshots in your own subscription; it does not copy them to a vault.",
+    "Site Recovery handles replication and failover; Azure Backup is the separate service that keeps data recoverable."
+   ],
+   "sources": [
+    {
+     "title": "Redundancy options for managed disks",
+     "url": "https://learn.microsoft.com/azure/virtual-machines/disks-redundancy",
+     "quote": "Azure managed disks offer two storage redundancy options, zone-redundant storage (ZRS), and locally redundant storage.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Disk Backup",
+     "url": "https://learn.microsoft.com/azure/backup/disk-backup-overview",
+     "quote": "or restore to a secondary region, then use the Azure VM backup solution.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Disk Backup",
+     "url": "https://learn.microsoft.com/azure/backup/disk-backup-overview",
+     "quote": "Azure Disk backup supports only Operational Tier backup.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "About Site Recovery",
+     "url": "https://learn.microsoft.com/azure/site-recovery/site-recovery-overview",
+     "quote": "ASR supports your disaster recovery (DR) strategy by protecting virtual machines against planned and unplanned disruptions, ranging from zonal failures to regional outages",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-disk-backup": {
+   "type": "result",
+   "title": "Back up the disks with Azure Disk Backup",
+   "summary": "Disk Backup takes crash-consistent incremental snapshots on a schedule, with several backups a day, and keeps them in your subscription.",
+   "actions": [
+    "Create a Backup vault and a policy that sets the backup frequency and retention, then assign it to each disk.",
+    "Use Azure VM backup instead if you need application-consistent backups or file-level restore.",
+    "Use Azure Backup for AKS instead if the disk is a persistent volume for an AKS cluster."
+   ],
+   "caveats": [
+    "The backups are crash-consistent, not application-consistent.",
+    "Snapshots stay in the operational tier in your subscription, so they are not an offsite copy.",
+    "A disk can hold at most 500 snapshots; when the limit is reached, no new snapshot can be taken."
+   ],
+   "sources": [
+    {
+     "title": "Overview of Azure Disk Backup",
+     "url": "https://learn.microsoft.com/azure/backup/disk-backup-overview",
+     "quote": "This is a crash-consistent backup solution that takes point-in-time backup of a managed disk using incremental snapshots with support for multiple backups per day.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Disk Backup",
+     "url": "https://learn.microsoft.com/azure/backup/disk-backup-overview",
+     "quote": "Azure Disk backup supports only Operational Tier backup.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Disk Backup",
+     "url": "https://learn.microsoft.com/azure/backup/disk-backup-overview",
+     "quote": "If the target disk is attached as a Persistent Volume to an AKS cluster, choose Azure Backup for AKS over the standalone Disk Backup solution.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Disk Backup",
+     "url": "https://learn.microsoft.com/azure/backup/disk-backup-overview",
+     "quote": "Currently, a maximum of 500 snapshots can be retained for a disk.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Overview of Azure Disk Backup",
+     "url": "https://learn.microsoft.com/azure/backup/disk-backup-overview",
+     "quote": "If you require application-consistent backup of virtual machine including the data disks, or an option to restore an entire virtual machine from backup, restore a file or folder, or restore to a secondary region, then use the Azure VM backup solution.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-sb-failure": {
+   "type": "question",
+   "text": "For Service Bus, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different answers. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-sb-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-sb-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Messages or events must be kept or recovered",
+     "next": "r-sb-data"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Service Bus supports zone-redundant deployments in all service tiers.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-eh-failure": {
+   "type": "question",
+   "text": "For Event Hubs, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different answers. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-eh-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-eh-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Messages or events must be kept or recovered",
+     "next": "r-eh-data"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "Event Hubs supports zone-redundant deployments in all service tiers.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sb-zone": {
+   "type": "result",
+   "title": "Nothing to turn on: Service Bus is zone redundant by default",
+   "summary": "Namespaces in a region with availability zones are zone redundant at no extra cost, and zone failover is automatic.",
+   "actions": [
+    "Create the namespace in a region that supports availability zones.",
+    "Make clients retry after a short pause, because active requests can be dropped during a zone failure."
+   ],
+   "caveats": [
+    "A zone failure might cause a few seconds of downtime.",
+    "The deprecated zoneRedundant property can show false even when zone redundancy is on."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "When you create a Service Bus namespace in a supported region, zone redundancy is automatically enabled at no extra cost.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Microsoft automatically detects zone failures and initiates failover to healthy zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "During a zone failure, Service Bus might drop active requests.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "A zone failure might cause a few seconds of downtime.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "This property might appear as false even when zone redundancy is enabled.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sb-region": {
+   "type": "result",
+   "title": "Use Premium tier Geo-Replication, or build your own multi-namespace pattern",
+   "summary": "Geo-Replication copies metadata and messages to a second region; you decide when to promote it.",
+   "actions": [
+    "Use a Premium tier namespace with Geo-Replication, and choose synchronous or asynchronous replication.",
+    "Use metadata Geo-Disaster Recovery only if you can live without message data in the new region.",
+    "On Basic or Standard, run several namespaces across regions and replicate in your application."
+   ],
+   "caveats": [
+    "Failover or promotion is manual; Microsoft does not start it, even if the region is down.",
+    "A forced promotion with asynchronous replication can lose recent messages that were not replicated, and the loss cannot be recovered.",
+    "Metadata Geo-Disaster Recovery is a one-way failover with no failback to the prior primary."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Service Bus provides two types of multiregion support, both of which require Premium tier namespaces:",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "For most disaster recovery scenarios, Geo-Replication is the recommended choice as it provides complete data protection.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Both Geo-Replication and metadata Geo-Disaster Recovery require you to manually initiate failover or promotion of a secondary region to become the new primary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "You might experience some data loss for recent messages that aren't replicated to the secondary region and for state changes that aren't replicated.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Geo-Disaster Recovery enables continuity of operations that have the same configuration but doesn't replicate message data.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Geo-Disaster Recovery serves as a one-way recovery solution and doesn't support failback to the prior primary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Namespaces in the Basic and Standard tiers don't include native multiregion features, but you can implement application-level replication patterns by using multiple namespaces across regions.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-sb-data": {
+   "type": "result",
+   "title": "Service Bus has no backup: archive messages in your application",
+   "summary": "Service Bus keeps replicas of messages but offers no backup or restore, so keep what you need elsewhere.",
+   "actions": [
+    "Process each message and save what you must keep to Azure Storage or another durable store."
+   ],
+   "caveats": [
+    "Replication is not a backup: Service Bus is not designed for long-term data storage."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Because of this design, Service Bus automatically maintains replicas of message data but doesn't provide any backup and restore capabilities for that data.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "For scenarios that require long-term message retention, consider implementing application-level archiving to Azure Storage or other durable storage services.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Service Bus",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-service-bus",
+     "quote": "Service Bus isn't designed for long-term data storage.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-eh-zone": {
+   "type": "result",
+   "title": "Nothing to turn on: Event Hubs is zone redundant by default",
+   "summary": "Namespaces are zone redundant at no extra cost, with synchronous replication across zones and automatic failover.",
+   "actions": [
+    "Create the namespace in a region that supports availability zones.",
+    "On the Dedicated tier, provision at least three capacity units.",
+    "Make clients retry after a short pause."
+   ],
+   "caveats": [
+    "Active requests can be dropped during a zone failure, and a zone failure might cause a few seconds of downtime."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "But with the Dedicated tier, availability zones are supported only with a minimum of three CUs.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "No data loss occurs during a zone failure because Event Hubs synchronously replicates events across zones before acknowledgment.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "During a zone failure, Event Hubs might drop active requests.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "A zone failure might cause a few seconds of downtime.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-eh-region": {
+   "type": "result",
+   "title": "Use geo-replication on Premium or Dedicated, or metadata geo-disaster recovery",
+   "summary": "Geo-replication copies events to another region; metadata geo-disaster recovery copies only configuration.",
+   "actions": [
+    "Use geo-replication (Premium or Dedicated tier) when you cannot afford to lose events.",
+    "Use metadata geo-disaster recovery (Standard tier and higher) only if you can tolerate losing event data.",
+    "Plan how consumers pick up after promotion; checkpoint formats change with geo-replication."
+   ],
+   "caveats": [
+    "Promotion and failover are manual; Microsoft does not start them.",
+    "After a forced promotion you cannot recover lost data, even when the primary region returns.",
+    "The page calls geo-replication active-active but also says only the primary region processes events, so plan for one active region."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "Geo-replication (Premium and Dedicated tiers) provides active-active replication of both metadata and event data between a primary region and one or more secondary regions.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "Only the primary region actively processes events from clients during normal operations.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "Metadata geo-disaster recovery (Standard tier and higher) provides active-passive replication of configuration and metadata between a primary and secondary region, but it doesn't replicate event data.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "Both geo-replication and metadata geo-disaster recovery require you to manually initiate failover or promotion of a secondary region to become the new primary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "If you perform a forced promotion, you can't recover lost data, even after the primary region becomes available.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "The format of checkpoints changes.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-eh-data": {
+   "type": "result",
+   "title": "Event Hubs is not storage: use Capture to keep copies of events",
+   "summary": "Event Hubs holds events for a retention period only; Capture saves copies to Blob Storage.",
+   "actions": [
+    "Set the retention period to what the tier allows and your processing needs.",
+    "Turn on Event Hubs Capture to save copies of events to an Azure Blob Storage account."
+   ],
+   "caveats": [
+    "Event Hubs is not designed as a long-term storage location."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "Event Hubs isn't designed as a long-term storage location for your data.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Event Hubs",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-event-hubs",
+     "quote": "If you need to retain a copy of your events, consider using Event Hubs Capture, which saves copies of events to an Azure Blob Storage account.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-fabric-failure": {
+   "type": "question",
+   "text": "For Microsoft Fabric, which failure must you survive?",
+   "help": "Zone, region and data-loss failures need different answers. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-fabric-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-fabric-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Files, items or workspaces are deleted by mistake",
+     "next": "r-fabric-data"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "The service automatically distributes Fabric resources across multiple zones without requiring any customer configuration.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-fabric-zone": {
+   "type": "result",
+   "title": "Nothing to turn on for Fabric itself; check external storage",
+   "summary": "Fabric spreads its resources across zones on its own; data outside OneLake needs zone-redundant storage.",
+   "actions": [
+    "Keep data in OneLake, or make sure external sources such as ADLS Gen2 use ZRS.",
+    "Resubmit Spark jobs and rerun warehouse queries that failed during the outage."
+   ],
+   "caveats": [
+    "Running Spark jobs can fail if the primary node is in the failed zone.",
+    "Capacities in busy regions can show higher than normal latency during a zone failure."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "The service automatically distributes Fabric resources across multiple zones without requiring any customer configuration.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "If you use other data sources such as ADLS Gen2, then you need to ensure that Zone-redundant storage (ZRS) is enabled.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "running Spark Jobs might fail if the primary node is in the failed zone",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "Fabric capacities located in Azure regions with higher customer demand fluctuations might experience higher than normal latency.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-fabric-region": {
+   "type": "result",
+   "title": "Turn on the capacity disaster recovery switch and copy what sits outside OneLake",
+   "summary": "The switch geo-replicates OneLake data only; most items are unavailable after a failover and you rebuild them.",
+   "actions": [
+    "Turn on the disaster recovery setting on each capacity, and check that replication shows as enabled for each workspace.",
+    "Copy critical data stored outside OneLake to another region yourself.",
+    "Write the recovery steps before you need them: after failover you create a new capacity and workspace and restore each item."
+   ],
+   "caveats": [
+    "The switch does not cover data stored outside OneLake, such as KQL databases and query sets.",
+    "Replication is asynchronous at the file level, so a failover can lose data and leave files inconsistent.",
+    "The switch is unavailable in regions with no Azure pair or whose pair does not support Fabric.",
+    "After the switch changes you must wait 30 days before you can change it again.",
+    "After failover the portal is read-only, and notebooks cannot be opened and their code is not saved."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "Fabric offers cross-region replication for data stored in OneLake.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "The disaster recovery toggle specifically addresses OneLake data, which includes Lakehouse and Warehouse data.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "The switch doesn't influence your data stored outside OneLake.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery and data protection for OneLake",
+     "url": "https://learn.microsoft.com/fabric/onelake/onelake-disaster-recovery",
+     "quote": "Data replication to the secondary region is asynchronous and occurs at the file level.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Disaster recovery and data protection for OneLake",
+     "url": "https://learn.microsoft.com/fabric/onelake/onelake-disaster-recovery",
+     "quote": "As a result, a regional failover can result in data loss and inconsistencies between files.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "However, some regions don't have an Azure pair region, or the pair region doesn't support Fabric.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "Once you change the disaster recovery capacity setting, you must wait 30 days before you can alter it again.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "Copy critical data stored outside of OneLake to another region in a way that aligns to your disaster recovery plan.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "All write operations, such as creating or modifying a workspace, are paused.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Microsoft Fabric",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-fabric",
+     "quote": "You can't open notebooks, and code content isn't saved after the disaster.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-fabric-data": {
+   "type": "result",
+   "title": "Rely on soft delete and item recovery, and know their limits",
+   "summary": "OneLake keeps deleted files and Fabric keeps deleted workspaces and supported items for a retention period; neither is a backup.",
+   "actions": [
+    "Check that OneLake file soft delete and the tenant's Fabric Item Recovery setting are on, and set retention to fit how long it takes you to notice.",
+    "Check that the item types you rely on support recovery.",
+    "After recovering an item, share it again with the people who had access."
+   ],
+   "caveats": [
+    "Unsupported item types are deleted irreversibly.",
+    "Share permissions are not restored when an item is recovered.",
+    "Soft delete holds deleted files for a limited time, seven days by default, then removes them for good."
+   ],
+   "sources": [
+    {
+     "title": "Disaster recovery and data protection for OneLake",
+     "url": "https://learn.microsoft.com/fabric/onelake/onelake-disaster-recovery",
+     "quote": "OneLake automatically protects your data with soft delete, which retains deleted files for seven days by default before permanent removal.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Retention and recovery in Fabric",
+     "url": "https://learn.microsoft.com/fabric/admin/retention-recovery",
+     "quote": "Item recovery is now enabled by default, with a retention period of three days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Retention and recovery in Fabric",
+     "url": "https://learn.microsoft.com/fabric/admin/retention-recovery",
+     "quote": "The default retention period for collaborative workspaces is seven days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Retention and recovery in Fabric",
+     "url": "https://learn.microsoft.com/fabric/admin/retention-recovery",
+     "quote": "You can't recover unsupported item types because Fabric irreversibly deletes them.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Retention and recovery in Fabric",
+     "url": "https://learn.microsoft.com/fabric/admin/retention-recovery",
+     "quote": "Fabric restores shared data after recovery, but it doesn't restore share permissions.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-routing-kind": {
+   "type": "question",
+   "text": "What kind of traffic must be sent to a healthy region?",
+   "help": "Routing is only half of failover: the endpoints behind it need their own resilience, so run the wizard again for each service you route to.",
+   "options": [
+    {
+     "id": "web",
+     "label": "HTTP or HTTPS web traffic",
+     "next": "r-routing-frontdoor"
+    },
+    {
+     "id": "dns",
+     "label": "Any other traffic, or a DNS-level choice is enough",
+     "next": "r-routing-tm"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Architecture best practices for Azure Front Door",
+     "url": "https://learn.microsoft.com/azure/well-architected/service-guides/azure-front-door",
+     "quote": "Azure Front Door is a global load balancer and content delivery network (CDN) that routes HTTP and HTTPS traffic.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Traffic Manager",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-traffic-manager",
+     "quote": "Traffic Manager provides high availability and quick responsiveness for your public-facing applications by using DNS to direct client requests to appropriate service endpoints based on traffic-routing methods and endpoint health monitoring.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-routing-frontdoor": {
+   "type": "result",
+   "title": "Put Azure Front Door in front of two or more regional origins",
+   "summary": "Front Door routes web traffic to healthy origins by weight or priority, using health probes.",
+   "actions": [
+    "Run the application in more than one region and expose each instance as an origin, in one or more origin groups.",
+    "Use the priority method for active-passive or the weighted method for active-active, and set health probes on the origins.",
+    "Have each origin serve a health endpoint that reflects the state of its dependencies."
+   ],
+   "caveats": [
+    "Front Door is itself a singleton and a potential single point of failure; a redundant traffic manager is complex and costly, so keep it for mission-critical workloads.",
+    "Avoid session affinity if you have high reliability requirements.",
+    "This result covers the routing layer only; the origins need their own zone and region resilience."
+   ],
+   "sources": [
+    {
+     "title": "Architecture best practices for Azure Front Door",
+     "url": "https://learn.microsoft.com/azure/well-architected/service-guides/azure-front-door",
+     "quote": "The weighted method, which distributes traffic based on the configured weight coefficient, supports active-active models.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture best practices for Azure Front Door",
+     "url": "https://learn.microsoft.com/azure/well-architected/service-guides/azure-front-door",
+     "quote": "A priority-based value that configures the primary region to receive all traffic and send traffic to the secondary region as a backup supports active-passive models.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture best practices for Azure Front Door",
+     "url": "https://learn.microsoft.com/azure/well-architected/service-guides/azure-front-door",
+     "quote": "Health probes make sure that Azure Front Door only routes traffic to instances that are healthy enough to handle requests.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture best practices for Azure Front Door",
+     "url": "https://learn.microsoft.com/azure/well-architected/service-guides/azure-front-door",
+     "quote": "Azure Front Door is a potential single point of failure in the system.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Architecture best practices for Azure Front Door",
+     "url": "https://learn.microsoft.com/azure/well-architected/service-guides/azure-front-door",
+     "quote": "From a reliability perspective, we don't recommend keeping user connections on the same origin server.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-routing-tm": {
+   "type": "result",
+   "title": "Use Azure Traffic Manager for DNS-level failover",
+   "summary": "Traffic Manager answers DNS queries with the address of a healthy endpoint; your traffic does not flow through it.",
+   "actions": [
+    "Create a profile with endpoints in each region and turn on endpoint monitoring.",
+    "Set the DNS time to live to balance responsiveness against extra lookups.",
+    "Define the profile in infrastructure as code and keep it in source control."
+   ],
+   "caveats": [
+    "The reliability of the whole solution depends on how the endpoints are configured.",
+    "With a very high TTL, clients can be slow to fail over after a real endpoint fault.",
+    "Traffic Manager has no backup or restore, so redeploy from stored configuration.",
+    "Traffic Manager itself is a nonregional service across zones and regions, so there is nothing to configure for zone or region failure of the service."
+   ],
+   "sources": [
+    {
+     "title": "Reliability in Azure Traffic Manager",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-traffic-manager",
+     "quote": "After name resolution, none of your application's traffic flows through Traffic Manager.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Traffic Manager",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-traffic-manager",
+     "quote": "The reliability of your overall solution depends on the configuration of the endpoints that your traffic manager routes traffic to.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Traffic Manager",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-traffic-manager",
+     "quote": "If the TTL is very high, in the event of a true fault in an endpoint, clients might experience delays in failover until the TTL expires.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Traffic Manager",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-traffic-manager",
+     "quote": "Traffic Manager is a stateless DNS service.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Traffic Manager",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-traffic-manager",
+     "quote": "To protect your resource configuration, define your Traffic Manager profiles and other resources using infrastructure as code (such as Bicep or ARM templates) and store those definitions in source control.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Reliability in Azure Traffic Manager",
+     "url": "https://learn.microsoft.com/azure/reliability/reliability-traffic-manager",
+     "quote": "Traffic Manager operates as a nonregional service and deploys its infrastructure across multiple availability zones in multiple Azure regions worldwide.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-synapse-failure": {
+   "type": "question",
+   "text": "For a Synapse dedicated SQL pool, which failure must you survive?",
+   "help": "This branch covers dedicated SQL pools only, not Synapse Spark pools or pipelines. Run the wizard again for each failure you must survive.",
+   "options": [
+    {
+     "id": "zone",
+     "label": "A datacenter or one availability zone fails",
+     "next": "r-synapse-zone"
+    },
+    {
+     "id": "region",
+     "label": "A whole Azure region is unavailable",
+     "next": "r-synapse-region"
+    },
+    {
+     "id": "data-loss",
+     "label": "Data is dropped, corrupted or changed by mistake",
+     "next": "r-synapse-restore"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "Use dedicated SQL pool restore points to recover or copy your data warehouse to a previous state in the primary region.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "Use data warehouse geo-redundant backups to restore to a different geographical region.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-synapse-zone": {
+   "type": "result",
+   "title": "No zone guidance was found for dedicated SQL pools: check before you assume",
+   "summary": "The pages read for this branch cover backup and restore, not zone redundancy, so this wizard cannot say a dedicated SQL pool survives a zone loss.",
+   "actions": [
+    "Check Synapse's own documentation for zone support in your tier and region.",
+    "If you need a copy outside the zone, use restore points to restore into a new pool."
+   ],
+   "caveats": [
+    "This answer is a gap, not a finding: the wizard did not find a Microsoft statement on zone redundancy for dedicated SQL pools."
+   ],
+   "sources": [
+    {
+     "title": "What are availability zones?",
+     "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+     "quote": "Don't assume that all tiers or SKUs support availability zones.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "A data warehouse restore is a new data warehouse that is created from a restore point of an existing or deleted data warehouse.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-synapse-region": {
+   "type": "result",
+   "title": "Rely on the daily geo-backup, or add your own copy for a shorter RPO",
+   "summary": "A dedicated SQL pool takes one geo-backup a day to the paired region, so a geo-restore means up to 24 hours of data loss.",
+   "actions": [
+    "Keep geo-backups on, and plan a geo-restore as a data movement whose time grows with the size of the pool.",
+    "For a shorter RPO, load data into a primary and a secondary pool in parallel and pause the secondary to save compute, or restore a fresh restore point to another region.",
+    "Rehearse the restore on a copy before you need it."
+   ],
+   "caveats": [
+    "Only the latest geo-backup is kept, and you cannot choose its frequency.",
+    "If you disable geo-backups, you cannot recover the pool in the paired region when the primary datacenter is unavailable.",
+    "Snapshots, user-defined and automatic, are not replicated to another region.",
+    "For large pools a cross-region restore may take several days."
+   ],
+   "sources": [
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "A geo-backup is created once per day to a paired data center.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "The RPO for a geo-restore is 24 hours.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "A geo-restore is always a data movement operation and the RTO will depend on the data size.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "Only the latest geo-backup is retained.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "If you do not require geo-backups for your dedicated SQL pool, you can disable them and save on disaster recovery storage costs.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "If you disable geo-backups, you will not be able to recover your dedicated SQL pool to your paired Azure region if your primary Azure data center is unavailable.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "Another common pattern for a shorter recovery point is to ingest data into primary and secondary instances of a data warehouse in parallel.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup, restore, and recovery guidance for Azure Synapse dedicated SQL pools",
+     "url": "https://learn.microsoft.com/troubleshoot/azure/synapse-analytics/dedicated-sql/backup-restore/dsql-maint-backup-restore-guidance",
+     "quote": "Snapshots (both user-defined and automatic) aren't replicated.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup, restore, and recovery guidance for Azure Synapse dedicated SQL pools",
+     "url": "https://learn.microsoft.com/troubleshoot/azure/synapse-analytics/dedicated-sql/backup-restore/dsql-maint-backup-restore-guidance",
+     "quote": "For large SQL pool instances, this approach might not work because a cross-region restore may take several days.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "r-synapse-restore": {
+   "type": "result",
+   "title": "Restore from restore points, and know their limits",
+   "summary": "Automatic restore points last seven days with an eight-hour RPO; table-level restore does not exist and long-term backup is not supported.",
+   "actions": [
+    "Create a user-defined restore point before large changes and before pausing or dropping the pool.",
+    "To recover one table, restore the whole pool to a new one and copy the table across.",
+    "For retention beyond seven days, restore a restore point to a new warehouse and pause it."
+   ],
+   "caveats": [
+    "The seven-day retention cannot be changed.",
+    "A pool that is paused often may not get automatic restore points, and a pool dropped while paused gets no final snapshot.",
+    "At most 42 user-defined restore points are guaranteed, so delete old ones before making new ones.",
+    "Table-level and partial restore are not supported, and long-term backup is not supported."
+   ],
+   "sources": [
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "Snapshots of your data warehouse are taken throughout the day creating restore points that are available for seven days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "This retention period cannot be changed.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "Dedicated SQL pool supports an eight-hour recovery point objective (RPO).",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "If it is paused frequently, automatic restore points might not be created so make sure to create user-defined restore point before pausing the dedicated SQL pool.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "When you drop a dedicated SQL pool, a final snapshot is created and saved for seven days.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "If the dedicated SQL pool is dropped in a paused state, no snapshot is taken.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "42 user-defined restore points are guaranteed at any point in time so they must be deleted before creating another restore point.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup and restore dedicated SQL pools in Azure Synapse Analytics",
+     "url": "https://learn.microsoft.com/azure/synapse-analytics/sql-data-warehouse/backup-and-restore",
+     "quote": "Table-level restore is not supported in dedicated SQL Pools.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup, restore, and recovery guidance for Azure Synapse dedicated SQL pools",
+     "url": "https://learn.microsoft.com/troubleshoot/azure/synapse-analytics/dedicated-sql/backup-restore/dsql-maint-backup-restore-guidance",
+     "quote": "Long-term backup isn't supported in a dedicated SQL pool.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup, restore, and recovery guidance for Azure Synapse dedicated SQL pools",
+     "url": "https://learn.microsoft.com/troubleshoot/azure/synapse-analytics/dedicated-sql/backup-restore/dsql-maint-backup-restore-guidance",
+     "quote": "A partial restore isn't supported in dedicated SQL pools.",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup, restore, and recovery guidance for Azure Synapse dedicated SQL pools",
+     "url": "https://learn.microsoft.com/troubleshoot/azure/synapse-analytics/dedicated-sql/backup-restore/dsql-maint-backup-restore-guidance",
+     "quote": "You can only recover the entire dedicated SQL pool from your backup, and then copy the required table(s) by using",
+     "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Backup, restore, and recovery guidance for Azure Synapse dedicated SQL pools",
+     "url": "https://learn.microsoft.com/troubleshoot/azure/synapse-analytics/dedicated-sql/backup-restore/dsql-maint-backup-restore-guidance",
+     "quote": "After the restore, you have the dedicated SQL pool online. Pause it indefinitely to save compute costs.",
+     "retrieved": "2026-11-18"
+    }
+   ]
+  }
+ }
+}
