@@ -1,0 +1,30 @@
+:root { --blue:#0078d4; --ink:#201f1e; --muted:#605e5c; --line:#c8c6c4; --bg:#faf9f8; --card:#fff; }
+@media (prefers-color-scheme: dark) { :root { --ink:#f3f2f1; --muted:#c8c6c4; --line:#484644; --bg:#1b1a19; --card:#292827; --blue:#4da3ec; } }
+* { box-sizing: border-box; }
+body { margin:0; font-family:"Segoe UI","Segoe UI Variable",system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.5; }
+header, main { max-width:1200px; margin:0 auto; padding:16px; }
+h1 { font-size:1.4rem; margin:0 0 4px; font-weight:600; }
+.note { color:var(--muted); margin:0; font-size:.9rem; }
+main { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:20px; align-items:start; }
+@media (max-width:800px) { main { grid-template-columns:1fr; } }
+.panel, .diagram { background:var(--card); border:1px solid var(--line); border-radius:4px; padding:16px; margin:0; }
+h2 { font-size:1.2rem; margin:12px 0 8px; font-weight:600; }
+h3 { font-size:1rem; margin:16px 0 4px; }
+.help, .caption, .placeholder, .q { color:var(--muted); }
+.options { display:grid; gap:8px; margin:12px 0; }
+button { font:inherit; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:2px; padding:8px 12px; cursor:pointer; text-align:left; }
+button.option { border-color:var(--blue); }
+button:hover:not(:disabled) { background:color-mix(in srgb, var(--blue) 12%, var(--card)); }
+button:focus-visible, summary:focus-visible, a:focus-visible, .panel:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+button:disabled { opacity:.5; cursor:default; }
+.nav { display:flex; gap:8px; margin-top:16px; }
+.trail { padding-left:20px; margin:0; font-size:.9rem; }
+.sources { margin-top:12px; font-size:.9rem; }
+blockquote { margin:8px 0; padding-left:12px; border-left:3px solid var(--line); }
+blockquote footer { color:var(--muted); font-size:.85rem; }
+a { color:var(--blue); }
+.diagram img { width:100%; height:auto; background:#fff; border:1px solid var(--line); }
+.caption { margin:8px 0 0; font-size:.85rem; }
+.error { color:#d13438; }
+
+@media (min-width:801px) { .diagram { position:sticky; top:16px; } }

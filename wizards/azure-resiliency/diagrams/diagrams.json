@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "diagrams": {
+    "sample-two-region-dr": {
+      "file": "sample-two-region-dr.svg",
+      "title": "Two-region failover (sample)",
+      "alt": "A primary region with virtual machines, a database and disks, replicated to a greyed recovery region that takes over on failover. Sample drawing."
+    }
+  },
+  "nodes": {
+    "r-vm-region": "sample-two-region-dr"
+  }
+}

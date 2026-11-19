@@ -22,6 +22,14 @@ python3 -I scripts/wizards_engine.py run wizards/azure-resiliency/tree.json --an
 python3 -I scripts/wizards_engine.py paths wizards/azure-resiliency/tree.json
 ```
 
+## Use it in a browser
+
+A basic front end walks the tree and shows a diagram that updates with each answer. It is temporary. See [docs/reference/web-front-end.md](docs/reference/web-front-end.md).
+
+```text
+cd web && npm ci && npm run build && npm run serve
+```
+
 ## Check it
 
 ```text
@@ -34,4 +42,4 @@ python3 -I scripts/wizards_engine.py verify-sources wizards/azure-resiliency/tre
 
 ## Contribute
 
-One service branch per pull request. Read [AGENTS.md](AGENTS.md) and [docs/reference/tree-format.md](docs/reference/tree-format.md) first. CI runs `validate` and the tests on every pull request, and `verify-sources` weekly because Learn pages change.
+One service branch per pull request. Read [AGENTS.md](AGENTS.md) and [docs/reference/tree-format.md](docs/reference/tree-format.md) first. CI runs `validate`, the engine tests and the front-end tests on every pull request, and `verify-sources` weekly because Learn pages change.
