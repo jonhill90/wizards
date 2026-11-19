@@ -7,9 +7,10 @@
   "scripts": {
     "build": "tsc",
     "diagrams": "tsc && node dist/src/build.js && node scripts-bundle.mjs",
-    "check": "tsc && node dist/src/build.js --check && node scripts-bundle.mjs --check",
+    "check": "tsc && node dist/src/build.js --check && node scripts-bundle.mjs --check && node dist/src/examples.js --check",
     "test": "tsc && node --test \"dist/test/*.test.js\"",
-    "bundle": "tsc && node scripts-bundle.mjs"
+    "bundle": "tsc && node scripts-bundle.mjs",
+    "examples": "tsc && node dist/src/examples.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

@@ -21,6 +21,11 @@ export function legend(s: Spec): string {
     }
     case "backup":
       return `A box labelled Protected data is on the left and a box labelled Backup is on the right. A solid black arrow labelled ${s.backupLabel ?? "Backup"} points right, marked with a green circle numbered 1.${s.noRestore ? "" : ` A dashed black arrow labelled ${s.restoreLabel ?? "Restore"} points back left, marked 2.`}${s.features?.length ? " Grey bars inside the right box give the features." : ""}`;
+    case "scene": {
+      const titles = s.groups.map((g) => g.title).filter((t): t is string => !!t);
+      const labels = s.edges.map((e) => e.label).filter((t): t is string => !!t);
+      return `A free-form drawing with ${s.groups.length} outlined areas${titles.length ? `: ${titles.join("; ")}` : ""}. It holds ${s.nodes.length} labelled items joined by ${s.edges.length} black arrows; dashed arrows are optional, standby or asynchronous paths.${labels.length ? ` Arrow labels: ${labels.join("; ")}.` : ""}${s.notes?.length ? " Green numbered circles on arrows match the numbered notes under the drawing." : ""}`;
+    }
     default: {
       const never: never = s;
       throw new Error(`unknown template ${JSON.stringify(never)}`);
