@@ -1,19 +1,33 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { allPaths, type Tree } from "../src/evaluator.js";
+import { allPaths, walk, type Tree } from "../src/evaluator.js";
+import { pickDiagram, type DiagramManifest } from "../src/diagrams.js";
 
-const tree = JSON.parse(readFileSync(path.resolve(import.meta.dirname, "..", "..", "wizards", "azure-resiliency", "tree.json"), "utf8")) as Tree;
+const dir = path.resolve(import.meta.dirname, "..", "..", "wizards", "azure-resiliency");
+const tree = JSON.parse(readFileSync(path.join(dir, "tree.json"), "utf8")) as Tree;
+const manifest = JSON.parse(readFileSync(path.join(dir, "diagrams", "diagrams.json"), "utf8")) as DiagramManifest;
+// What the manifest says the page should show after these answers (null: the placeholder).
+const expectedDiagram = (answers: string[]): string | null => pickDiagram(manifest, walk(tree, answers).path)?.id ?? null;
 
-test("walk by clicking: targets, VM, region gives Site Recovery and its diagram", async ({ page }) => {
+async function expectDiagram(page: import("@playwright/test").Page, answers: string[]): Promise<void> {
+  const id = expectedDiagram(answers);
+  if (id === null) await expect(page.locator("#diagram-placeholder")).toBeVisible();
+  else await expect(page.locator("#diagram img")).toHaveAttribute("data-diagram", id);
+}
+
+test("walk by clicking: targets, VM, region gives Site Recovery and the diagram the manifest names", async ({ page }) => {
   await page.goto("/web/index.html");
   await expect(page.locator("#question")).toContainText("recovery time objective");
+  await expectDiagram(page, []);
   await page.locator('[data-option="yes"]').click();
+  await expectDiagram(page, ["yes"]);
   await page.locator('[data-option="vm"]').click();
-  await expect(page.locator("#diagram-placeholder")).toBeVisible(); // no diagram mapped for the VM questions yet
+  await expectDiagram(page, ["yes", "vm"]);
   await page.locator('[data-option="region"]').click();
   await expect(page.locator("#result-title")).toHaveText("Replicate the VMs to a second region with Azure Site Recovery");
-  await expect(page.locator("#diagram img")).toHaveAttribute("data-diagram", "sample-two-region-dr");
+  expect(expectedDiagram(["yes", "vm", "region"])).not.toBeNull();
+  await expectDiagram(page, ["yes", "vm", "region"]);
   await expect(page.locator("#diagram img")).toBeVisible();
   expect(await page.locator("#diagram img").evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
   await expect(page.locator(".sources summary").first()).toContainText("Sources (");
@@ -44,6 +58,7 @@ test("every one of the 62 paths renders a result with sources", async ({ page })
     if (node?.type !== "result") throw new Error("not a result");
     await expect(page.locator("#result-title"), p.result).toHaveText(node.title);
     await expect(page.locator(".sources summary")).toBeVisible();
+    await expectDiagram(page, p.answers);
   }
 });
 

@@ -1,4 +1,4 @@
-# 0001: Write the front end in TypeScript and test it with Playwright
+# 0002: Write the front end in TypeScript and test it with Playwright
 
 Status: proposed (an agent's pick; the owner has not accepted it)
 

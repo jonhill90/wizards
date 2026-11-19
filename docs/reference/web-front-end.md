@@ -1,6 +1,6 @@
 # Web front end
 
-A temporary, basic page that walks a tree in the browser. No model runs and no server logic exists: the page reads `wizards/<name>/tree.json` and `wizards/<name>/diagrams/diagrams.json` and walks the tree with a TypeScript copy of the evaluator. Why TypeScript and Playwright: [decision 0001](../decisions/0001-write-the-front-end-in-typescript-with-playwright-tests.md).
+A temporary, basic page that walks a tree in the browser. No model runs and no server logic exists: the page reads `wizards/<name>/tree.json` and `wizards/<name>/diagrams/diagrams.json` and walks the tree with a TypeScript copy of the evaluator. Why TypeScript and Playwright: [decision 0002](../decisions/0002-write-the-front-end-in-typescript-with-playwright-tests.md).
 
 ## Run it
 
