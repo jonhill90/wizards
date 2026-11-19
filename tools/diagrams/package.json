@@ -6,12 +6,14 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "diagrams": "tsc && node dist/src/build.js",
-    "check": "tsc && node dist/src/build.js --check",
-    "test": "tsc && node --test \"dist/test/*.test.js\""
+    "diagrams": "tsc && node dist/src/build.js && node scripts-bundle.mjs",
+    "check": "tsc && node dist/src/build.js --check && node scripts-bundle.mjs --check",
+    "test": "tsc && node --test \"dist/test/*.test.js\"",
+    "bundle": "tsc && node scripts-bundle.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "esbuild": "^0.28.2",
     "typescript": "^5.6.0"
   }
 }

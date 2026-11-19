@@ -93,3 +93,41 @@ test("checkSpec reports a missing icon", () => {
   const tree: any = { nodes: { x: { type: "result" } } };
   assert.ok(checkSpec(spec, tree, () => false).some((m) => m.includes("ghost")));
 });
+
+// ---- browser bundle and animation ----
+import { pathToFileURL } from "node:url";
+
+test("web bundle draws the same bytes as the build, and has no node imports", async () => {
+  const file = join(REPO, "tools", "diagrams", "web", "diagrams.mjs");
+  const text = readFileSync(file, "utf8");
+  assert.doesNotMatch(text, /from\s*["']node:|require\(["']node:/);
+  const mod = await import(pathToFileURL(file).href);
+  const wizard = "azure-resiliency";
+  const spec = JSON.parse(readFileSync(join(REPO, "wizards", wizard, "diagrams", "diagrams.spec.json"), "utf8"));
+  const built = buildWizard(wizard, REPO).files;
+  for (const id of Object.keys(spec.diagrams)) assert.equal(mod.render(spec, id), built.get(`${id}.svg`), id);
+});
+
+test("forPath keeps the previous diagram for a node without one", async () => {
+  const mod = await import(pathToFileURL(join(REPO, "tools", "diagrams", "web", "diagrams.mjs")).href);
+  const spec = JSON.parse(readFileSync(join(REPO, "wizards", "azure-resiliency", "diagrams", "diagrams.spec.json"), "utf8"));
+  const [node] = Object.keys(spec.nodes);
+  assert.equal(mod.forPath(spec, []), null);
+  assert.equal(mod.forPath(spec, ["q-targets"]), null);
+  const d = mod.forPath(spec, [node, "q-targets"]);
+  assert.equal(d.fromNode, node);
+});
+
+test("animated output has the same shapes, adds a reduced-motion rule, and stays self-contained", async () => {
+  const mod = await import(pathToFileURL(join(REPO, "tools", "diagrams", "web", "diagrams.mjs")).href);
+  const spec = JSON.parse(readFileSync(join(REPO, "wizards", "azure-resiliency", "diagrams", "diagrams.spec.json"), "utf8"));
+  for (const id of Object.keys(spec.diagrams)) {
+    const a: string = mod.render(spec, id, { animate: true });
+    const plain: string = mod.render(spec, id);
+    assert.match(a, /prefers-reduced-motion/, id);
+    assert.doesNotMatch(a, /<script|@import|url\((?!#)/i, id);
+    assert.equal(mod.render(spec, id, { animate: true }), a, `${id}: animated build is not deterministic`);
+    const strip = (x: string) => x.replace(/<style>[\s\S]*?<\/style>\n/, "").replace(/ class="mv-[a-z]+" style="--d:\d+ms"/g, "").replace(/ pathLength="1"/g, "");
+    assert.equal(strip(a), plain, `${id}: animation changed the drawing`);
+  }
+});

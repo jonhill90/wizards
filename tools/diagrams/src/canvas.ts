@@ -1,4 +1,4 @@
-import type { Icon, IconSource } from "./icons.js";
+import type { Icon, IconSource } from "./iconparse.js";
 
 /** Style numbers measured from Microsoft's Architecture Center SVGs (see docs/explanations/diagrams.md). */
 export const STYLE = {
@@ -51,16 +51,25 @@ export class Canvas {
   readonly parts: string[] = [];
   private iconCount = 0;
   private usedFilter = false;
+  private step = 0;
 
   constructor(
     readonly width: number,
     readonly height: number,
     private readonly icons: IconSource,
+    private readonly animate = false,
   ) {
     this.defs.push(
       `<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.4" markerHeight="5.4" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="${STYLE.ink}"/></marker>`,
       `<marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.4" markerHeight="5.4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="${STYLE.red}"/></marker>`,
     );
+  }
+
+  /** Entrance-animation hook: a class and a delay that grows with drawing order. Empty when not animated. */
+  private fx(kind: "box" | "line" | "fade"): string {
+    if (!this.animate) return "";
+    const d = Math.min(this.step++ * 40, 1400);
+    return ` class="mv-${kind}" style="--d:${d}ms"`;
   }
 
   text(x: number, y: number, s: string, o: TextOpts = {}): void {
@@ -70,7 +79,7 @@ export class Canvas {
       .map((ln, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : (size * 1.2).toFixed(1)}">${esc(ln)}</tspan>`)
       .join("");
     this.parts.push(
-      `<text x="${x}" y="${y}" font-size="${size}" text-anchor="${o.anchor ?? "middle"}"${o.bold ? ' font-weight="600"' : ""} fill="${o.fill ?? STYLE.ink}">${tsp}</text>`,
+      `<text${this.fx("fade")} x="${x}" y="${y}" font-size="${size}" text-anchor="${o.anchor ?? "middle"}"${o.bold ? ' font-weight="600"' : ""} fill="${o.fill ?? STYLE.ink}">${tsp}</text>`,
     );
   }
 
@@ -84,7 +93,7 @@ export class Canvas {
 
   box(x: number, y: number, w: number, h: number, o: { fill?: string; stroke?: string; sw?: number; dash?: string; rx?: number } = {}): void {
     this.parts.push(
-      `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx ?? 0}" fill="${o.fill ?? "#ffffff"}" stroke="${o.stroke ?? STYLE.ink}" stroke-width="${o.sw ?? STYLE.boxStroke}"${o.dash ? ` stroke-dasharray="${o.dash}"` : ""}/>`,
+      `<rect${this.fx("box")} x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx ?? 0}" fill="${o.fill ?? "#ffffff"}" stroke="${o.stroke ?? STYLE.ink}" stroke-width="${o.sw ?? STYLE.boxStroke}"${o.dash ? ` stroke-dasharray="${o.dash}"` : ""}/>`,
     );
   }
 
@@ -99,13 +108,13 @@ export class Canvas {
     const start = o.start ? ' marker-start="url(#arrow)"' : "";
     const color = o.red ? STYLE.red : (o.color ?? STYLE.ink);
     this.parts.push(
-      `<polyline points="${pts.map((p) => p.join(",")).join(" ")}" fill="none" stroke="${color}" stroke-width="${STYLE.arrowStroke}" stroke-linejoin="round"${o.dash ? ` stroke-dasharray="${o.dash}"` : ""}${marker}${start}/>`,
+      `<polyline${this.fx(o.dash ? "fade" : "line")}${this.animate && !o.dash ? ' pathLength="1"' : ""} points="${pts.map((p) => p.join(",")).join(" ")}" fill="none" stroke="${color}" stroke-width="${STYLE.arrowStroke}" stroke-linejoin="round"${o.dash ? ` stroke-dasharray="${o.dash}"` : ""}${marker}${start}/>`,
     );
   }
 
   /** Green numbered circle. */
   number(cx: number, cy: number, n: number): void {
-    this.parts.push(`<circle cx="${cx}" cy="${cy}" r="${STYLE.numberRadius}" fill="${STYLE.numberFill}"/>`);
+    this.parts.push(`<circle${this.fx("fade")} cx="${cx}" cy="${cy}" r="${STYLE.numberRadius}" fill="${STYLE.numberFill}"/>`);
     this.text(cx, cy + 3.2, String(n), { size: 9, bold: true, fill: "#ffffff" });
   }
 
@@ -128,7 +137,7 @@ export class Canvas {
       this.usedFilter = true;
     }
     this.parts.push(
-      `<g transform="translate(${ox.toFixed(2)} ${oy.toFixed(2)}) scale(${s.toFixed(4)})"${grey ? ' filter="url(#grey)" opacity="0.8"' : ""}>${body}</g>`,
+      `<g${this.fx("fade")} transform="translate(${ox.toFixed(2)} ${oy.toFixed(2)}) scale(${s.toFixed(4)})"${grey ? ' filter="url(#grey)" opacity="0.8"' : ""}>${body}</g>`,
     );
   }
 
@@ -148,10 +157,13 @@ export class Canvas {
   }
 
   svg(title: string, alt: string): string {
+    const css = this.animate
+      ? `<style>.mv-box,.mv-fade{opacity:0;animation:mv-in .45s ease-out var(--d) forwards}.mv-line{stroke-dasharray:1;stroke-dashoffset:1;animation:mv-draw .6s ease-out var(--d) forwards}@keyframes mv-in{to{opacity:1}}@keyframes mv-draw{to{stroke-dashoffset:0}}@media (prefers-reduced-motion:reduce){.mv-box,.mv-fade,.mv-line{animation:none;opacity:1;stroke-dashoffset:0}}</style>\n`
+      : "";
     return (
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.width} ${this.height}" width="${this.width}" height="${this.height}" font-family="${esc(STYLE.font)}" role="img" aria-labelledby="t d">\n` +
       `<title id="t">${esc(title)}</title><desc id="d">${esc(alt)}</desc>\n` +
-      `<defs>${this.defs.join("")}</defs>\n<rect width="100%" height="100%" fill="#ffffff"/>\n${this.parts.join("\n")}\n</svg>\n`
+      `${css}<defs>${this.defs.join("")}</defs>\n<rect width="100%" height="100%" fill="#ffffff"/>\n${this.parts.join("\n")}\n</svg>\n`
     );
   }
 }

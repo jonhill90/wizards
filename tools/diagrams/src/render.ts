@@ -1,5 +1,5 @@
 import type { DiagramEntry, Spec } from "./model.js";
-import type { IconSource } from "./icons.js";
+import type { IconSource } from "./iconparse.js";
 import { draw } from "./templates.js";
 
 /** Sentences about structure, lines and colour that the author's alt text does not repeat. */
@@ -29,6 +29,6 @@ export function legend(s: Spec): string {
 }
 
 /** Draw one diagram to a self-contained SVG string. Same input, same bytes. */
-export function renderDiagram(entry: DiagramEntry, icons: IconSource): string {
-  return draw(entry.spec, icons).svg(entry.title, `${entry.alt} ${legend(entry.spec)}`);
+export function renderDiagram(entry: DiagramEntry, icons: IconSource, opts: { animate?: boolean } = {}): string {
+  return draw(entry.spec, icons, opts.animate ?? false).svg(entry.title, `${entry.alt} ${legend(entry.spec)}`);
 }
