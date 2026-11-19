@@ -1,0 +1,17 @@
+{
+  "name": "wizards-diagrams",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Draws Microsoft Architecture Center style SVG diagrams from a JSON spec. No AI, no network.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "diagrams": "tsc && node dist/src/build.js",
+    "check": "tsc && node dist/src/build.js --check",
+    "test": "tsc && node --test \"dist/test/*.test.js\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

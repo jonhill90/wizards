@@ -1,0 +1,166 @@
+{
+  "icons": {
+    "vm": {
+      "file": "vm.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/compute/10021-icon-service-Virtual-Machine.svg",
+      "label": "vm"
+    },
+    "sql-database": {
+      "file": "sql-database.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/databases/10130-icon-service-SQL-Database.svg",
+      "label": "sql-database"
+    },
+    "sql-managed-instance": {
+      "file": "sql-managed-instance.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/databases/10136-icon-service-SQL-Managed-Instance.svg",
+      "label": "sql-managed-instance"
+    },
+    "sql-server": {
+      "file": "sql-server.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/databases/10132-icon-service-SQL-Server.svg",
+      "label": "sql-server"
+    },
+    "aks": {
+      "file": "aks.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/compute/10023-icon-service-Kubernetes-Services.svg",
+      "label": "aks"
+    },
+    "app-service": {
+      "file": "app-service.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/compute/10035-icon-service-App-Services.svg",
+      "label": "app-service"
+    },
+    "key-vault": {
+      "file": "key-vault.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/security/10245-icon-service-Key-Vaults.svg",
+      "label": "key-vault"
+    },
+    "postgresql": {
+      "file": "postgresql.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/databases/10131-icon-service-Azure-Database-PostgreSQL-Server.svg",
+      "label": "postgresql"
+    },
+    "cosmos-db": {
+      "file": "cosmos-db.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/databases/10121-icon-service-Azure-Cosmos-DB.svg",
+      "label": "cosmos-db"
+    },
+    "storage-account": {
+      "file": "storage-account.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/storage/10086-icon-service-Storage-Accounts.svg",
+      "label": "storage-account"
+    },
+    "databricks": {
+      "file": "databricks.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/analytics/10787-icon-service-Azure-Databricks.svg",
+      "label": "databricks"
+    },
+    "disks": {
+      "file": "disks.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/compute/10032-icon-service-Disks.svg",
+      "label": "disks"
+    },
+    "service-bus": {
+      "file": "service-bus.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/integration/10836-icon-service-Azure-Service-Bus.svg",
+      "label": "service-bus"
+    },
+    "event-hubs": {
+      "file": "event-hubs.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/analytics/00039-icon-service-Event-Hubs.svg",
+      "label": "event-hubs"
+    },
+    "synapse": {
+      "file": "synapse.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/analytics/00606-icon-service-Azure-Synapse-Analytics.svg",
+      "label": "synapse"
+    },
+    "front-door": {
+      "file": "front-door.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/networking/10073-icon-service-Front-Door-and-CDN-Profiles.svg",
+      "label": "front-door"
+    },
+    "traffic-manager": {
+      "file": "traffic-manager.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/networking/10065-icon-service-Traffic-Manager-Profiles.svg",
+      "label": "traffic-manager"
+    },
+    "load-balancer": {
+      "file": "load-balancer.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/networking/10062-icon-service-Load-Balancers.svg",
+      "label": "load-balancer"
+    },
+    "recovery-vault": {
+      "file": "recovery-vault.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/management + governance/00017-icon-service-Recovery-Services-Vaults.svg",
+      "label": "recovery-vault"
+    },
+    "backup-vault": {
+      "file": "backup-vault.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/other/02361-icon-service-Backup-Vault.svg",
+      "label": "backup-vault"
+    },
+    "resource-guard": {
+      "file": "resource-guard.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/other/02819-icon-service-Resource-Guard.svg",
+      "label": "resource-guard"
+    },
+    "file-shares": {
+      "file": "file-shares.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/storage/10400-icon-service-Azure-Fileshares.svg",
+      "label": "file-shares"
+    },
+    "blob": {
+      "file": "blob.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/general/10780-icon-service-Blob-Block.svg",
+      "label": "blob"
+    },
+    "vnet": {
+      "file": "vnet.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/networking/10061-icon-service-Virtual-Networks.svg",
+      "label": "vnet"
+    },
+    "elastic-pool": {
+      "file": "elastic-pool.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/databases/10134-icon-service-SQL-Elastic-Pools.svg",
+      "label": "elastic-pool"
+    },
+    "fleet-manager": {
+      "file": "fleet-manager.svg",
+      "pack": "Azure public service icons V25",
+      "source": "Azure_Public_Service_Icons_V25.zip: Icons/other/03134-icon-service-Kubernetes-Fleet-Manager.svg",
+      "label": "fleet-manager"
+    },
+    "fabric": {
+      "file": "fabric.svg",
+      "pack": "Microsoft Fabric icons (@fabric-msft/svg-icons 6.1.0, MIT)",
+      "source": "microsoft/fabric-samples docs-samples/Icons.zip: v6.1.0/package/dist/svg/fabric_32_color.svg",
+      "label": "fabric"
+    }
+  }
+}
