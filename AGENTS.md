@@ -12,6 +12,8 @@ This repository holds deterministic question-tree wizards: data trees and a smal
 - Before you say a tree works, run `validate`, the tests and `verify-sources` and show the output (see README.md).
 - When you add or remove nodes, update the path counts the tests pin.
 - Trees are data: a contributor edits JSON, not the evaluator. A change to `scripts/wizards_engine.py` needs its own pull request and tests.
+- The front end is in `web/` (TypeScript, tested with Playwright). It must stay in step with `scripts/wizards_engine.py`: change the tree format in both, and `web/tests/parity.spec.ts` must pass. Diagrams follow `docs/reference/web-front-end.md`.
+- Diagrams are data too: edit `diagrams.spec.json`, run `npm run diagrams` in `tools/diagrams/`, and commit the output. Never hand-edit a generated SVG. Use only icons in `tools/diagrams/icons/manifest.json`; do not draw a product icon yourself. When you add or remove tree nodes, update the diagram map.
 - Branch `<type>/<short-description>`; pull request title `<type>: <summary>`; types `feat`, `fix`, `docs`, `chore`, `refactor`, `ci`, `test`, `revert`.
 - No workflows on `pull_request_target`, `issue_comment` or `issues`, and no workflow that runs an agent or reads secrets. Checks here are plain scripts.
 
