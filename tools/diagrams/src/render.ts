@@ -15,12 +15,12 @@ export function legend(s: Spec): string {
       const kind = s.secondaryKind ?? "standby";
       const parts = ["Two boxes sit side by side, the primary region on the left and the second region on the right."];
       if (kind === "standby" || kind === "restore") parts.push("The right box and its items are drawn in grey because they are not in use until needed.");
-      if (s.link) parts.push(`A black arrow between them is labelled ${s.link}${kind === "live" ? ", with a head at each end" : ""}.`);
+      if (s.link) parts.push(`A black arrow between them is labelled ${s.link}${kind === "live" ? ", with a head at each end" : ""}, and carries a green numbered circle.`);
       if (s.router) parts.push(kind === "live" ? "A router box above sends a black arrow to each region." : `A router box above sends a black arrow to the primary region and a red dashed arrow, labelled ${s.failoverLabel ?? "Failover"}, to the secondary region.`);
       return parts.join(" ");
     }
     case "backup":
-      return `A box labelled Protected data is on the left and a box labelled Backup is on the right. A solid black arrow labelled ${s.backupLabel ?? "Backup"} points right.${s.noRestore ? "" : ` A dashed black arrow labelled ${s.restoreLabel ?? "Restore"} points back left.`}${s.features?.length ? " Grey bars inside the right box give the features." : ""}`;
+      return `A box labelled Protected data is on the left and a box labelled Backup is on the right. A solid black arrow labelled ${s.backupLabel ?? "Backup"} points right, marked with a green circle numbered 1.${s.noRestore ? "" : ` A dashed black arrow labelled ${s.restoreLabel ?? "Restore"} points back left, marked 2.`}${s.features?.length ? " Grey bars inside the right box give the features." : ""}`;
     default: {
       const never: never = s;
       throw new Error(`unknown template ${JSON.stringify(never)}`);

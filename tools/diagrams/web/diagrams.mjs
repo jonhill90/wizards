@@ -31,7 +31,7 @@ var STYLE = {
   font: "'Segoe UI','Segoe UI_MSFontService',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif",
   ink: "#000000",
   grey: "#737373",
-  label: 11,
+  label: 10,
   small: 10,
   title: 12,
   boxStroke: 0.75,
@@ -41,8 +41,8 @@ var STYLE = {
   boundary: "#4472c4",
   panelFill: "#f2f2f2",
   panelStroke: "#bfbfbf",
-  subnetFill: "#dae8fc",
-  subnetStroke: "#6c8ebf",
+  subnetFill: "#e6f2fb",
+  subnetStroke: "#0078d4",
   red: "#ff0000",
   iconSize: 32
 };
@@ -177,7 +177,7 @@ function rows(c, items, x, w, top, grey) {
     const step = w / row.length;
     let h = 0;
     row.forEach((it, k) => {
-      h = Math.max(h, c.item(x + step * k + step / 2, y, it, grey, Math.max(10, Math.floor(step / 6.2))));
+      h = Math.max(h, c.item(x + step * k + step / 2, y, it, grey, Math.max(10, Math.floor(step / 5.6))));
     });
     y += h + 8;
   }
@@ -250,10 +250,13 @@ function region(s, icons, animate) {
   const grey = kind === "standby" || kind === "restore";
   const lx = 30;
   const rx = 400;
-  c.box(lx, top, boxW, boxH);
+  c.box(lx, top, boxW, boxH, { fill: STYLE.subnetFill, stroke: STYLE.subnetStroke });
   c.text(lx + boxW / 2, top + 18, s.primaryTitle ?? "Primary region", { size: STYLE.title });
   rows(c, s.primary, lx + 8, boxW - 16, top + 30, false);
-  c.box(rx, top, boxW, boxH, { stroke: kind === "restore" ? STYLE.grey : STYLE.ink, dash: kind === "restore" ? "4.5,4.5" : void 0 });
+  if (grey)
+    c.box(rx, top, boxW, boxH, { fill: STYLE.panelFill, stroke: kind === "restore" ? STYLE.grey : STYLE.panelStroke, dash: kind === "restore" ? "4.5,4.5" : void 0 });
+  else
+    c.box(rx, top, boxW, boxH, { fill: STYLE.subnetFill, stroke: STYLE.subnetStroke });
   c.text(rx + boxW / 2, top + 18, s.secondaryTitle ?? (kind === "live" ? "Second region" : "Secondary region"), { size: STYLE.title, fill: grey ? STYLE.grey : STYLE.ink });
   rows(c, s.secondary, rx + 8, boxW - 16, top + 30, grey);
   const my = top + boxH / 2 + 12;
@@ -261,7 +264,8 @@ function region(s, icons, animate) {
   if (s.link) {
     c.line([[lx + boxW + 2, my], [rx - 2, my]], { start: kind === "live", dash: dashed });
     const lines = wrap(s.link, 16);
-    c.text(350, my - 6 - (lines.length - 1) * 12, lines.join("\n"), { size: STYLE.small });
+    c.text(350, my - 14 - (lines.length - 1) * 12, lines.join("\n"), { size: STYLE.small });
+    c.number(350, my, 1);
   }
   if (s.router) {
     const rc = lx + boxW / 2;
@@ -271,15 +275,19 @@ function region(s, icons, animate) {
       c.item(350, 12, s.router, false, 20);
       c.line([[334, 28], [rc, 28], [rc, top - 2]]);
       c.line([[366, 28], [qc, 28], [qc, top - 2]], kind === "live" ? {} : { red: true, dash });
+      c.number((334 + rc) / 2, 28, 1);
+      c.number((366 + qc) / 2, 28, 2);
     } else {
       const bw = Math.max(110, s.router.label.length * 6.4 + 20);
       c.box(350 - bw / 2, 14, bw, 28, { fill: STYLE.panelFill, stroke: STYLE.panelStroke, sw: 1, rx: 3 });
       c.text(350, 32, s.router.label, { size: STYLE.label });
       c.line([[350 - bw / 2, 28], [rc, 28], [rc, top - 2]]);
       c.line([[350 + bw / 2, 28], [qc, 28], [qc, top - 2]], kind === "live" ? {} : { red: true, dash });
+      c.number((350 - bw / 2 + rc) / 2, 28, 1);
+      c.number((350 + bw / 2 + qc) / 2, 28, 2);
     }
     if (kind !== "live")
-      c.text(qc - 40, 20, s.failoverLabel ?? "Failover", { size: STYLE.label, fill: STYLE.red });
+      c.text(qc + 8, 78, s.failoverLabel ?? "Failover", { size: STYLE.label, fill: STYLE.red, anchor: "start" });
   }
   return c;
 }
@@ -292,13 +300,13 @@ function backup(s, icons, animate) {
   const vaultItems = s.guard ? [s.vault, s.guard] : [s.vault];
   const vaultH = rowsHeight(icons, vaultItems, vaultW - 16);
   const innerH = Math.max(srcH, vaultH + feats.length * 30 + (feats.length ? 10 : 0));
-  const boxH = innerH + 30;
+  const boxH = Math.max(innerH + 30, 120);
   const c = new Canvas(W, 40 + boxH + 20, icons, animate);
   const top = 40;
-  c.box(30, top, srcW, boxH);
+  c.box(30, top, srcW, boxH, { fill: STYLE.subnetFill, stroke: STYLE.subnetStroke });
   c.text(30 + srcW / 2, top + 20, "Protected data", { size: STYLE.title });
   rows(c, s.source, 38, srcW - 16, top + 34, false);
-  c.box(vaultX, top, vaultW, boxH);
+  c.box(vaultX, top, vaultW, boxH, { fill: STYLE.panelFill, stroke: STYLE.panelStroke });
   c.text(vaultX + vaultW / 2, top + 20, "Backup", { size: STYLE.title });
   rows(c, vaultItems, vaultX + 8, vaultW - 16, top + 34, false);
   feats.forEach((f, i) => {
@@ -313,11 +321,13 @@ function backup(s, icons, animate) {
   c.line([[gapL, my], [gapR, my]]);
   const chars = Math.floor((gapR - gapL - 6) / 5.6);
   const bl = wrap(s.backupLabel ?? "Backup", chars);
-  c.text(gapMid, my - 6 - (bl.length - 1) * 12, bl.join("\n"), { size: STYLE.small });
+  c.text(gapMid, my - 14 - (bl.length - 1) * 12, bl.join("\n"), { size: STYLE.small });
+  c.number(gapMid, my, 1);
   if (!s.noRestore) {
     const ry = my + 28;
     c.line([[gapR, ry], [gapL, ry]], { dash: "4.5,4.5" });
-    c.text(gapMid, ry + 14, wrap(s.restoreLabel ?? "Restore", chars).join("\n"), { size: STYLE.small });
+    c.number(gapMid, ry, 2);
+    c.text(gapMid, ry + 22, wrap(s.restoreLabel ?? "Restore", chars).join("\n"), { size: STYLE.small });
   }
   if (s.guard) {
     const step = (vaultW - 16) / 2;
@@ -361,13 +371,13 @@ function legend(s) {
       if (kind === "standby" || kind === "restore")
         parts.push("The right box and its items are drawn in grey because they are not in use until needed.");
       if (s.link)
-        parts.push(`A black arrow between them is labelled ${s.link}${kind === "live" ? ", with a head at each end" : ""}.`);
+        parts.push(`A black arrow between them is labelled ${s.link}${kind === "live" ? ", with a head at each end" : ""}, and carries a green numbered circle.`);
       if (s.router)
         parts.push(kind === "live" ? "A router box above sends a black arrow to each region." : `A router box above sends a black arrow to the primary region and a red dashed arrow, labelled ${s.failoverLabel ?? "Failover"}, to the secondary region.`);
       return parts.join(" ");
     }
     case "backup":
-      return `A box labelled Protected data is on the left and a box labelled Backup is on the right. A solid black arrow labelled ${s.backupLabel ?? "Backup"} points right.${s.noRestore ? "" : ` A dashed black arrow labelled ${s.restoreLabel ?? "Restore"} points back left.`}${s.features?.length ? " Grey bars inside the right box give the features." : ""}`;
+      return `A box labelled Protected data is on the left and a box labelled Backup is on the right. A solid black arrow labelled ${s.backupLabel ?? "Backup"} points right, marked with a green circle numbered 1.${s.noRestore ? "" : ` A dashed black arrow labelled ${s.restoreLabel ?? "Restore"} points back left, marked 2.`}${s.features?.length ? " Grey bars inside the right box give the features." : ""}`;
     default: {
       const never = s;
       throw new Error(`unknown template ${JSON.stringify(never)}`);

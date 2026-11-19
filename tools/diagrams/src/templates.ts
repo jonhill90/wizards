@@ -13,7 +13,7 @@ function rows(c: Canvas, items: Item[], x: number, w: number, top: number, grey:
     const step = w / row.length;
     let h = 0;
     row.forEach((it, k) => {
-      h = Math.max(h, c.item(x + step * k + step / 2, y, it, grey, Math.max(10, Math.floor(step / 6.2))));
+      h = Math.max(h, c.item(x + step * k + step / 2, y, it, grey, Math.max(10, Math.floor(step / 5.6))));
     });
     y += h + 8;
   }
@@ -90,10 +90,11 @@ function region(s: RegionSpec, icons: IconSource, animate: boolean): Canvas {
   const grey = kind === "standby" || kind === "restore";
   const lx = 30;
   const rx = 400;
-  c.box(lx, top, boxW, boxH);
+  c.box(lx, top, boxW, boxH, { fill: STYLE.subnetFill, stroke: STYLE.subnetStroke });
   c.text(lx + boxW / 2, top + 18, s.primaryTitle ?? "Primary region", { size: STYLE.title });
   rows(c, s.primary, lx + 8, boxW - 16, top + 30, false);
-  c.box(rx, top, boxW, boxH, { stroke: kind === "restore" ? STYLE.grey : STYLE.ink, dash: kind === "restore" ? "4.5,4.5" : undefined });
+  if (grey) c.box(rx, top, boxW, boxH, { fill: STYLE.panelFill, stroke: kind === "restore" ? STYLE.grey : STYLE.panelStroke, dash: kind === "restore" ? "4.5,4.5" : undefined });
+  else c.box(rx, top, boxW, boxH, { fill: STYLE.subnetFill, stroke: STYLE.subnetStroke });
   c.text(rx + boxW / 2, top + 18, s.secondaryTitle ?? (kind === "live" ? "Second region" : "Secondary region"), { size: STYLE.title, fill: grey ? STYLE.grey : STYLE.ink });
   rows(c, s.secondary, rx + 8, boxW - 16, top + 30, grey);
   // arrow between the regions
@@ -102,7 +103,8 @@ function region(s: RegionSpec, icons: IconSource, animate: boolean): Canvas {
   if (s.link) {
     c.line([[lx + boxW + 2, my], [rx - 2, my]], { start: kind === "live", dash: dashed });
     const lines = wrap(s.link, 16);
-    c.text(350, my - 6 - (lines.length - 1) * 12, lines.join("\n"), { size: STYLE.small });
+    c.text(350, my - 14 - (lines.length - 1) * 12, lines.join("\n"), { size: STYLE.small });
+    c.number(350, my, 1);
   }
   if (s.router) {
     const rc = lx + boxW / 2;
@@ -112,14 +114,18 @@ function region(s: RegionSpec, icons: IconSource, animate: boolean): Canvas {
       c.item(350, 12, s.router, false, 20);
       c.line([[334, 28], [rc, 28], [rc, top - 2]]);
       c.line([[366, 28], [qc, 28], [qc, top - 2]], kind === "live" ? {} : { red: true, dash });
+      c.number((334 + rc) / 2, 28, 1);
+      c.number((366 + qc) / 2, 28, 2);
     } else {
       const bw = Math.max(110, s.router.label.length * 6.4 + 20);
       c.box(350 - bw / 2, 14, bw, 28, { fill: STYLE.panelFill, stroke: STYLE.panelStroke, sw: 1, rx: 3 });
       c.text(350, 32, s.router.label, { size: STYLE.label });
       c.line([[350 - bw / 2, 28], [rc, 28], [rc, top - 2]]);
       c.line([[350 + bw / 2, 28], [qc, 28], [qc, top - 2]], kind === "live" ? {} : { red: true, dash });
+      c.number((350 - bw / 2 + rc) / 2, 28, 1);
+      c.number((350 + bw / 2 + qc) / 2, 28, 2);
     }
-    if (kind !== "live") c.text(qc - 40, 20, s.failoverLabel ?? "Failover", { size: STYLE.label, fill: STYLE.red });
+    if (kind !== "live") c.text(qc + 8, 78, s.failoverLabel ?? "Failover", { size: STYLE.label, fill: STYLE.red, anchor: "start" });
   }
   return c;
 }
@@ -133,13 +139,13 @@ function backup(s: BackupSpec, icons: IconSource, animate: boolean): Canvas {
   const vaultItems: Item[] = s.guard ? [s.vault, s.guard] : [s.vault];
   const vaultH = rowsHeight(icons, vaultItems, vaultW - 16);
   const innerH = Math.max(srcH, vaultH + feats.length * 30 + (feats.length ? 10 : 0));
-  const boxH = innerH + 30;
+  const boxH = Math.max(innerH + 30, 120);
   const c = new Canvas(W, 40 + boxH + 20, icons, animate);
   const top = 40;
-  c.box(30, top, srcW, boxH);
+  c.box(30, top, srcW, boxH, { fill: STYLE.subnetFill, stroke: STYLE.subnetStroke });
   c.text(30 + srcW / 2, top + 20, "Protected data", { size: STYLE.title });
   rows(c, s.source, 38, srcW - 16, top + 34, false);
-  c.box(vaultX, top, vaultW, boxH);
+  c.box(vaultX, top, vaultW, boxH, { fill: STYLE.panelFill, stroke: STYLE.panelStroke });
   c.text(vaultX + vaultW / 2, top + 20, "Backup", { size: STYLE.title });
   rows(c, vaultItems, vaultX + 8, vaultW - 16, top + 34, false);
   feats.forEach((f, i) => {
@@ -154,11 +160,13 @@ function backup(s: BackupSpec, icons: IconSource, animate: boolean): Canvas {
   c.line([[gapL, my], [gapR, my]]);
   const chars = Math.floor((gapR - gapL - 6) / 5.6);
   const bl = wrap(s.backupLabel ?? "Backup", chars);
-  c.text(gapMid, my - 6 - (bl.length - 1) * 12, bl.join("\n"), { size: STYLE.small });
+  c.text(gapMid, my - 14 - (bl.length - 1) * 12, bl.join("\n"), { size: STYLE.small });
+  c.number(gapMid, my, 1);
   if (!s.noRestore) {
     const ry = my + 28;
     c.line([[gapR, ry], [gapL, ry]], { dash: "4.5,4.5" });
-    c.text(gapMid, ry + 14, wrap(s.restoreLabel ?? "Restore", chars).join("\n"), { size: STYLE.small });
+    c.number(gapMid, ry, 2);
+    c.text(gapMid, ry + 22, wrap(s.restoreLabel ?? "Restore", chars).join("\n"), { size: STYLE.small });
   }
   if (s.guard) {
     // dashed approval arrow from the guard (right) to the vault (left)
