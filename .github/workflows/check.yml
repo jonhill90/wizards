@@ -17,6 +17,23 @@ jobs:
           for t in wizards/*/tree.json; do python3 -I scripts/wizards_engine.py validate "$t"; done
       - name: unit tests
         run: python3 -I tests/test_wizards_engine.py
+  web-tests:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: typecheck, build and test the front end
+        run: npm test -- --trace off
   verify-sources:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

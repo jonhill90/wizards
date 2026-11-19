@@ -1,0 +1,18 @@
+{
+  "name": "wizards-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Temporary basic front end for the wizards: walks a tree in the browser, no model, shows a diagram per node",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "serve": "node serve.mjs",
+    "test": "tsc -p tsconfig.json && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "22.10.2",
+    "typescript": "5.7.2"
+  }
+}
