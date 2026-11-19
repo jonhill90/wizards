@@ -27,7 +27,8 @@ export function checkSpec(spec: SpecFile, tree: Tree, iconExists: (name: string)
       s.template === "overview" ? [s.service]
       : s.template === "zone" ? s.items
       : s.template === "region" ? [...s.primary, ...s.secondary, ...(s.router ? [s.router] : [])]
-      : [...s.source, s.vault, ...(s.guard ? [s.guard] : [])];
+      : s.template === "backup" ? [...s.source, s.vault, ...(s.guard ? [s.guard] : [])]
+      : s.nodes;
     for (const it of items) {
       if (!it.label.trim()) problems.push(`diagram "${id}" has an item with no label`);
       if (it.icon && !iconExists(it.icon)) problems.push(`diagram "${id}" uses unknown icon "${it.icon}"`);

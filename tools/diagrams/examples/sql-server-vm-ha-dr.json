@@ -1,0 +1,660 @@
+{
+ "title": "SQL Server on Azure VMs with an availability group, backup and disaster recovery",
+ "alt": "A two-region design for SQL Server installed on Azure virtual machines: an Always On availability group across two availability zones with a load balancer listener and cloud witness, an asynchronous replica in a second region, Azure Backup to a Recovery Services vault, and Site Recovery for the app tier.",
+ "spec": {
+  "template": "scene",
+  "width": 1200,
+  "height": 830,
+  "groups": [
+   {
+    "title": "Region 1 (primary)",
+    "x": 20,
+    "y": 75,
+    "w": 680,
+    "h": 737,
+    "kind": "outline",
+    "titleSize": 12
+   },
+   {
+    "title": "Virtual network 1",
+    "x": 35,
+    "y": 100,
+    "w": 450,
+    "h": 698,
+    "kind": "vnet"
+   },
+   {
+    "title": "App subnet",
+    "x": 50,
+    "y": 125,
+    "w": 425,
+    "h": 115,
+    "kind": "outline"
+   },
+   {
+    "title": "SQL subnet (one subnet across both zones)",
+    "x": 50,
+    "y": 262,
+    "w": 425,
+    "h": 522,
+    "kind": "outline"
+   },
+   {
+    "title": "Availability zone 1",
+    "x": 62,
+    "y": 362,
+    "w": 401,
+    "h": 235,
+    "kind": "blue"
+   },
+   {
+    "title": "SQL Server on Azure VM",
+    "x": 72,
+    "y": 380,
+    "w": 381,
+    "h": 135,
+    "kind": "outline"
+   },
+   {
+    "title": "Availability zone 2",
+    "x": 62,
+    "y": 607,
+    "w": 401,
+    "h": 165,
+    "kind": "blue"
+   },
+   {
+    "title": "SQL Server on Azure VM",
+    "x": 72,
+    "y": 625,
+    "w": 381,
+    "h": 135,
+    "kind": "outline"
+   },
+   {
+    "title": "Region 2 (disaster recovery)",
+    "x": 810,
+    "y": 75,
+    "w": 380,
+    "h": 555,
+    "kind": "outline",
+    "titleSize": 12
+   },
+   {
+    "title": "Virtual network 2",
+    "x": 823,
+    "y": 100,
+    "w": 354,
+    "h": 515,
+    "kind": "vnet"
+   },
+   {
+    "title": "App subnet",
+    "x": 836,
+    "y": 125,
+    "w": 328,
+    "h": 115,
+    "kind": "outline"
+   },
+   {
+    "title": "SQL subnet",
+    "x": 836,
+    "y": 262,
+    "w": 328,
+    "h": 338,
+    "kind": "outline"
+   },
+   {
+    "title": "SQL Server on Azure VM",
+    "x": 846,
+    "y": 380,
+    "w": 308,
+    "h": 135,
+    "kind": "outline",
+    "titleAnchor": "middle"
+   },
+   {
+    "title": "Key",
+    "x": 810,
+    "y": 650,
+    "w": 380,
+    "h": 162,
+    "kind": "grey"
+   },
+   {
+    "title": "",
+    "x": 830,
+    "y": 756,
+    "w": 60,
+    "h": 24,
+    "kind": "vnet"
+   }
+  ],
+  "nodes": [
+   {
+    "id": "clients",
+    "x": 300,
+    "y": 45,
+    "label": "Clients",
+    "box": {
+     "w": 140,
+     "h": 28
+    }
+   },
+   {
+    "id": "app",
+    "x": 300,
+    "y": 168,
+    "label": "App tier VM",
+    "icon": "vm"
+   },
+   {
+    "id": "lb",
+    "x": 300,
+    "y": 305,
+    "label": "Internal load balancer\n(listener IP)",
+    "maxChars": 22,
+    "icon": "load-balancer"
+   },
+   {
+    "id": "vm1",
+    "x": 120,
+    "y": 425,
+    "label": "SQL-VM-1",
+    "icon": "vm"
+   },
+   {
+    "id": "sql1",
+    "x": 215,
+    "y": 425,
+    "label": "SQL Server\nprimary replica",
+    "maxChars": 12,
+    "icon": "sql-server"
+   },
+   {
+    "id": "ext1",
+    "x": 355,
+    "y": 450,
+    "label": "Azure Backup workload extension",
+    "box": {
+     "w": 130,
+     "h": 30
+    }
+   },
+   {
+    "id": "fc1",
+    "x": 355,
+    "y": 485,
+    "label": "Failover cluster node",
+    "box": {
+     "w": 130,
+     "h": 30
+    }
+   },
+   {
+    "id": "dc1",
+    "x": 120,
+    "y": 545,
+    "label": "Domain controller VM",
+    "icon": "vm"
+   },
+   {
+    "id": "vm2",
+    "x": 120,
+    "y": 670,
+    "label": "SQL-VM-2",
+    "icon": "vm"
+   },
+   {
+    "id": "sql2",
+    "x": 215,
+    "y": 670,
+    "label": "SQL Server\nsecondary replica",
+    "maxChars": 12,
+    "icon": "sql-server"
+   },
+   {
+    "id": "fc2",
+    "x": 355,
+    "y": 695,
+    "label": "Failover cluster node",
+    "box": {
+     "w": 130,
+     "h": 30
+    }
+   },
+   {
+    "id": "ext2",
+    "x": 355,
+    "y": 730,
+    "label": "Azure Backup workload extension",
+    "box": {
+     "w": 130,
+     "h": 30
+    }
+   },
+   {
+    "id": "wit",
+    "x": 548,
+    "y": 590,
+    "label": "Storage account\n(cloud witness)",
+    "maxChars": 16,
+    "icon": "storage-account"
+   },
+   {
+    "id": "vault",
+    "x": 640,
+    "y": 590,
+    "label": "Recovery Services vault",
+    "maxChars": 14,
+    "icon": "recovery-vault"
+   },
+   {
+    "id": "app2",
+    "x": 900,
+    "y": 168,
+    "label": "App tier VM\n(recovered by Site Recovery)",
+    "grey": true,
+    "maxChars": 14,
+    "icon": "vm"
+   },
+   {
+    "id": "plan",
+    "x": 1085,
+    "y": 172,
+    "label": "Recovery plan with Azure Automation runbook as pre-action",
+    "box": {
+     "w": 140,
+     "h": 56
+    }
+   },
+   {
+    "id": "lb2",
+    "x": 960,
+    "y": 305,
+    "label": "Internal load balancer\n(listener IP)",
+    "maxChars": 22,
+    "icon": "load-balancer"
+   },
+   {
+    "id": "sql3",
+    "x": 890,
+    "y": 425,
+    "label": "SQL Server\nasynchronous replica",
+    "maxChars": 12,
+    "icon": "sql-server"
+   },
+   {
+    "id": "vm3",
+    "x": 980,
+    "y": 425,
+    "label": "SQL-VM-3",
+    "icon": "vm"
+   },
+   {
+    "id": "ext3",
+    "x": 1090,
+    "y": 450,
+    "label": "Azure Backup workload extension",
+    "box": {
+     "w": 110,
+     "h": 30
+    }
+   },
+   {
+    "id": "fc3",
+    "x": 1090,
+    "y": 485,
+    "label": "Failover cluster node",
+    "box": {
+     "w": 110,
+     "h": 30
+    }
+   },
+   {
+    "id": "dc2",
+    "x": 890,
+    "y": 545,
+    "label": "Domain controller VM",
+    "icon": "vm"
+   },
+   {
+    "id": "k4",
+    "x": 940,
+    "y": 772,
+    "label": "Virtual network",
+    "maxChars": 20
+   }
+  ],
+  "edges": [
+   {
+    "points": [
+     [
+      300,
+      59
+     ],
+     [
+      300,
+      150
+     ]
+    ],
+    "n": 1,
+    "nAt": [
+     300,
+     98
+    ]
+   },
+   {
+    "points": [
+     [
+      300,
+      216
+     ],
+     [
+      300,
+      286
+     ]
+    ],
+    "label": "Connect to the listener name",
+    "labelAt": [
+     312,
+     283
+    ],
+    "labelAnchor": "start",
+    "n": 2,
+    "nAt": [
+     300,
+     244
+    ]
+   },
+   {
+    "to": "sql1",
+    "via": [
+     [
+      215,
+      305
+     ]
+    ],
+    "n": 3,
+    "nAt": [
+     215,
+     350
+    ],
+    "from": "lb"
+   },
+   {
+    "points": [
+     [
+      236,
+      425
+     ],
+     [
+      270,
+      425
+     ],
+     [
+      270,
+      670
+     ],
+     [
+      236,
+      670
+     ]
+    ],
+    "both": true,
+    "label": "Synchronous commit,\nautomatic failover",
+    "labelAt": [
+     278,
+     560
+    ],
+    "labelAnchor": "start",
+    "n": 4,
+    "nAt": [
+     270,
+     590
+    ]
+   },
+   {
+    "points": [
+     [
+      236,
+      413
+     ],
+     [
+      868,
+      413
+     ]
+    ],
+    "dashed": true,
+    "label": "Asynchronous commit,\nmanual failover",
+    "labelAt": [
+     500,
+     392
+    ],
+    "labelAnchor": "start",
+    "n": 5,
+    "nAt": [
+     640,
+     413
+    ]
+   },
+   {
+    "points": [
+     [
+      422,
+      450
+     ],
+     [
+      640,
+      450
+     ],
+     [
+      640,
+      571
+     ]
+    ],
+    "label": "Stream-based backup\nstraight to the vault",
+    "labelAt": [
+     498,
+     425
+    ],
+    "labelAnchor": "start",
+    "n": 6,
+    "nAt": [
+     612,
+     450
+    ]
+   },
+   {
+    "points": [
+     [
+      422,
+      730
+     ],
+     [
+      688,
+      730
+     ],
+     [
+      688,
+      590
+     ],
+     [
+      661,
+      590
+     ]
+    ]
+   },
+   {
+    "points": [
+     [
+      427,
+      485
+     ],
+     [
+      505,
+      485
+     ],
+     [
+      505,
+      590
+     ],
+     [
+      529,
+      590
+     ]
+    ],
+    "label": "Quorum vote",
+    "labelAt": [
+     433,
+     470
+    ],
+    "labelAnchor": "start"
+   },
+   {
+    "points": [
+     [
+      427,
+      695
+     ],
+     [
+      505,
+      695
+     ],
+     [
+      505,
+      590
+     ]
+    ],
+    "n": 7,
+    "nAt": [
+     505,
+     640
+    ]
+   },
+   {
+    "points": [
+     [
+      322,
+      168
+     ],
+     [
+      878,
+      168
+     ]
+    ],
+    "label": "Azure Site Recovery\nreplication",
+    "labelAt": [
+     560,
+     150
+    ],
+    "n": 8,
+    "nAt": [
+     760,
+     168
+    ]
+   },
+   {
+    "to": "sql3",
+    "via": [
+     [
+      890,
+      305
+     ]
+    ],
+    "from": "lb2"
+   },
+   {
+    "points": [
+     [
+      1085,
+      200
+     ],
+     [
+      1085,
+      378
+     ]
+    ],
+    "dashed": true,
+    "label": "AG fails over first",
+    "labelAt": [
+     1078,
+     296
+    ],
+    "labelAnchor": "end",
+    "n": 9,
+    "nAt": [
+     1085,
+     340
+    ]
+   },
+   {
+    "points": [
+     [
+      830,
+      690
+     ],
+     [
+      890,
+      690
+     ]
+    ],
+    "label": "Traffic or data path",
+    "labelAt": [
+     900,
+     693
+    ],
+    "labelAnchor": "start"
+   },
+   {
+    "points": [
+     [
+      830,
+      715
+     ],
+     [
+      890,
+      715
+     ]
+    ],
+    "dashed": true,
+    "label": "Asynchronous or manual",
+    "labelAt": [
+     900,
+     718
+    ],
+    "labelAnchor": "start"
+   },
+   {
+    "points": [
+     [
+      830,
+      740
+     ],
+     [
+      890,
+      740
+     ]
+    ],
+    "both": true,
+    "label": "Two-way replication",
+    "labelAt": [
+     900,
+     743
+    ],
+    "labelAnchor": "start"
+   }
+  ],
+  "notes": [
+   "Clients reach the app tier VM in the app subnet of virtual network 1.",
+   "The app connects to the availability group listener name. With the SQL Server VMs in a single subnet, an Azure internal load balancer holds the listener IP address, and each region needs its own load balancer. Placing the VMs in multiple subnets of one virtual network removes the need for the load balancer.",
+   "The load balancer holds the listener IP address on the one cluster node that needs it at a time, the primary replica.",
+   "SQL-VM-1 and SQL-VM-2 sit in different availability zones as replicas with synchronous commit and automatic failover. They are nodes of one Windows Server failover cluster that needs an Active Directory domain, so a domain controller VM is part of the design.",
+   "The replica in the remote region runs with asynchronous commit and manual failover. The two virtual networks are joined by virtual network peering or a site-to-site VPN gateway, and replication between regions incurs outbound data charges.",
+   "Azure Backup installs the AzureBackupWindowsWorkload extension on each SQL Server VM. It streams backups through SQL native APIs straight to the Recovery Services vault with no staging location, honours the availability group backup preference, and can take log backups as often as every 15 minutes.",
+   "The cloud witness gives the cluster a quorum vote, so a two-node cluster can keep running with one node online. It needs a Standard general-purpose v2 storage account with locally redundant storage; Premium storage is not supported for a cloud witness.",
+   "Site Recovery replicates the app tier VM to Region 2. The web and app tiers fail over only after the database failover is done. The Recovery Services vault used by Site Recovery holds metadata, not customer data.",
+   "A Site Recovery recovery plan runs the ASR-SQL-FailoverAG script from Azure Automation as the pre-action of its first group, which fails over the availability group before the app tier starts. This assumes a domain controller already exists in the secondary region."
+  ]
+ }
+}

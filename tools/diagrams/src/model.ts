@@ -58,7 +58,63 @@ export interface BackupSpec {
   noRestore?: boolean;
 }
 
-export type Spec = OverviewSpec | ZoneSpec | RegionSpec | BackupSpec;
+/** A free-form area: a region, a network, a zone, a server. Drawn first, in array order, so list parents before children. */
+export interface SceneGroup {
+  title?: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** outline: white, thin black; blue: active panel; grey: standby or not in use; vnet: dashed blue network boundary; dashed: dashed black scope. */
+  kind?: "outline" | "blue" | "grey" | "vnet" | "dashed";
+  titleSize?: number;
+  titleAnchor?: "start" | "middle";
+}
+
+/** A thing at a fixed place. With an icon it is drawn as the official icon and its name; with box it is a plain labelled box. */
+export interface SceneNode {
+  id: string;
+  /** Centre of the icon or box. */
+  x: number;
+  y: number;
+  icon?: string;
+  label: string;
+  box?: { w: number; h: number };
+  grey?: boolean;
+  maxChars?: number;
+}
+
+export interface SceneEdge {
+  /** Node ids. The line starts and ends at the node edge. `via` gives the bends between them. */
+  from?: string;
+  to?: string;
+  via?: [number, number][];
+  /** Exact points instead of from, to and via. */
+  points?: [number, number][];
+  label?: string;
+  labelAt?: [number, number];
+  labelAnchor?: "start" | "middle" | "end";
+  dashed?: boolean;
+  red?: boolean;
+  /** A head at each end. */
+  both?: boolean;
+  /** A green numbered circle, explained by the same-numbered note. */
+  n?: number;
+  nAt?: [number, number];
+}
+
+export interface SceneSpec {
+  template: "scene";
+  width: number;
+  height: number;
+  groups: SceneGroup[];
+  nodes: SceneNode[];
+  edges: SceneEdge[];
+  /** Notes under the drawing, one per numbered circle, in order. */
+  notes?: string[];
+}
+
+export type Spec = OverviewSpec | ZoneSpec | RegionSpec | BackupSpec | SceneSpec;
 
 export interface DiagramEntry {
   title: string;
