@@ -1,5 +1,6 @@
 import { Canvas, STYLE, wrap } from "./canvas.js";
 import type { IconSource } from "./iconparse.js";
+import { resolveSpec } from "./resolve.js";
 import type { BackupSpec, Item, OverviewSpec, RegionSpec, SceneNode, SceneSpec, Spec, ZoneSpec } from "./model.js";
 
 const W = 700;
@@ -56,7 +57,7 @@ function zone(s: ZoneSpec, icons: IconSource, animate: boolean): Canvas {
   const badgeH = s.badge ? 34 : 0;
   const c = new Canvas(W, 52 + regionH + badgeH + 20, icons, animate);
   c.box(30, 52, 640, regionH, { rx: 0 });
-  c.text(50, 70, "Region", { size: STYLE.title, bold: true, anchor: "start" });
+  c.text(50, 70, s.regionName ?? "Region", { size: STYLE.title, bold: true, anchor: "start" });
   c.boundary(36, 76, 628, regionH - 30 + (s.link ? 0 : 0));
   const centres: number[] = [];
   for (let k = 0; k < n; k++) {
@@ -262,6 +263,7 @@ export function draw(spec: Spec, icons: IconSource, animate = false): Canvas {
     case "region": return region(spec, icons, animate);
     case "backup": return backup(spec, icons, animate);
     case "scene": return scene(spec, icons, animate);
+    case "scene-fn": return draw(resolveSpec(spec), icons, animate);
     default: {
       const never: never = spec;
       throw new Error(`unknown template ${JSON.stringify(never)}`);

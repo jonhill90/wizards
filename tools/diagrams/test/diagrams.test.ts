@@ -151,3 +151,39 @@ test("scene examples render, are deterministic and have unique ids", async () =>
     assert.equal(new Set(ids).size, ids.length, `${f}: duplicate ids`);
   }
 });
+
+// Shape step: the same answers give the same drawing, and each answer changes what is drawn.
+import type { DiagramEntry, DrawParams } from "../src/model.js";
+const sqlEntry = (twoRegion: boolean): DiagramEntry => ({ title: "SQL on VMs", alt: "A drawing of SQL Server on Azure VMs with an availability group.", spec: { template: "scene-fn", scene: "sql-vm-ha-dr", defaults: { twoRegion } } });
+const mabsEntry = (kind: "vmware" | "agent"): DiagramEntry => ({ title: "MABS", alt: "A drawing of Azure Backup Server protecting on-premises machines.", spec: { template: "scene-fn", scene: "mabs", defaults: { kind } } });
+const draw = (e: DiagramEntry, p: DrawParams): string => renderDiagram(e, fileIconSource(), { params: p });
+
+test("shape: same answers give the same bytes", () => {
+  const p: DrawParams = { zones: 3, primaryName: "East US 2", secondaryName: "Central US" };
+  assert.equal(draw(sqlEntry(true), p), draw(sqlEntry(true), p));
+});
+
+test("shape: SQL Server on VMs follows the zone count, the region names and the second region", () => {
+  const two = draw(sqlEntry(true), { zones: 2, primaryName: "East US", secondaryName: "West US" });
+  const three = draw(sqlEntry(true), { zones: 3, primaryName: "East US", secondaryName: "West US" });
+  const one = draw(sqlEntry(false), { zones: 2 });
+  assert.ok(two.includes("East US (primary)") && two.includes("West US (disaster recovery)"));
+  assert.ok(!two.includes("Availability zone 3") && three.includes("Availability zone 3") && three.includes("SQL-VM-3"));
+  assert.ok(two.includes("SQL-VM-3") && three.includes("SQL-VM-4")); // the remote replica is numbered after the zone replicas
+  assert.ok(!one.includes("Region 2") && !one.includes("Azure Site Recovery"));
+});
+
+test("shape: MABS follows the link, the seeding and the data size", () => {
+  const plain = draw(mabsEntry("vmware"), {});
+  const full = draw(mabsEntry("vmware"), { link: "private-endpoint", seeding: "yes", data: "over" });
+  assert.ok(!plain.includes("Private endpoint") && !plain.includes("Offline seeding") && !plain.includes("second MABS server"));
+  assert.ok(full.includes("Private endpoint") && full.includes("Offline seeding") && full.includes("Over 75 TB"));
+  assert.ok(draw(mabsEntry("agent"), {}).includes("Hyper-V host"));
+});
+
+test("shape: zone and region templates take names and copies", () => {
+  const zone: DiagramEntry = { title: "Zones", alt: "One region with availability zones and one VM in each.", spec: { template: "zone", items: [{ label: "VM instance", icon: "vm" }], zones: 2 } };
+  const out = draw(zone, { zones: 3, primaryName: "West Europe", instances: 2 });
+  assert.ok(out.includes("West Europe") && out.includes("Availability zone 3"));
+  assert.equal((out.match(/VM instance/g) ?? []).length >= 6, true);
+});

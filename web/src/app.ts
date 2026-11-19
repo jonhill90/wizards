@@ -1,4 +1,5 @@
 import { walk, WalkError, type Position, type Source, type Tree } from "./evaluator.js";
+import { answerFor, formatShape, optionsFor, parseShape, resolveShape, type DrawParams, type Region, type RegionsFile, type ShapeAnswers } from "./shape.js";
 
 // Which wizard: ?w=<slug>, default azure-resiliency. Trees and diagram specs are read from the repository root.
 const slug = new URLSearchParams(location.search).get("w") ?? "azure-resiliency";
@@ -11,7 +12,7 @@ const TOKENS = new URL("../node_modules/@fluentui/tokens/lib/index.js", import.m
 const DIAGRAMS = new URL("../../tools/diagrams/web/diagrams.mjs", import.meta.url).href;
 
 interface DiagramApi {
-  forPath(spec: unknown, path: readonly string[], o?: { animate?: boolean }): { id: string; title: string; alt: string; svg: string; fromNode: string } | null;
+  forPath(spec: unknown, path: readonly string[], o?: { animate?: boolean; params?: DrawParams }): { id: string; title: string; alt: string; svg: string; fromNode: string } | null;
 }
 interface Ui { light: Record<string, string | number>; dark: Record<string, string | number> }
 
@@ -49,8 +50,24 @@ function readAnswers(): string[] {
   const raw = m?.[1];
   return raw ? decodeURIComponent(raw).split(",").filter(Boolean) : [];
 }
+function readShapeAnswers(): ShapeAnswers {
+  const m = /(?:^#|&)s=([^&]*)/.exec(location.hash);
+  return parseShape(m?.[1] ? decodeURIComponent(m[1]) : undefined);
+}
+function hashFor(answers: string[], shape: ShapeAnswers): string {
+  const parts: string[] = [];
+  if (answers.length) parts.push(`a=${encodeURIComponent(answers.join(","))}`);
+  const sh = formatShape(shape);
+  if (sh) parts.push(`s=${encodeURIComponent(sh)}`);
+  return parts.join("&");
+}
+/** A new walk position: answering a question moves on and drops shape answers, which belong to one result. */
 function writeAnswers(answers: string[]): void {
-  location.hash = answers.length ? `a=${encodeURIComponent(answers.join(","))}` : "";
+  location.hash = hashFor(answers, {});
+}
+/** A shape answer changes the drawing only: the address is rewritten without a page render. */
+function writeShape(answers: string[], shape: ShapeAnswers): void {
+  history.replaceState(null, "", `${location.pathname}${location.search}${hashFor(answers, shape) ? "#" + hashFor(answers, shape) : ""}`);
 }
 async function loadJson<T>(url: string): Promise<T | null> {
   try { const r = await fetch(url); return r.ok ? ((await r.json()) as T) : null; } catch { return null; }
@@ -100,7 +117,8 @@ async function main(): Promise<void> {
   };
   applyTheme();
 
-  const [tree, spec] = await Promise.all([loadJson<Tree>(`${base}/tree.json`), loadJson<{ nodes: Record<string, string> }>(`${base}/diagrams/diagrams.spec.json`)]);
+  const [tree, spec, regionsFile] = await Promise.all([loadJson<Tree>(`${base}/tree.json`), loadJson<{ nodes: Record<string, string> }>(`${base}/diagrams/diagrams.spec.json`), loadJson<RegionsFile>(`${base}/regions.json`)]);
+  const regions: Region[] = regionsFile?.regions ?? [];
   if (!tree) { root.replaceChildren(h("fluent-message-bar", { intent: "error", class: "error" }, `Could not load the wizard "${slug}". Check the name in the address, or `, h("a", { href: "?w=azure-resiliency" }, "open the Azure resiliency wizard"), ".")); return; }
   document.title = `${tree.title} · wizard`;
 
@@ -143,6 +161,53 @@ async function main(): Promise<void> {
     shownCount = done;
   }
 
+  /** The shape step on a result: sizing questions that change the drawing and nothing else. */
+  function shapePanel(pos: Position, answers: string[]): HTMLElement | null {
+    const node = pos.node;
+    const shape = node.type === "result" && node.shape ? tree?.shapes?.[node.shape] : undefined;
+    if (!shape || regions.length === 0) return null;
+    const wrap = h("section", { class: "shape", "aria-labelledby": "shape-title" });
+    wrap.append(heading("h2", "Shape the drawing", "400", "shape-title"),
+      text("These answers change the picture, not the advice. The same answers always give the same drawing.", "200", "regular", { class: "subtle" }));
+    const status = h("div", { class: "shape-notes", "aria-live": "polite" });
+    const refresh = (): void => {
+      const r = resolveShape(shape, regions, readShapeAnswers());
+      status.replaceChildren(...r.notes.map((n) => h("fluent-message-bar", { intent: "info", shape: "square", class: "note" }, n)));
+    };
+    const fields = h("div", { class: "shape-fields" });
+    const build = (): void => {
+      const current = readShapeAnswers();
+      fields.replaceChildren();
+      for (const q of shape.questions) {
+        const id = `shape-${q.id}`;
+        const sel = h("select", { id, "data-shape": q.id, class: "shape-select" });
+        const picked = answerFor(q, regions, current);
+        sel.append(h("option", { value: "" }, q.kind === "second-region" || q.kind === "region" ? "Not chosen: use the default drawing" : "Use the default drawing"));
+        for (const o of optionsFor(q, regions, current)) {
+          const opt = h("option", { value: o.id }, o.label);
+          if (picked === o.id) opt.setAttribute("selected", "");
+          sel.append(opt);
+        }
+        if (picked === undefined) (sel as HTMLSelectElement).value = "";
+        sel.addEventListener("change", () => {
+          const next = { ...readShapeAnswers() };
+          const v = (sel as HTMLSelectElement).value;
+          if (v) next[q.id] = v; else delete next[q.id];
+          writeShape(answers, next);
+          build(); refresh();
+          void renderDiagram(pos);
+        });
+        const field = h("div", { class: "shape-field" }, h("label", { for: id, class: "shape-label" }, q.text), sel);
+        if (q.help) field.append(h("span", { class: "subtle small" }, q.help));
+        fields.append(field);
+      }
+    };
+    build(); refresh();
+    const srcs = shape.questions.flatMap((q) => q.sources);
+    wrap.append(fields, status, h("fluent-accordion", { class: "sources" }, item(`Sources for these questions (${srcs.length})`, sourcesBody(srcs))));
+    return wrap;
+  }
+
   function renderContent(pos: Position, answers: string[]): void {
     content.replaceChildren();
     const node = pos.node;
@@ -158,6 +223,8 @@ async function main(): Promise<void> {
       content.append(opts, h("fluent-accordion", { class: "sources" }, item(`Sources (${node.sources.length})`, sourcesBody(node.sources))));
     } else {
       content.append(heading("h2", node.title, "500", "result-title"), h("fluent-message-bar", { intent: "success", shape: "square", class: "summary" }, node.summary));
+      const sp = shapePanel(pos, answers);
+      if (sp) content.append(sp);
       const acc = h("fluent-accordion", { class: "sources" });
       if (node.actions.length) acc.append(item("What to do", list(node.actions), true));
       if (node.caveats.length) acc.append(item("Keep in mind", list(node.caveats), true));
@@ -175,26 +242,49 @@ async function main(): Promise<void> {
     nav.append(back, restart);
   }
 
+  function currentParams(pos: Position): DrawParams {
+    const node = pos.node;
+    const shape = node.type === "result" && node.shape ? tree?.shapes?.[node.shape] : undefined;
+    return shape ? resolveShape(shape, regions, readShapeAnswers()).params : {};
+  }
+
   async function renderDiagram(pos: Position): Promise<void> {
-    const pick = spec && dg ? dg.forPath(spec, pos.path, { animate: true }) : null;
+    const params = currentParams(pos);
+    const pick = spec && dg ? dg.forPath(spec, pos.path, { animate: true, params }) : null;
     if (!pick) {
       shownDiagram = "";
       canvas.replaceChildren(h("p", { class: "placeholder", id: "diagram-placeholder" }, "Your diagram builds here as you answer. Pick an option on the left to begin."));
       caption.replaceChildren();
       return;
     }
-    if (pick.id === shownDiagram) return;
-    shownDiagram = pick.id;
+    const key = `${pick.id}|${JSON.stringify(params)}`;
+    if (key === shownDiagram) return;
+    const sameDiagram = shownDiagram.startsWith(`${pick.id}|`);
+    shownDiagram = key;
     const old = canvas.firstElementChild;
-    if (old && !reduced()) await old.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 83, easing: "linear", fill: "forwards" }).finished.catch(() => undefined);
-    if (shownDiagram !== pick.id) return; // a newer step already replaced it
+    if (old && !sameDiagram && !reduced()) await old.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 83, easing: "linear", fill: "forwards" }).finished.catch(() => undefined);
+    if (shownDiagram !== key) return; // a newer step already replaced it
     const svg = document.importNode(new DOMParser().parseFromString(pick.svg, "image/svg+xml").documentElement, true) as unknown as SVGSVGElement;
     svg.removeAttribute("width"); svg.removeAttribute("height");
     const holder = h("div", { class: "drawing", "data-diagram": pick.id, "data-mode": "live" });
     holder.append(svg);
     canvas.replaceChildren(holder);
+    const full = h("fluent-button", { appearance: "subtle", id: "fullsize" }, "Open full size");
+    full.addEventListener("click", () => {
+      const vb = svg.viewBox.baseVal;
+      const big = svg.cloneNode(true) as SVGSVGElement;
+      big.setAttribute("width", String(vb.width)); big.setAttribute("height", String(vb.height));
+      const dlg = document.createElement("dialog");
+      dlg.className = "fullsize"; dlg.setAttribute("aria-label", pick.title);
+      const close = h("fluent-button", { appearance: "primary", id: "fullsize-close" }, "Close");
+      close.addEventListener("click", () => { dlg.close(); dlg.remove(); });
+      dlg.addEventListener("close", () => dlg.remove());
+      dlg.append(close, h("div", { class: "fullsize-body" }, big));
+      document.body.append(dlg);
+      dlg.showModal();
+    });
     caption.replaceChildren(text(pick.title + (pick.fromNode === pos.nodeId ? "" : " (from an earlier step)"), "300", "semibold"),
-      h("span", { class: "subtle small" }, "Drawn in your browser from the diagram spec, in Microsoft Architecture Center style."));
+      h("span", { class: "subtle small" }, "Drawn in your browser from the diagram spec, in Microsoft Architecture Center style."), full);
   }
 
   const render = (): void => {

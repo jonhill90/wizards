@@ -1,11 +1,12 @@
 import type { SpecFile } from "./model.js";
+import { resolveSpec } from "./resolve.js";
 
 interface TreeNode { type: "question" | "result"; }
 interface Tree { nodes: Record<string, TreeNode>; }
 
 /** Nodes allowed to have no diagram of their own: they fall back to the last diagram on the path. */
 // r-synapse-zone: the tree states a gap (no cited page gives a zone layout), so no diagram is drawn.
-export const NO_DIAGRAM_OK = new Set<string>(["q-targets", "q-service", "r-define-targets", "r-other-service", "r-synapse-zone"]);
+export const NO_DIAGRAM_OK = new Set<string>(["q-targets", "q-where", "q-onprem", "q-service", "r-define-targets", "r-other-service", "r-synapse-zone"]);
 
 export function checkSpec(spec: SpecFile, tree: Tree, iconExists: (name: string) => boolean): string[] {
   const problems: string[] = [];
@@ -22,13 +23,14 @@ export function checkSpec(spec: SpecFile, tree: Tree, iconExists: (name: string)
     if (!e) continue;
     if (!e.title.trim()) problems.push(`diagram "${id}" has no title`);
     if (e.alt.trim().split(/\s+/).length < 6) problems.push(`diagram "${id}" needs an alt sentence of at least six words`);
-    const s = e.spec;
+    const s = resolveSpec(e.spec);
     const items =
       s.template === "overview" ? [s.service]
       : s.template === "zone" ? s.items
       : s.template === "region" ? [...s.primary, ...s.secondary, ...(s.router ? [s.router] : [])]
       : s.template === "backup" ? [...s.source, s.vault, ...(s.guard ? [s.guard] : [])]
-      : s.nodes;
+      : s.template === "scene" ? s.nodes
+      : [];
     for (const it of items) {
       if (!it.label.trim()) problems.push(`diagram "${id}" has an item with no label`);
       if (it.icon && !iconExists(it.icon)) problems.push(`diagram "${id}" uses unknown icon "${it.icon}"`);

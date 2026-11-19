@@ -18,7 +18,7 @@ Python 3 standard library only.
 
 ```text
 python3 -I scripts/wizards_engine.py ask wizards/azure-resiliency/tree.json
-python3 -I scripts/wizards_engine.py run wizards/azure-resiliency/tree.json --answers yes,vm,zone
+python3 -I scripts/wizards_engine.py run wizards/azure-resiliency/tree.json --answers yes,azure,vm,zone
 python3 -I scripts/wizards_engine.py paths wizards/azure-resiliency/tree.json
 ```
 

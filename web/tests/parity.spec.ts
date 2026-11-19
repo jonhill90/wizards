@@ -10,11 +10,11 @@ const treeFile = path.join(repo, "wizards", "azure-resiliency", "tree.json");
 const tree = JSON.parse(readFileSync(treeFile, "utf8")) as Tree;
 const engine = (...args: string[]): string => execFileSync("python3", ["-I", path.join(repo, "scripts", "wizards_engine.py"), ...args], { encoding: "utf8" });
 
-test("same 62 paths as the Python engine's `paths`", () => {
+test("same 64 paths as the Python engine's `paths`", () => {
   const python = engine("paths", treeFile).trim().split("\n").filter((l) => l.includes(" => ")).map((l) => l.split(" => ") as [string, string]);
   const ts = allPaths(tree).map((p) => [p.answers.join(","), p.result]);
   expect(ts).toEqual(python);
-  expect(ts).toHaveLength(62);
+  expect(ts).toHaveLength(64);
 });
 
 test("every path gives the same steps and result as `run --json`", () => {

@@ -11,7 +11,11 @@ npm run serve        # http://127.0.0.1:4173/
 
 To get a copy that needs no `node_modules` and no checkout, run `npm run build && node build-site.mjs` in `web/`. It writes `web/site/` (about 2 MB: the page, the compiled scripts, the Fluent bundle and tokens, the diagram module and `wizards/`), which any static file host can serve; the layout mirrors the repository, so no path changes. Locally: `SITE_ROOT=site node serve.mjs 4174`. This repository does not publish it anywhere; hosting is a separate decision.
 
-`?w=<slug>` picks the wizard (default `azure-resiliency`). The answers are in the address after `#a=`, as comma-separated option ids, so any state can be linked and the same link always gives the same screen: `/web/index.html#a=yes,vm,region`.
+`?w=<slug>` picks the wizard (default `azure-resiliency`). The answers are in the address after `#a=`, as comma-separated option ids, so any state can be linked and the same link always gives the same screen: `/web/index.html#a=yes,azure,vm,region`.
+
+## Shape step
+
+A result that names a shape shows a "Shape the drawing" card under its summary: one select per question (region, second region, zones, VMs, backup path). Each change redraws the diagram at once and rewrites the address (`#a=...&s=primary~east-us-2,zones~3`) without a page render. Zones are limited to what the chosen region has on Learn's availability zones page, and a region that page does not list says so. "Open full size" shows the drawing at its natural size in a dialog. Rules: `docs/reference/tree-format.md`.
 
 ## What you see
 

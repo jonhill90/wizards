@@ -1,4 +1,5 @@
-import type { DiagramEntry, Spec } from "./model.js";
+import type { DiagramEntry, DrawParams, Spec } from "./model.js";
+import { resolveSpec } from "./resolve.js";
 import type { IconSource } from "./iconparse.js";
 import { draw } from "./templates.js";
 
@@ -9,7 +10,7 @@ export function legend(s: Spec): string {
       return "The service icon is on a grey panel on the left. Black arrows lead from it to one box for each question the wizard asks.";
     case "zone": {
       const n = s.zones ?? 3;
-      return `A solid black box labelled Region holds a dashed blue boundary. Inside are ${n} blue panels, one for each availability zone, each repeating the same items.${s.link ? ` A black arrow below the panels is labelled ${s.link}.` : ""}${s.badge ? " A green numbered circle marks the note under the box." : ""}`;
+      return `A solid black box labelled ${s.regionName ?? "Region"} holds a dashed blue boundary. Inside are ${n} blue panels, one for each availability zone, each repeating the same items.${s.link ? ` A black arrow below the panels is labelled ${s.link}.` : ""}${s.badge ? " A green numbered circle marks the note under the box." : ""}`;
     }
     case "region": {
       const kind = s.secondaryKind ?? "standby";
@@ -26,6 +27,8 @@ export function legend(s: Spec): string {
       const labels = s.edges.map((e) => e.label).filter((t): t is string => !!t);
       return `A free-form drawing with ${s.groups.length} outlined areas${titles.length ? `: ${titles.join("; ")}` : ""}. It holds ${s.nodes.length} labelled items joined by ${s.edges.length} black arrows; dashed arrows are optional, standby or asynchronous paths.${labels.length ? ` Arrow labels: ${labels.join("; ")}.` : ""}${s.notes?.length ? " Green numbered circles on arrows match the numbered notes under the drawing." : ""}`;
     }
+    case "scene-fn":
+      return legend(resolveSpec(s));
     default: {
       const never: never = s;
       throw new Error(`unknown template ${JSON.stringify(never)}`);
@@ -34,6 +37,7 @@ export function legend(s: Spec): string {
 }
 
 /** Draw one diagram to a self-contained SVG string. Same input, same bytes. */
-export function renderDiagram(entry: DiagramEntry, icons: IconSource, opts: { animate?: boolean } = {}): string {
-  return draw(entry.spec, icons, opts.animate ?? false).svg(entry.title, `${entry.alt} ${legend(entry.spec)}`);
+export function renderDiagram(entry: DiagramEntry, icons: IconSource, opts: { animate?: boolean; params?: DrawParams } = {}): string {
+  const spec = resolveSpec(entry.spec, opts.params);
+  return draw(spec, icons, opts.animate ?? false).svg(entry.title, `${entry.alt} ${legend(spec)}`);
 }

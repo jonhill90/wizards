@@ -12,7 +12,7 @@
     {
      "id": "yes",
      "label": "Yes, both are written down",
-     "next": "q-service"
+     "next": "q-where"
     },
     {
      "id": "no",
@@ -291,7 +291,8 @@
      "quote": "Availability sets provide high availability but don't offer the same level of resiliency as availability zones.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "vm-zone-shape"
   },
   "r-vm-region": {
    "type": "result",
@@ -343,7 +344,8 @@
      "quote": "service keeps your data safe and recoverable.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "vm-region-shape"
   },
   "q-vm-attacker": {
    "type": "question",
@@ -534,7 +536,8 @@
      "quote": "Secondary databases created through the failover group will inherit the high availability settings of their respective primary databases.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "q-sqldb-downtime": {
    "type": "question",
@@ -623,7 +626,8 @@
      "quote": "Typically minutes or hours, dependent on size of database backup",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "q-sqldb-grouped": {
    "type": "question",
@@ -705,7 +709,8 @@
      "quote": "Disaster Recovery (Using failover groups with customer managed failover policy or active geo-replication)",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-sqldb-geo-replication": {
    "type": "result",
@@ -744,7 +749,8 @@
      "quote": "Regardless of which business continuity features you use, you must prepare the secondary database in another region.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-sqldb-pitr": {
    "type": "result",
@@ -844,7 +850,8 @@
      "quote": "Select this checkbox to allow the standby server to be created in the same zone as the primary server.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "q-pg-downtime": {
    "type": "question",
@@ -915,7 +922,8 @@
      "quote": "After you create a server, wait at least one hour before initiating a geo-restore.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-pg-replica": {
    "type": "result",
@@ -962,7 +970,8 @@
      "quote": "the RPO can be close to the replication lag at the time of failure",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-pg-pitr": {
    "type": "result",
@@ -1082,7 +1091,8 @@
      "quote": "For most accounts, you enable zone redundancy only when you add a new region to an Azure Cosmos DB account.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "q-cosmos-writes": {
    "type": "question",
@@ -1159,7 +1169,8 @@
      "quote": "if you use the Business Critical tier, you can use multiple regions for writing.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-cosmos-managed-failover": {
    "type": "result",
@@ -1218,7 +1229,8 @@
      "quote": "If the outage duration exceeds your RTO, request a restore to a different region through Azure Support.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-cosmos-backup": {
    "type": "result",
@@ -1379,7 +1391,8 @@
      "quote": "When designing applications for ZRS, follow practices for transient fault handling, including implementing retry policies with exponential back-off.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "r-storage-geo": {
    "type": "result",
@@ -1432,7 +1445,8 @@
      "quote": "GRS and GZRS aren't supported for SSD file shares.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "q-storage-kind": {
    "type": "question",
@@ -1599,7 +1613,8 @@
      "quote": "HA avoids cross-region complexity but doesn't protect against a full-region outage.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "q-dbx-managed": {
    "type": "question",
@@ -1713,7 +1728,8 @@
      "quote": "Before you pair workspaces within one of the following groups, contact your Azure Databricks account team to confirm the pair is compatible:",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-dbx-diy-dr": {
    "type": "result",
@@ -1750,7 +1766,8 @@
      "quote": "Azure Databricks recommends managed disaster recovery for cross-region DR on AWS and Azure.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-dbx-data": {
    "type": "result",
@@ -1871,7 +1888,8 @@
      "quote": "The operation to enable or disable zone redundancy is a fully online scaling operation executed in the background.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "q-sqlmi-downtime": {
    "type": "question",
@@ -1955,7 +1973,8 @@
      "quote": "automated backups with geo-redundant storage (the default storage option when you create your instance)",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-sqlmi-failover-group": {
    "type": "result",
@@ -2033,7 +2052,8 @@
      "quote": "Disaster Recovery (Using failover groups with customer managed failover policy )",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-sqlmi-pitr": {
    "type": "result",
@@ -2155,7 +2175,8 @@
      "quote": "If you choose to manually scale your node pool in a zone-down scenario, your pods might remain in the Pending state when there are no nodes available in the healthy zones.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "r-aks-region": {
    "type": "result",
@@ -2201,7 +2222,8 @@
      "quote": "Strive to use stateless clusters that minimize the need for backup.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-aks-backup": {
    "type": "result",
@@ -2375,7 +2397,8 @@
      "quote": "To enable zone redundancy for App Service Premium v4 plans, you must confirm that your desired region supports v4 plans and that it supports availability zones.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "r-appsvc-region": {
    "type": "result",
@@ -2421,7 +2444,8 @@
      "quote": "Most solutions shouldn't rely exclusively on backups.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-appsvc-backup": {
    "type": "result",
@@ -2569,7 +2593,8 @@
      "quote": "Read operations are expected to remain available during zone failures.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "q-kv-region": {
    "type": "question",
@@ -2646,7 +2671,8 @@
      "quote": "After failover, the key vault becomes read-only and only supports limited actions.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-kv-custom": {
    "type": "result",
@@ -2699,7 +2725,8 @@
      "quote": "There's a limitation of backing up no more than 500 past versions of a key, secret, or certificate object.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-kv-recovery": {
    "type": "result",
@@ -2853,7 +2880,8 @@
      "quote": "It's up to you to ensure that your database systems have HADR capabilities that meet your business requirements for recovery time objective (RTO), recovery point objective (RPO), and service-level agreement (SLA).",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "sqlvm-zone-shape"
   },
   "r-sqlvm-region": {
    "type": "result",
@@ -2899,7 +2927,8 @@
      "quote": "A disaster recovery solution that replicates VMs from a primary site to a secondary site.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "sqlvm-region-shape"
   },
   "r-sqlvm-backup": {
    "type": "result",
@@ -3075,7 +3104,8 @@
      "quote": "However, cross-zone disaster recovery doesn't provide zero Recovery Point Objective (RPO).",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "r-disk-region": {
    "type": "result",
@@ -3114,7 +3144,8 @@
      "quote": "ASR supports your disaster recovery (DR) strategy by protecting virtual machines against planned and unplanned disruptions, ranging from zonal failures to regional outages",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-disk-backup": {
    "type": "result",
@@ -3266,7 +3297,8 @@
      "quote": "This property might appear as false even when zone redundancy is enabled.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "r-sb-region": {
    "type": "result",
@@ -3325,7 +3357,8 @@
      "quote": "Namespaces in the Basic and Standard tiers don't include native multiregion features, but you can implement application-level replication patterns by using multiple namespaces across regions.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-sb-data": {
    "type": "result",
@@ -3395,7 +3428,8 @@
      "quote": "A zone failure might cause a few seconds of downtime.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "r-eh-region": {
    "type": "result",
@@ -3448,7 +3482,8 @@
      "quote": "The format of checkpoints changes.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-eh-data": {
    "type": "result",
@@ -3543,7 +3578,8 @@
      "quote": "Fabric capacities located in Azure regions with higher customer demand fluctuations might experience higher than normal latency.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "zone-shape"
   },
   "r-fabric-region": {
    "type": "result",
@@ -3622,7 +3658,8 @@
      "quote": "You can't open notebooks, and code content isn't saved after the disaster.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-fabric-data": {
    "type": "result",
@@ -3747,7 +3784,8 @@
      "quote": "From a reliability perspective, we don't recommend keeping user connections on the same origin server.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-routing-tm": {
    "type": "result",
@@ -3801,7 +3839,8 @@
      "quote": "Traffic Manager operates as a nonregional service and deploys its infrastructure across multiple availability zones in multiple Azure regions worldwide.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "q-synapse-failure": {
    "type": "question",
@@ -3935,7 +3974,8 @@
      "quote": "For large SQL pool instances, this approach might not work because a cross-region restore may take several days.",
      "retrieved": "2026-11-18"
     }
-   ]
+   ],
+   "shape": "region-shape"
   },
   "r-synapse-restore": {
    "type": "result",
@@ -4024,6 +4064,643 @@
      "url": "https://learn.microsoft.com/troubleshoot/azure/synapse-analytics/dedicated-sql/backup-restore/dsql-maint-backup-restore-guidance",
      "quote": "After the restore, you have the dedicated SQL pool online. Pause it indefinitely to save compute costs.",
      "retrieved": "2026-11-18"
+    }
+   ]
+  },
+  "q-where": {
+   "type": "question",
+   "text": "Where does the workload run?",
+   "help": "On-premises machines are backed up with Azure Backup Server or an agent; workloads in Azure use the Azure services below. If you have both, run the wizard once for each.",
+   "options": [
+    {
+     "id": "azure",
+     "label": "In Azure",
+     "next": "q-service"
+    },
+    {
+     "id": "on-premises",
+     "label": "On-premises (VMware, Hyper-V or physical servers)",
+     "next": "q-onprem"
+    }
+   ],
+   "sources": [
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "Azure Backup allows you to back up on-premises machines and workloads, and Azure virtual machines (VMs).",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "On-premises MABS servers can't protect Azure-based workloads.",
+     "retrieved": "2026-11-19"
+    }
+   ]
+  },
+  "q-onprem": {
+   "type": "question",
+   "text": "What do you need to back up on-premises?",
+   "help": "VMware VMs are protected through vCenter without an agent on the hosts. Hyper-V hosts, physical Windows servers and applications use a protection agent on each machine.",
+   "options": [
+    {
+     "id": "vmware",
+     "label": "VMware virtual machines",
+     "next": "r-mabs-vmware"
+    },
+    {
+     "id": "servers",
+     "label": "Hyper-V hosts, physical Windows servers or applications such as SQL Server",
+     "next": "r-mabs-agent"
+    }
+   ],
+   "sources": [
+    {
+     "title": "MABS (Azure Backup Server) V4 (and later) protection matrix",
+     "url": "https://learn.microsoft.com/azure/backup/backup-mabs-protection-matrix",
+     "quote": "This article lists the various servers and workloads that you can protect with Azure Backup Server.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Back up VMware VMs using Azure Backup Server",
+     "url": "https://learn.microsoft.com/azure/backup/backup-azure-backup-server-vmware",
+     "quote": "This article describes how to back up VMware VMs running on VMware ESXi hosts/vCenter Server to Azure using Azure Backup Server (MABS).",
+     "retrieved": "2026-11-19"
+    }
+   ]
+  },
+  "r-mabs-vmware": {
+   "type": "result",
+   "title": "Back up the VMware VMs with Azure Backup Server and a Recovery Services vault",
+   "summary": "Azure Backup Server reads the VMs through vCenter, keeps the first copy on local disk, and its MARS agent sends recovery points to a Recovery Services vault in Azure.",
+   "actions": [
+    "Install Azure Backup Server on a dedicated Windows Server machine and register it with a Recovery Services vault.",
+    "Create a VMware account with a role that holds only the privileges backup needs, and add vCenter (not each ESXi host) to the protection group.",
+    "Open TCP 443 between the backup server and vCenter, and TCP 443 and 902 between it and the ESXi hosts.",
+    "Set short-term retention on disk and enable online protection so recovery points go to the vault."
+   ],
+   "caveats": [
+    "VMware VMs with pass-through disks, physical raw device mappings or existing snapshots cannot be protected, and vApps are not detected.",
+    "Where Learn pages state a limit, the drawing follows it: at most 75 TB of protected data per server, and no backups after more than 15 days without connectivity to Azure.",
+    "Protecting vSphere 9.0 needs MABS V4 Update Rollup 2 or a later rollup for V4."
+   ],
+   "sources": [
+    {
+     "title": "Back up VMware VMs using Azure Backup Server",
+     "url": "https://learn.microsoft.com/azure/backup/backup-azure-backup-server-vmware",
+     "quote": "Agentless backup: MABS doesn't require an agent to be installed on the vCenter or ESXi server, to back up the virtual machine.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Back up VMware VMs using Azure Backup Server",
+     "url": "https://learn.microsoft.com/azure/backup/backup-azure-backup-server-vmware",
+     "quote": "If you use vCenter to manage ESXi servers in your environment, add vCenter (and not ESXi) to the MABS protection group.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Back up VMware VMs using Azure Backup Server",
+     "url": "https://learn.microsoft.com/azure/backup/backup-azure-backup-server-vmware",
+     "quote": "MABS can't protect VMware VMs with pass-through disks and physical raw device mappings (pRDM).",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Back up VMware VMs using Azure Backup Server",
+     "url": "https://learn.microsoft.com/azure/backup/backup-azure-backup-server-vmware",
+     "quote": "MABS can't protect VMware VMs with existing snapshots.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Back up VMware VMs using Azure Backup Server",
+     "url": "https://learn.microsoft.com/azure/backup/backup-azure-backup-server-vmware",
+     "quote": "To protect VMware vSphere 9.0 VMs, including VMs on vCenter Server 9.0 and ESXi 9.0, install MABS V4 Update Rollup 2 or a later update rollup for V4.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "MABS is a server product that can be used to back up on-premises physical servers, VMs, and apps running on them.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "The MARS agent backs up the DPM/MABS disks to a backup Recovery Services vault in Azure by using Azure Backup.",
+     "retrieved": "2026-11-19"
+    }
+   ],
+   "shape": "mabs-shape"
+  },
+  "r-mabs-agent": {
+   "type": "result",
+   "title": "Back up the servers with Azure Backup Server and a protection agent",
+   "summary": "A protection agent on each machine sends its data to Azure Backup Server, and the MARS agent on the backup server copies the backup server's disks to a Recovery Services vault.",
+   "actions": [
+    "Install Azure Backup Server on a dedicated, domain-joined Windows Server machine, on-premises.",
+    "Install the protection agent on each Hyper-V host, physical server or application server you want to protect.",
+    "Create a protection group with short-term disk retention and online protection to the vault.",
+    "Back up the MABS database to Azure too."
+   ],
+   "caveats": [
+    "On-premises MABS servers can't protect Azure-based workloads, and MABS running in Azure can't protect on-premises machines.",
+    "Bare metal recovery with MABS works only on the same hardware, not different hardware or the cloud.",
+    "Do not install MABS on a domain controller, a cluster node, or a machine that runs Exchange Server or System Center Operations Manager."
+   ],
+   "sources": [
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "DPM/MABS protection agent is installed on each machine that will be backed up.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "On-premises MABS servers can't protect Azure-based workloads.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "Also, Bare Metal Recovery (BMR) with MABS is supported only for recovery on the same hardware; recovery to different hardware or cloud environments (such as Azure VM or AWS EC2) isn't supported.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "MABS (Azure Backup Server) V4 (and later) protection matrix",
+     "url": "https://learn.microsoft.com/azure/backup/backup-mabs-protection-matrix",
+     "quote": "MABS doesn't support backup of virtual machines with pass-through disks or those that use a remote VHD.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+     "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+     "quote": "The MARS agent backs up the DPM/MABS disks to a backup Recovery Services vault in Azure by using Azure Backup.",
+     "retrieved": "2026-11-19"
+    }
+   ],
+   "shape": "mabs-shape"
+  }
+ },
+ "shapes": {
+  "zone-shape": {
+   "title": "Size the zone layout",
+   "questions": [
+    {
+     "id": "primary",
+     "kind": "region",
+     "text": "Which Azure region is the primary?",
+     "help": "The region decides how many availability zones you can use and which region is its pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Some Azure services use paired regions to build their multiregion geo-replication and geo-redundancy strategy.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "The regions in the following table support availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "zones",
+     "kind": "choice",
+     "text": "How many availability zones do you spread across?",
+     "help": "Two or more zones protect against the loss of one zone.",
+     "options": [
+      {
+       "id": "2",
+       "label": "Two zones"
+      },
+      {
+       "id": "3",
+       "label": "Three zones"
+      }
+     ],
+     "sources": [
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "A resource is resilient to a zone failure as long as it uses two or more zones.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "Production workloads should be configured to use multiple availability zones if the region they are in supports availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  "region-shape": {
+   "title": "Pick the regions",
+   "questions": [
+    {
+     "id": "primary",
+     "kind": "region",
+     "text": "Which Azure region is the primary?",
+     "help": "The region decides how many availability zones you can use and which region is its pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Some Azure services use paired regions to build their multiregion geo-replication and geo-redundancy strategy.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "The regions in the following table support availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "secondary",
+     "kind": "second-region",
+     "text": "Which region is the second one?",
+     "help": "The region pair is a default, not a requirement. Many regions have no pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Deploying resources to a region in a pair doesn't automatically make them more resilient, nor does it provide automatic high availability, disaster recovery capabilities, or failover.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "You're not limited to using services within a single region or within your region's pair.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  "vm-zone-shape": {
+   "title": "Size the zone layout",
+   "questions": [
+    {
+     "id": "primary",
+     "kind": "region",
+     "text": "Which Azure region is the primary?",
+     "help": "The region decides how many availability zones you can use and which region is its pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Some Azure services use paired regions to build their multiregion geo-replication and geo-redundancy strategy.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "The regions in the following table support availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "zones",
+     "kind": "choice",
+     "text": "How many availability zones do you spread across?",
+     "help": "Two or more zones protect against the loss of one zone.",
+     "options": [
+      {
+       "id": "2",
+       "label": "Two zones"
+      },
+      {
+       "id": "3",
+       "label": "Three zones"
+      }
+     ],
+     "sources": [
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "A resource is resilient to a zone failure as long as it uses two or more zones.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "Production workloads should be configured to use multiple availability zones if the region they are in supports availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "instances",
+     "kind": "choice",
+     "text": "How many VMs in each zone?",
+     "help": "The drawing repeats the VM that many times in every zone.",
+     "options": [
+      {
+       "id": "1",
+       "label": "One"
+      },
+      {
+       "id": "2",
+       "label": "Two"
+      },
+      {
+       "id": "3",
+       "label": "Three"
+      }
+     ],
+     "sources": [
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "Depending on the service, a zone might contain multiple instances or replicas, and some zones might contain none for that service or resource.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  "vm-region-shape": {
+   "title": "Pick the regions",
+   "questions": [
+    {
+     "id": "primary",
+     "kind": "region",
+     "text": "Which Azure region is the primary?",
+     "help": "The region decides how many availability zones you can use and which region is its pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Some Azure services use paired regions to build their multiregion geo-replication and geo-redundancy strategy.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "The regions in the following table support availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "secondary",
+     "kind": "second-region",
+     "text": "Which region is the second one?",
+     "help": "The region pair is a default, not a requirement. Many regions have no pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Deploying resources to a region in a pair doesn't automatically make them more resilient, nor does it provide automatic high availability, disaster recovery capabilities, or failover.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "You're not limited to using services within a single region or within your region's pair.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "instances",
+     "kind": "choice",
+     "text": "How many VMs in each region?",
+     "help": "The drawing repeats the VM that many times in each region.",
+     "options": [
+      {
+       "id": "1",
+       "label": "One"
+      },
+      {
+       "id": "2",
+       "label": "Two"
+      },
+      {
+       "id": "3",
+       "label": "Three"
+      }
+     ],
+     "sources": [
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "Depending on the service, a zone might contain multiple instances or replicas, and some zones might contain none for that service or resource.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  "sqlvm-zone-shape": {
+   "title": "Size the availability group",
+   "questions": [
+    {
+     "id": "primary",
+     "kind": "region",
+     "text": "Which Azure region is the primary?",
+     "help": "The region decides how many availability zones you can use and which region is its pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Some Azure services use paired regions to build their multiregion geo-replication and geo-redundancy strategy.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "The regions in the following table support availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "zones",
+     "kind": "choice",
+     "text": "How many availability zones hold a SQL Server replica?",
+     "help": "One availability group replica per zone, each on its own VM, spread across the zones you pick.",
+     "options": [
+      {
+       "id": "2",
+       "label": "Two zones"
+      },
+      {
+       "id": "3",
+       "label": "Three zones"
+      }
+     ],
+     "sources": [
+      {
+       "title": "Business continuity and HADR for SQL Server on Azure VMs",
+       "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+       "quote": "To configure high availability, place participating SQL Server virtual machines spread across availability zones in the region.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "A resource is resilient to a zone failure as long as it uses two or more zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  "sqlvm-region-shape": {
+   "title": "Size the availability group and pick the regions",
+   "questions": [
+    {
+     "id": "primary",
+     "kind": "region",
+     "text": "Which Azure region is the primary?",
+     "help": "The region decides how many availability zones you can use and which region is its pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Some Azure services use paired regions to build their multiregion geo-replication and geo-redundancy strategy.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "The regions in the following table support availability zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "zones",
+     "kind": "choice",
+     "text": "How many availability zones hold a SQL Server replica?",
+     "help": "One availability group replica per zone, each on its own VM, spread across the zones you pick.",
+     "options": [
+      {
+       "id": "2",
+       "label": "Two zones"
+      },
+      {
+       "id": "3",
+       "label": "Three zones"
+      }
+     ],
+     "sources": [
+      {
+       "title": "Business continuity and HADR for SQL Server on Azure VMs",
+       "url": "https://learn.microsoft.com/azure/azure-sql/virtual-machines/windows/business-continuity-high-availability-disaster-recovery-hadr-overview",
+       "quote": "To configure high availability, place participating SQL Server virtual machines spread across availability zones in the region.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "What are availability zones?",
+       "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+       "quote": "A resource is resilient to a zone failure as long as it uses two or more zones.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "secondary",
+     "kind": "second-region",
+     "text": "Which region is the second one?",
+     "help": "The region pair is a default, not a requirement. Many regions have no pair.",
+     "sources": [
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "Deploying resources to a region in a pair doesn't automatically make them more resilient, nor does it provide automatic high availability, disaster recovery capabilities, or failover.",
+       "retrieved": "2026-11-19"
+      },
+      {
+       "title": "Azure region pairs and nonpaired regions",
+       "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+       "quote": "You're not limited to using services within a single region or within your region's pair.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  "mabs-shape": {
+   "title": "Size the backup server",
+   "questions": [
+    {
+     "id": "link",
+     "kind": "choice",
+     "text": "How does backup traffic reach Azure?",
+     "help": "The private endpoint path needs your on-premises network connected to the virtual network that hosts it.",
+     "options": [
+      {
+       "id": "internet",
+       "label": "Over the internet"
+      },
+      {
+       "id": "private-endpoint",
+       "label": "Through a private endpoint"
+      }
+     ],
+     "sources": [
+      {
+       "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+       "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+       "quote": "When you use the MARS agent to back up your on-premises resources, ensure that your on-premises network (containing your resources to be backed up) is peered with the Azure VNet that contains a private endpoint for the vault.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "seeding",
+     "kind": "choice",
+     "text": "Is the first backup large enough to ship on disks?",
+     "help": "Offline seeding copies the first backup to removable media.",
+     "options": [
+      {
+       "id": "no",
+       "label": "No, send it over the network"
+      },
+      {
+       "id": "yes",
+       "label": "Yes, seed it offline"
+      }
+     ],
+     "sources": [
+      {
+       "title": "Back up VMware VMs using Azure Backup Server",
+       "url": "https://learn.microsoft.com/azure/backup/backup-azure-backup-server-vmware",
+       "quote": "For large amounts of data or less-than-optimal network conditions, consider replicating the data offline by using removable media.",
+       "retrieved": "2026-11-19"
+      }
+     ]
+    },
+    {
+     "id": "data",
+     "kind": "choice",
+     "text": "How much data will one backup server protect?",
+     "help": "One server protects up to 75 TB of replica data.",
+     "options": [
+      {
+       "id": "under",
+       "label": "Up to 75 TB"
+      },
+      {
+       "id": "over",
+       "label": "More than 75 TB"
+      }
+     ],
+     "sources": [
+      {
+       "title": "Support matrix for backup with Microsoft Azure Backup Server or System Center DPM",
+       "url": "https://learn.microsoft.com/azure/backup/backup-support-matrix-mabs-dpm",
+       "quote": "Microsoft Azure Backup Server (MABS)/DPM supports a maximum total replica (protected data) size of 75 TB per server.",
+       "retrieved": "2026-11-19"
+      }
+     ]
     }
    ]
   }

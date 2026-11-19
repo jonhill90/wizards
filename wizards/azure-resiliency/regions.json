@@ -1,0 +1,426 @@
+{
+ "version": 1,
+ "sources": [
+  {
+   "title": "Azure region pairs and nonpaired regions",
+   "url": "https://learn.microsoft.com/azure/reliability/regions-paired",
+   "quote": "Some Azure services use paired regions to build their multiregion geo-replication and geo-redundancy strategy.",
+   "retrieved": "2026-11-19"
+  },
+  {
+   "title": "What are availability zones?",
+   "url": "https://learn.microsoft.com/azure/reliability/availability-zones-overview",
+   "quote": "The regions in the following table support availability zones.",
+   "retrieved": "2026-11-19"
+  }
+ ],
+ "note": "zones is the count on the availability zones page; 0 means the page does not list the region. pair is the region pair on the region pairs page; null means N/A. restricted marks regions the pairs page says need an access request. Regions marked coming soon on either page are left out.",
+ "regions": [
+  {
+   "id": "australia-central",
+   "name": "Australia Central",
+   "zones": 0,
+   "pair": "australia-central-2",
+   "restricted": true
+  },
+  {
+   "id": "australia-central-2",
+   "name": "Australia Central 2",
+   "zones": 0,
+   "pair": "australia-central",
+   "restricted": true
+  },
+  {
+   "id": "australia-east",
+   "name": "Australia East",
+   "zones": 3,
+   "pair": "australia-southeast",
+   "restricted": false
+  },
+  {
+   "id": "australia-southeast",
+   "name": "Australia Southeast",
+   "zones": 0,
+   "pair": "australia-east",
+   "restricted": false
+  },
+  {
+   "id": "austria-east",
+   "name": "Austria East",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "belgium-central",
+   "name": "Belgium Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "brazil-south",
+   "name": "Brazil South",
+   "zones": 3,
+   "pair": "south-central-us",
+   "restricted": false
+  },
+  {
+   "id": "brazil-southeast",
+   "name": "Brazil Southeast",
+   "zones": 0,
+   "pair": "brazil-south",
+   "restricted": true
+  },
+  {
+   "id": "canada-central",
+   "name": "Canada Central",
+   "zones": 3,
+   "pair": "canada-east",
+   "restricted": false
+  },
+  {
+   "id": "canada-east",
+   "name": "Canada East",
+   "zones": 0,
+   "pair": "canada-central",
+   "restricted": false
+  },
+  {
+   "id": "central-india",
+   "name": "Central India",
+   "zones": 3,
+   "pair": "south-india",
+   "restricted": false
+  },
+  {
+   "id": "central-us",
+   "name": "Central US",
+   "zones": 3,
+   "pair": "east-us-2",
+   "restricted": false
+  },
+  {
+   "id": "chile-central",
+   "name": "Chile Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "denmark-east",
+   "name": "Denmark East",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "east-asia",
+   "name": "East Asia",
+   "zones": 3,
+   "pair": "southeast-asia",
+   "restricted": false
+  },
+  {
+   "id": "east-us",
+   "name": "East US",
+   "zones": 3,
+   "pair": "west-us",
+   "restricted": false
+  },
+  {
+   "id": "east-us-2",
+   "name": "East US 2",
+   "zones": 4,
+   "pair": "central-us",
+   "restricted": false
+  },
+  {
+   "id": "france-central",
+   "name": "France Central",
+   "zones": 3,
+   "pair": "france-south",
+   "restricted": false
+  },
+  {
+   "id": "france-south",
+   "name": "France South",
+   "zones": 0,
+   "pair": "france-central",
+   "restricted": true
+  },
+  {
+   "id": "germany-north",
+   "name": "Germany North",
+   "zones": 0,
+   "pair": "germany-west-central",
+   "restricted": true
+  },
+  {
+   "id": "germany-west-central",
+   "name": "Germany West Central",
+   "zones": 3,
+   "pair": "germany-north",
+   "restricted": false
+  },
+  {
+   "id": "india-south-central",
+   "name": "India South Central",
+   "zones": 3,
+   "pair": "central-india",
+   "restricted": false
+  },
+  {
+   "id": "indonesia-central",
+   "name": "Indonesia Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "israel-central",
+   "name": "Israel Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "italy-north",
+   "name": "Italy North",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "japan-east",
+   "name": "Japan East",
+   "zones": 3,
+   "pair": "japan-west",
+   "restricted": false
+  },
+  {
+   "id": "japan-west",
+   "name": "Japan West",
+   "zones": 3,
+   "pair": "japan-east",
+   "restricted": false
+  },
+  {
+   "id": "korea-central",
+   "name": "Korea Central",
+   "zones": 3,
+   "pair": "korea-south",
+   "restricted": false
+  },
+  {
+   "id": "korea-south",
+   "name": "Korea South",
+   "zones": 0,
+   "pair": "korea-central",
+   "restricted": false
+  },
+  {
+   "id": "malaysia-west",
+   "name": "Malaysia West",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "mexico-central",
+   "name": "Mexico Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "new-zealand-north",
+   "name": "New Zealand North",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "north-central-us",
+   "name": "North Central US",
+   "zones": 3,
+   "pair": "south-central-us",
+   "restricted": false
+  },
+  {
+   "id": "north-europe",
+   "name": "North Europe",
+   "zones": 3,
+   "pair": "west-europe",
+   "restricted": false
+  },
+  {
+   "id": "norway-east",
+   "name": "Norway East",
+   "zones": 3,
+   "pair": "norway-west",
+   "restricted": false
+  },
+  {
+   "id": "norway-west",
+   "name": "Norway West",
+   "zones": 0,
+   "pair": "norway-east",
+   "restricted": true
+  },
+  {
+   "id": "poland-central",
+   "name": "Poland Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "qatar-central",
+   "name": "Qatar Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "south-africa-north",
+   "name": "South Africa North",
+   "zones": 3,
+   "pair": "south-africa-west",
+   "restricted": false
+  },
+  {
+   "id": "south-africa-west",
+   "name": "South Africa West",
+   "zones": 0,
+   "pair": "south-africa-north",
+   "restricted": true
+  },
+  {
+   "id": "south-central-us",
+   "name": "South Central US",
+   "zones": 3,
+   "pair": "north-central-us",
+   "restricted": false
+  },
+  {
+   "id": "south-india",
+   "name": "South India",
+   "zones": 0,
+   "pair": "central-india",
+   "restricted": false
+  },
+  {
+   "id": "southeast-asia",
+   "name": "Southeast Asia",
+   "zones": 3,
+   "pair": "east-asia",
+   "restricted": false
+  },
+  {
+   "id": "spain-central",
+   "name": "Spain Central",
+   "zones": 3,
+   "pair": null,
+   "restricted": false
+  },
+  {
+   "id": "sweden-central",
+   "name": "Sweden Central",
+   "zones": 3,
+   "pair": "sweden-south",
+   "restricted": false
+  },
+  {
+   "id": "sweden-south",
+   "name": "Sweden South",
+   "zones": 0,
+   "pair": null,
+   "restricted": true
+  },
+  {
+   "id": "switzerland-north",
+   "name": "Switzerland North",
+   "zones": 3,
+   "pair": "switzerland-west",
+   "restricted": false
+  },
+  {
+   "id": "switzerland-west",
+   "name": "Switzerland West",
+   "zones": 0,
+   "pair": "switzerland-north",
+   "restricted": true
+  },
+  {
+   "id": "uae-central",
+   "name": "UAE Central",
+   "zones": 0,
+   "pair": "uae-north",
+   "restricted": true
+  },
+  {
+   "id": "uae-north",
+   "name": "UAE North",
+   "zones": 3,
+   "pair": "uae-central",
+   "restricted": false
+  },
+  {
+   "id": "uk-south",
+   "name": "UK South",
+   "zones": 3,
+   "pair": "uk-west",
+   "restricted": false
+  },
+  {
+   "id": "uk-west",
+   "name": "UK West",
+   "zones": 0,
+   "pair": "uk-south",
+   "restricted": false
+  },
+  {
+   "id": "west-central-us",
+   "name": "West Central US",
+   "zones": 0,
+   "pair": "west-us-2",
+   "restricted": false
+  },
+  {
+   "id": "west-europe",
+   "name": "West Europe",
+   "zones": 3,
+   "pair": "north-europe",
+   "restricted": false
+  },
+  {
+   "id": "west-india",
+   "name": "West India",
+   "zones": 0,
+   "pair": "south-india",
+   "restricted": false
+  },
+  {
+   "id": "west-us",
+   "name": "West US",
+   "zones": 0,
+   "pair": "east-us",
+   "restricted": false
+  },
+  {
+   "id": "west-us-2",
+   "name": "West US 2",
+   "zones": 3,
+   "pair": "west-central-us",
+   "restricted": false
+  },
+  {
+   "id": "west-us-3",
+   "name": "West US 3",
+   "zones": 3,
+   "pair": "east-us",
+   "restricted": false
+  }
+ ]
+}

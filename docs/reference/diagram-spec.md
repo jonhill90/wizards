@@ -81,3 +81,10 @@ forPath(spec, ["q-service", "q-sqldb-failure", "r-sqldb-zone"], { animate: true 
 - `nodes`: things at a fixed centre `x`, `y`. With `icon` (a name in `icons/manifest.json`) the node is the official icon with its label under it. With `box` it is a plain labelled box. A node with neither is a label only. Never draw a product shape yourself.
 - `edges`: black arrows. Give `from`, `to` (node ids) and optional `via` bends, or exact `points`. `dashed`, `both`, `red`, `label`, `labelAt`, `n` (green numbered circle) and `nAt` are optional.
 - `notes`: one sentence per numbered circle, in order. Each must state only what a cited Learn page says.
+
+
+## Scenes drawn from answers (`scene-fn`)
+
+A detailed scene that must change with the person's answers is drawn by code, not written once by hand: `{"template": "scene-fn", "scene": "sql-vm-ha-dr" | "mabs", "defaults": {...}}`. `defaults` holds what no question sets (`twoRegion` for SQL Server on VMs; `kind` of `vmware` or `agent` for MABS). The front end passes the answers of the result's shape step as `DrawParams` (`tools/diagrams/src/model.ts`): `primaryName`, `secondaryName`, `zones`, `instances`, `link`, `seeding`, `data`. `zone` and `region` diagrams take the same names and counts. Same answers, same bytes: no clock, no randomness, no model (`test/diagrams.test.ts`).
+
+What each answer changes: SQL Server on VMs repeats the zone and the SQL replica for two or three zones, numbers the remote replica after them, names both regions, and leaves out the second region when the result has none. MABS adds the private endpoint path, the offline seeding path, or a second-server box. The numbered notes under a drawing are renumbered to match, and each states only what a Learn page says; the pages are the ones named in the tree's results (SQL Server on Azure VMs HADR overview, MABS and DPM support matrix, VMware backup with MABS, MABS protection matrix). A note that no page-by-page check has covered is listed under "Not proven" in the pull request that added it.

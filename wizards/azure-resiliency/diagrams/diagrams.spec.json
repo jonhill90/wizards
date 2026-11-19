@@ -1008,38 +1008,24 @@
     },
     "sqlvm-zone": {
       "title": "Use an Always On availability group with replicas in different zones",
-      "alt": "Use an Always On availability group with replicas in different zones. One region drawn with 2 availability zones, each holding availability group replica.",
+      "alt": "Use an Always On availability group with replicas in different zones. One region with two or three availability zones, each holding a SQL Server virtual machine and its backup and cluster components, plus a domain controller, a load balancer and a cloud witness.",
       "spec": {
-        "template": "zone",
-        "items": [
-          {
-            "label": "Availability group replica",
-            "icon": "sql-server"
-          }
-        ],
-        "zones": 2,
-        "link": "Availability group"
+        "template": "scene-fn",
+        "scene": "sql-vm-ha-dr",
+        "defaults": {
+          "twoRegion": false
+        }
       }
     },
     "sqlvm-region": {
       "title": "Extend the availability group to a second region, or use log shipping, blob backups or Site Recovery",
-      "alt": "Extend the availability group to a second region, or use log shipping, blob backups or Site Recovery. Two regions side by side: the first holds Availability group replica; the second holds Replica, shipped logs or backups. An arrow labelled Replicas, log shipping or backups joins them.",
+      "alt": "Extend the availability group to a second region. A primary region with the zone-spanning availability group, a second region with an asynchronous replica, and Azure Site Recovery replicating the app tier VM.",
       "spec": {
-        "template": "region",
-        "primary": [
-          {
-            "label": "Availability group replica",
-            "icon": "sql-server"
-          }
-        ],
-        "secondary": [
-          {
-            "label": "Replica, shipped logs or backups",
-            "icon": "sql-server"
-          }
-        ],
-        "link": "Replicas, log shipping or backups",
-        "secondaryKind": "standby"
+        "template": "scene-fn",
+        "scene": "sql-vm-ha-dr",
+        "defaults": {
+          "twoRegion": true
+        }
       }
     },
     "sqlvm-backup": {
@@ -1398,6 +1384,28 @@
           "User-defined restore points"
         ]
       }
+    },
+    "mabs-vmware": {
+      "title": "Azure Backup Server protecting VMware VMs to a Recovery Services vault",
+      "alt": "Azure Backup Server protecting on-premises VMware virtual machines through vCenter, keeping the first copy on local disk and sending recovery points to a Recovery Services vault in Azure.",
+      "spec": {
+        "template": "scene-fn",
+        "scene": "mabs",
+        "defaults": {
+          "kind": "vmware"
+        }
+      }
+    },
+    "mabs-agent": {
+      "title": "Azure Backup Server protecting servers with a protection agent",
+      "alt": "Azure Backup Server protecting Hyper-V hosts, physical Windows servers and application servers through a protection agent on each, sending recovery points to a Recovery Services vault in Azure.",
+      "spec": {
+        "template": "scene-fn",
+        "scene": "mabs",
+        "defaults": {
+          "kind": "agent"
+        }
+      }
     }
   },
   "nodes": {
@@ -1477,6 +1485,8 @@
     "r-routing-frontdoor": "routing-frontdoor",
     "r-routing-tm": "routing-tm",
     "r-synapse-region": "synapse-region",
-    "r-synapse-restore": "synapse-restore"
+    "r-synapse-restore": "synapse-restore",
+    "r-mabs-vmware": "mabs-vmware",
+    "r-mabs-agent": "mabs-agent"
   }
 }

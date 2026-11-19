@@ -24,6 +24,7 @@ test("the static site loads Fluent, the live diagram and the tree with no reposi
   await expect(page.locator("fluent-switch#theme")).toBeVisible();
   expect(await page.evaluate(() => customElements.get("fluent-button") !== undefined)).toBe(true);
   await page.locator('[data-option="yes"]').click();
+  await page.locator('[data-option="azure"]').click();
   await page.locator('[data-option="vm"]').click();
   await page.locator('[data-option="region"]').click();
   await expect(page.locator("#result-title")).toBeVisible();
