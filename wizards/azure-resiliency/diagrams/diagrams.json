@@ -1,13 +1,469 @@
 {
   "version": 1,
   "diagrams": {
-    "sample-two-region-dr": {
-      "file": "sample-two-region-dr.svg",
-      "title": "Two-region failover (sample)",
-      "alt": "A primary region with virtual machines, a database and disks, replicated to a greyed recovery region that takes over on failover. Sample drawing."
+    "ov-vm": {
+      "file": "ov-vm.svg",
+      "title": "Azure virtual machines",
+      "alt": "Azure virtual machines. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-sqldb": {
+      "file": "ov-sqldb.svg",
+      "title": "Azure SQL Database",
+      "alt": "Azure SQL Database. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-sqlmi": {
+      "file": "ov-sqlmi.svg",
+      "title": "Azure SQL Managed Instance",
+      "alt": "Azure SQL Managed Instance. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-aks": {
+      "file": "ov-aks.svg",
+      "title": "Azure Kubernetes Service",
+      "alt": "Azure Kubernetes Service. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-appsvc": {
+      "file": "ov-appsvc.svg",
+      "title": "Azure App Service",
+      "alt": "Azure App Service. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-sqlvm": {
+      "file": "ov-sqlvm.svg",
+      "title": "SQL Server in a virtual machine",
+      "alt": "SQL Server in a virtual machine. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-kv": {
+      "file": "ov-kv.svg",
+      "title": "Azure Key Vault",
+      "alt": "Azure Key Vault. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-pg": {
+      "file": "ov-pg.svg",
+      "title": "Azure Database for PostgreSQL flexible server",
+      "alt": "Azure Database for PostgreSQL flexible server. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-cosmos": {
+      "file": "ov-cosmos.svg",
+      "title": "Azure Cosmos DB",
+      "alt": "Azure Cosmos DB. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-storage": {
+      "file": "ov-storage.svg",
+      "title": "Azure Storage",
+      "alt": "Azure Storage. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-dbx": {
+      "file": "ov-dbx.svg",
+      "title": "Azure Databricks",
+      "alt": "Azure Databricks. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-disk": {
+      "file": "ov-disk.svg",
+      "title": "Managed disks",
+      "alt": "Managed disks. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-sb": {
+      "file": "ov-sb.svg",
+      "title": "Azure Service Bus",
+      "alt": "Azure Service Bus. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-eh": {
+      "file": "ov-eh.svg",
+      "title": "Azure Event Hubs",
+      "alt": "Azure Event Hubs. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-fabric": {
+      "file": "ov-fabric.svg",
+      "title": "Microsoft Fabric",
+      "alt": "Microsoft Fabric. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-routing": {
+      "file": "ov-routing.svg",
+      "title": "Traffic routing",
+      "alt": "Traffic routing. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "ov-synapse": {
+      "file": "ov-synapse.svg",
+      "title": "Azure Synapse dedicated SQL pool",
+      "alt": "Azure Synapse dedicated SQL pool. The wizard asks which failure you must survive: a zone failure, a region failure or data loss."
+    },
+    "vm-zone": {
+      "file": "vm-zone.svg",
+      "title": "Spread the VMs across availability zones",
+      "alt": "Spread the VMs across availability zones. One region drawn with 2 availability zones, each holding vm instance. Zone-spanning scale set across at least two zones."
+    },
+    "vm-region": {
+      "file": "vm-region.svg",
+      "title": "Replicate the VMs to a second region with Azure Site Recovery",
+      "alt": "Replicate the VMs to a second region with Azure Site Recovery. Two regions side by side: the first holds Virtual machine; the second holds Replicated virtual machine. An arrow labelled Azure Site Recovery replication joins them."
+    },
+    "vm-backup": {
+      "file": "vm-backup.svg",
+      "title": "Back up the VMs with Azure Backup",
+      "alt": "Back up the VMs with Azure Backup. Virtual machine on the left, Recovery Services vault on the right, with an arrow labelled Azure Backup. Features: Soft delete on by default."
+    },
+    "vm-backup-hardened": {
+      "file": "vm-backup-hardened.svg",
+      "title": "Back up the VMs with Azure Backup and harden the vault",
+      "alt": "Back up the VMs with Azure Backup and harden the vault. Virtual machine on the left, Recovery Services vault on the right, with an arrow labelled Azure Backup. Features: Immutable vault, Soft delete."
+    },
+    "vm-backup-question": {
+      "file": "vm-backup-question.svg",
+      "title": "Back up the VMs with Azure Backup",
+      "alt": "Back up the VMs with Azure Backup. Virtual machine on the left, Recovery Services vault on the right, with an arrow labelled Azure Backup. Features: Soft delete on by default."
+    },
+    "sqldb-zone": {
+      "file": "sqldb-zone.svg",
+      "title": "Turn on zone redundancy for the database or elastic pool",
+      "alt": "Turn on zone redundancy for the database or elastic pool. One region drawn with 3 availability zones, each holding database replica. Zone-redundant Premium or Business Critical."
+    },
+    "sqldb-georestore": {
+      "file": "sqldb-georestore.svg",
+      "title": "Use geo-redundant backups and geo-restore",
+      "alt": "Use geo-redundant backups and geo-restore. Two regions side by side: the first holds Database; the second holds Restored database. An arrow labelled Geo-restore from geo-replicated backups joins them."
+    },
+    "sqldb-failover-group": {
+      "file": "sqldb-failover-group.svg",
+      "title": "Use a failover group",
+      "alt": "Use a failover group. Two regions side by side: the first holds Primary server and databases; the second holds Secondary server and databases. An arrow labelled Failover group joins them."
+    },
+    "sqldb-geo-replication": {
+      "file": "sqldb-geo-replication.svg",
+      "title": "Use active geo-replication",
+      "alt": "Use active geo-replication. Two regions side by side: the first holds Primary database; the second holds Readable secondary. An arrow labelled Active geo-replication joins them."
+    },
+    "sqldb-pitr": {
+      "file": "sqldb-pitr.svg",
+      "title": "Rely on automatic backups and point-in-time restore",
+      "alt": "Rely on automatic backups and point-in-time restore. Database on the left, Automatic backups on the right, with an arrow labelled Automatic backup. Features: Retention period you set, Long-term retention (optional)."
+    },
+    "pg-zone": {
+      "file": "pg-zone.svg",
+      "title": "Turn on zone-redundant high availability",
+      "alt": "Turn on zone-redundant high availability. One region drawn with 2 availability zones, each holding primary or standby."
+    },
+    "pg-geo-restore": {
+      "file": "pg-geo-restore.svg",
+      "title": "Use geo-redundant backup and restore to the paired region",
+      "alt": "Use geo-redundant backup and restore to the paired region. Two regions side by side: the first holds Server; the second holds New server from restore. An arrow labelled Geo-redundant backup copied to the paired region joins them."
+    },
+    "pg-replica": {
+      "file": "pg-replica.svg",
+      "title": "Use a cross-region read replica and promote it",
+      "alt": "Use a cross-region read replica and promote it. Two regions side by side: the first holds Primary server; the second holds Read replica, promoted on failure. An arrow labelled Cross-region read replica joins them."
+    },
+    "pg-pitr": {
+      "file": "pg-pitr.svg",
+      "title": "Rely on automatic backups and point-in-time restore",
+      "alt": "Rely on automatic backups and point-in-time restore. Server on the left, Automatic backups on the right, with an arrow labelled Automatic backup. Features: Retention 7 days by default, up to 35."
+    },
+    "cosmos-zone": {
+      "file": "cosmos-zone.svg",
+      "title": "Turn on zone redundancy in each region",
+      "alt": "Turn on zone redundancy in each region. One region drawn with 3 availability zones, each holding replica. Zone redundancy is set per region."
+    },
+    "cosmos-multiwrite": {
+      "file": "cosmos-multiwrite.svg",
+      "title": "Use multiple write regions",
+      "alt": "Use multiple write regions. Two regions side by side: the first holds Write region; the second holds Write region. An arrow labelled Multi-region writes joins them."
+    },
+    "cosmos-managed-failover": {
+      "file": "cosmos-managed-failover.svg",
+      "title": "Add a read region and turn on service-managed failover",
+      "alt": "Add a read region and turn on service-managed failover. Two regions side by side: the first holds Write region; the second holds Read region. An arrow labelled Service-managed failover joins them."
+    },
+    "cosmos-backup": {
+      "file": "cosmos-backup.svg",
+      "title": "Use continuous backup with point-in-time restore",
+      "alt": "Use continuous backup with point-in-time restore. Account, database or container on the left, Continuous backup on the right, with an arrow labelled Continuous backup. Features: Tiers of 7, 30 or 35 days."
+    },
+    "storage-zrs": {
+      "file": "storage-zrs.svg",
+      "title": "Use zone-redundant storage (ZRS)",
+      "alt": "Use zone-redundant storage (ZRS). One region drawn with 3 availability zones, each holding copy of the data. Stays readable and writable if a zone fails."
+    },
+    "storage-geo": {
+      "file": "storage-geo.svg",
+      "title": "Use geo-zone-redundant storage (GZRS)",
+      "alt": "Use geo-zone-redundant storage (GZRS). Two regions side by side: the first holds Primary region, zone-redundant; the second holds Secondary region copy. An arrow labelled Asynchronous copy joins them."
+    },
+    "storage-blob-backup": {
+      "file": "storage-blob-backup.svg",
+      "title": "Use Azure Backup for blobs",
+      "alt": "Use Azure Backup for blobs. Blob data on the left, Backup vault on the right, with an arrow labelled Vaulted backup. Features: Operational backup in the same account, Vaulted backup up to 10 years."
+    },
+    "storage-files-backup": {
+      "file": "storage-files-backup.svg",
+      "title": "Use Azure Backup for Azure file shares",
+      "alt": "Use Azure Backup for Azure file shares. Azure file share on the left, Recovery Services vault on the right, with an arrow labelled Azure Backup. Features: Snapshot tier, Vaulted tier."
+    },
+    "storage-other-backup": {
+      "file": "storage-other-backup.svg",
+      "title": "Use Azure Backup for the data type, and do not rely on redundancy",
+      "alt": "Use Azure Backup for the data type, and do not rely on redundancy. Storage data on the left, Recovery Services vault on the right, with an arrow labelled Azure Backup. Features: Redundancy is not a backup."
+    },
+    "dbx-zone": {
+      "file": "dbx-zone.svg",
+      "title": "Rely on the control plane and make your own compute plane zone-redundant",
+      "alt": "Rely on the control plane and make your own compute plane zone-redundant. One region drawn with 3 availability zones, each holding compute plane, your job. The control plane recovers from a zone failure automatically."
+    },
+    "dbx-managed-dr": {
+      "file": "dbx-managed-dr.svg",
+      "title": "Use managed disaster recovery",
+      "alt": "Use managed disaster recovery. Two regions side by side: the first holds Primary workspace; the second holds Secondary workspace. An arrow labelled Managed disaster recovery joins them."
+    },
+    "dbx-diy-dr": {
+      "file": "dbx-diy-dr.svg",
+      "title": "Build a second workspace and replicate it yourself",
+      "alt": "Build a second workspace and replicate it yourself. Two regions side by side: the first holds Primary workspace; the second holds Second workspace you build. An arrow labelled Terraform and Delta Deep Clone joins them."
+    },
+    "dbx-data": {
+      "file": "dbx-data.svg",
+      "title": "Protect the underlying storage",
+      "alt": "Protect the underlying storage. Databricks on the left, Your storage accounts on the right, with an arrow labelled Production data lives here. Features: Protect it as storage."
+    },
+    "sqlmi-zone": {
+      "file": "sqlmi-zone.svg",
+      "title": "Turn on zone redundancy for the managed instance",
+      "alt": "Turn on zone redundancy for the managed instance. One region drawn with 3 availability zones, each holding instance replica. Zone-redundant instance."
+    },
+    "sqlmi-georestore": {
+      "file": "sqlmi-georestore.svg",
+      "title": "Use geo-redundant backups and geo-restore",
+      "alt": "Use geo-redundant backups and geo-restore. Two regions side by side: the first holds Instance; the second holds Database restored on an instance. An arrow labelled Geo-restore from geo-replicated backups joins them."
+    },
+    "sqlmi-failover-group": {
+      "file": "sqlmi-failover-group.svg",
+      "title": "Use a failover group",
+      "alt": "Use a failover group. Two regions side by side: the first holds Primary instance; the second holds Secondary instance. An arrow labelled Failover group joins them."
+    },
+    "sqlmi-pitr": {
+      "file": "sqlmi-pitr.svg",
+      "title": "Rely on automatic backups and point-in-time restore",
+      "alt": "Rely on automatic backups and point-in-time restore. Instance on the left, Automatic backups on the right, with an arrow labelled Automatic backup. Features: Retention 1 to 35 days, Long-term retention not on by default."
+    },
+    "aks-zone": {
+      "file": "aks-zone.svg",
+      "title": "Spread the node pools and the pods across zones",
+      "alt": "Spread the node pools and the pods across zones. One region drawn with 3 availability zones, each holding node pool and pod replicas. The control plane is already zone resilient."
+    },
+    "aks-region": {
+      "file": "aks-region.svg",
+      "title": "Run clusters in two regions and route traffic between them",
+      "alt": "Run clusters in two regions and route traffic between them. Two regions side by side: the first holds Cluster; the second holds Cluster. An arrow labelled Fleet Manager or your own design joins them."
+    },
+    "aks-backup": {
+      "file": "aks-backup.svg",
+      "title": "Use Azure Backup for AKS",
+      "alt": "Use Azure Backup for AKS. AKS cluster on the left, Backup vault on the right, with an arrow labelled Backup extension. Features: Cluster resources and persistent volumes, Vault tier (optional)."
+    },
+    "appsvc-zone": {
+      "file": "appsvc-zone.svg",
+      "title": "Make the App Service plan zone redundant",
+      "alt": "Make the App Service plan zone redundant. One region drawn with 2 availability zones, each holding plan instance. Premium v2 to v4 plan, at least two instances."
+    },
+    "appsvc-region": {
+      "file": "appsvc-region.svg",
+      "title": "Deploy the app to plans in two regions and put failover in front",
+      "alt": "Deploy the app to plans in two regions and put failover in front. Two regions side by side: the first holds App in a plan; the second holds App in a plan."
+    },
+    "appsvc-backup": {
+      "file": "appsvc-backup.svg",
+      "title": "Use App Service backup and restore, with custom backups to your own storage",
+      "alt": "Use App Service backup and restore, with custom backups to your own storage. App files and configuration on the left, Storage account on the right, with an arrow labelled Custom backup. Features: Schedule and retention you set."
+    },
+    "kv-zone": {
+      "file": "kv-zone.svg",
+      "title": "Nothing to turn on: Key Vault is zone redundant by default",
+      "alt": "Nothing to turn on: Key Vault is zone redundant by default. One region drawn with 3 availability zones, each holding vault data. No configuration and no extra cost."
+    },
+    "kv-managed-failover": {
+      "file": "kv-managed-failover.svg",
+      "title": "Rely on Microsoft-managed replication and failover to the paired region",
+      "alt": "Rely on Microsoft-managed replication and failover to the paired region. Two regions side by side: the first holds Key Vault; the second holds Replica in the paired region. An arrow labelled Microsoft-managed replication joins them."
+    },
+    "kv-custom": {
+      "file": "kv-custom.svg",
+      "title": "Run separate vaults in two regions and keep them in step yourself",
+      "alt": "Run separate vaults in two regions and keep them in step yourself. Two regions side by side: the first holds Key Vault; the second holds Second vault. An arrow labelled Backup and restore keep them in step joins them."
+    },
+    "kv-recovery": {
+      "file": "kv-recovery.svg",
+      "title": "Keep soft delete on, turn on purge protection, and back up what you cannot recreate",
+      "alt": "Keep soft delete on, turn on purge protection, and back up what you cannot recreate. Key Vault on the left, Soft-deleted vaults and objects on the right, with an arrow labelled Deleted. Features: Soft delete on, Purge protection (turn on)."
+    },
+    "sqlvm-zone": {
+      "file": "sqlvm-zone.svg",
+      "title": "Use an Always On availability group with replicas in different zones",
+      "alt": "Use an Always On availability group with replicas in different zones. One region drawn with 2 availability zones, each holding availability group replica."
+    },
+    "sqlvm-region": {
+      "file": "sqlvm-region.svg",
+      "title": "Extend the availability group to a second region, or use log shipping, blob backups or Site Recovery",
+      "alt": "Extend the availability group to a second region, or use log shipping, blob backups or Site Recovery. Two regions side by side: the first holds Availability group replica; the second holds Replica, shipped logs or backups. An arrow labelled Replicas, log shipping or backups joins them."
+    },
+    "sqlvm-backup": {
+      "file": "sqlvm-backup.svg",
+      "title": "Back up the databases with Automated Backup or Azure Backup, and test a restore",
+      "alt": "Back up the databases with Automated Backup or Azure Backup, and test a restore. SQL Server databases on the left, Storage account on the right, with an arrow labelled Automated Backup. Features: Retention up to 90 days."
+    },
+    "disk-zone": {
+      "file": "disk-zone.svg",
+      "title": "Choose zone-redundant disks, or replicate at the application level",
+      "alt": "Choose zone-redundant disks, or replicate at the application level. One region drawn with 3 availability zones, each holding zrs disk. LRS disks need the application or Site Recovery."
+    },
+    "disk-region": {
+      "file": "disk-region.svg",
+      "title": "Managed disks have no geo option: replicate the VM with Azure Site Recovery",
+      "alt": "Managed disks have no geo option: replicate the VM with Azure Site Recovery. Two regions side by side: the first holds Virtual machine, Disks; the second holds Replicated virtual machine, Replica disks. An arrow labelled Azure Site Recovery joins them."
+    },
+    "disk-backup": {
+      "file": "disk-backup.svg",
+      "title": "Back up the disks with Azure Disk Backup",
+      "alt": "Back up the disks with Azure Disk Backup. Managed disk on the left, Backup vault on the right, with an arrow labelled Disk Backup. Features: Incremental snapshots, Kept in your subscription."
+    },
+    "sb-zone": {
+      "file": "sb-zone.svg",
+      "title": "Nothing to turn on: Service Bus is zone redundant by default",
+      "alt": "Nothing to turn on: Service Bus is zone redundant by default. One region drawn with 3 availability zones, each holding namespace. Zone redundant at no extra cost."
+    },
+    "sb-region": {
+      "file": "sb-region.svg",
+      "title": "Use Premium tier Geo-Replication, or build your own multi-namespace pattern",
+      "alt": "Use Premium tier Geo-Replication, or build your own multi-namespace pattern. Two regions side by side: the first holds Primary namespace; the second holds Secondary namespace. An arrow labelled Geo-Replication (Premium) joins them."
+    },
+    "sb-data": {
+      "file": "sb-data.svg",
+      "title": "Service Bus has no backup: archive messages in your application",
+      "alt": "Service Bus has no backup: archive messages in your application. Messages on the left, Azure Storage or another durable store on the right, with an arrow labelled You save what you must keep. Features: No backup or restore in the service."
+    },
+    "eh-zone": {
+      "file": "eh-zone.svg",
+      "title": "Nothing to turn on: Event Hubs is zone redundant by default",
+      "alt": "Nothing to turn on: Event Hubs is zone redundant by default. One region drawn with 3 availability zones, each holding namespace. Zone redundant at no extra cost."
+    },
+    "eh-region": {
+      "file": "eh-region.svg",
+      "title": "Use geo-replication on Premium or Dedicated, or metadata geo-disaster recovery",
+      "alt": "Use geo-replication on Premium or Dedicated, or metadata geo-disaster recovery. Two regions side by side: the first holds Primary namespace; the second holds Secondary namespace. An arrow labelled Geo-replication (Premium or Dedicated) joins them."
+    },
+    "eh-data": {
+      "file": "eh-data.svg",
+      "title": "Event Hubs is not storage: use Capture to keep copies of events",
+      "alt": "Event Hubs is not storage: use Capture to keep copies of events. Events on the left, Blob Storage on the right, with an arrow labelled Capture. Features: Events are held only for the retention period."
+    },
+    "fabric-zone": {
+      "file": "fabric-zone.svg",
+      "title": "Nothing to turn on for Fabric itself; check external storage",
+      "alt": "Nothing to turn on for Fabric itself; check external storage. One region drawn with 3 availability zones, each holding fabric resources. Data outside OneLake needs zone-redundant storage."
+    },
+    "fabric-region": {
+      "file": "fabric-region.svg",
+      "title": "Turn on the capacity disaster recovery switch and copy what sits outside OneLake",
+      "alt": "Turn on the capacity disaster recovery switch and copy what sits outside OneLake. Two regions side by side: the first holds Capacity and OneLake; the second holds OneLake copy. An arrow labelled Disaster recovery switch (OneLake data only) joins them."
+    },
+    "fabric-data": {
+      "file": "fabric-data.svg",
+      "title": "Rely on soft delete and item recovery, and know their limits",
+      "alt": "Rely on soft delete and item recovery, and know their limits. Workspaces and items on the left, Soft delete and item recovery on the right, with an arrow labelled Deleted. Features: OneLake file soft delete, Fabric item recovery, Not a backup."
+    },
+    "routing-frontdoor": {
+      "file": "routing-frontdoor.svg",
+      "title": "Put Azure Front Door in front of two or more regional origins",
+      "alt": "Put Azure Front Door in front of two or more regional origins. Two regions side by side: the first holds Origin in region 1; the second holds Origin in region 2."
+    },
+    "routing-tm": {
+      "file": "routing-tm.svg",
+      "title": "Use Azure Traffic Manager for DNS-level failover",
+      "alt": "Use Azure Traffic Manager for DNS-level failover. Two regions side by side: the first holds Endpoint in region 1; the second holds Endpoint in region 2."
+    },
+    "synapse-region": {
+      "file": "synapse-region.svg",
+      "title": "Rely on the daily geo-backup, or add your own copy for a shorter RPO",
+      "alt": "Rely on the daily geo-backup, or add your own copy for a shorter RPO. Two regions side by side: the first holds Dedicated SQL pool; the second holds Pool restored from geo-backup. An arrow labelled Daily geo-backup joins them."
+    },
+    "synapse-restore": {
+      "file": "synapse-restore.svg",
+      "title": "Restore from restore points, and know their limits",
+      "alt": "Restore from restore points, and know their limits. Dedicated SQL pool on the left, Restore points on the right, with an arrow labelled Restore points. Features: Automatic: 7 days, 8-hour RPO, User-defined restore points."
     }
   },
   "nodes": {
-    "r-vm-region": "sample-two-region-dr"
+    "q-vm-failure": "ov-vm",
+    "q-sqldb-failure": "ov-sqldb",
+    "q-sqlmi-failure": "ov-sqlmi",
+    "q-aks-failure": "ov-aks",
+    "q-appsvc-failure": "ov-appsvc",
+    "q-sqlvm-failure": "ov-sqlvm",
+    "q-kv-failure": "ov-kv",
+    "q-pg-failure": "ov-pg",
+    "q-cosmos-failure": "ov-cosmos",
+    "q-storage-failure": "ov-storage",
+    "q-dbx-failure": "ov-dbx",
+    "q-disk-failure": "ov-disk",
+    "q-sb-failure": "ov-sb",
+    "q-eh-failure": "ov-eh",
+    "q-fabric-failure": "ov-fabric",
+    "q-routing-kind": "ov-routing",
+    "q-synapse-failure": "ov-synapse",
+    "r-vm-zone": "vm-zone",
+    "r-vm-region": "vm-region",
+    "r-vm-backup": "vm-backup",
+    "r-vm-backup-hardened": "vm-backup-hardened",
+    "q-vm-attacker": "vm-backup-question",
+    "r-sqldb-zone": "sqldb-zone",
+    "r-sqldb-georestore": "sqldb-georestore",
+    "r-sqldb-failover-group": "sqldb-failover-group",
+    "r-sqldb-geo-replication": "sqldb-geo-replication",
+    "r-sqldb-pitr": "sqldb-pitr",
+    "r-pg-zone": "pg-zone",
+    "r-pg-geo-restore": "pg-geo-restore",
+    "r-pg-replica": "pg-replica",
+    "r-pg-pitr": "pg-pitr",
+    "r-cosmos-zone": "cosmos-zone",
+    "r-cosmos-multiwrite": "cosmos-multiwrite",
+    "r-cosmos-managed-failover": "cosmos-managed-failover",
+    "r-cosmos-backup": "cosmos-backup",
+    "r-storage-zrs": "storage-zrs",
+    "r-storage-geo": "storage-geo",
+    "r-storage-blob-backup": "storage-blob-backup",
+    "r-storage-files-backup": "storage-files-backup",
+    "r-storage-other-backup": "storage-other-backup",
+    "r-dbx-zone": "dbx-zone",
+    "r-dbx-managed-dr": "dbx-managed-dr",
+    "r-dbx-diy-dr": "dbx-diy-dr",
+    "r-dbx-data": "dbx-data",
+    "r-sqlmi-zone": "sqlmi-zone",
+    "r-sqlmi-georestore": "sqlmi-georestore",
+    "r-sqlmi-failover-group": "sqlmi-failover-group",
+    "r-sqlmi-pitr": "sqlmi-pitr",
+    "r-aks-zone": "aks-zone",
+    "r-aks-region": "aks-region",
+    "r-aks-backup": "aks-backup",
+    "r-appsvc-zone": "appsvc-zone",
+    "r-appsvc-region": "appsvc-region",
+    "r-appsvc-backup": "appsvc-backup",
+    "r-kv-zone": "kv-zone",
+    "r-kv-managed-failover": "kv-managed-failover",
+    "r-kv-custom": "kv-custom",
+    "r-kv-recovery": "kv-recovery",
+    "r-sqlvm-zone": "sqlvm-zone",
+    "r-sqlvm-region": "sqlvm-region",
+    "r-sqlvm-backup": "sqlvm-backup",
+    "r-disk-zone": "disk-zone",
+    "r-disk-region": "disk-region",
+    "r-disk-backup": "disk-backup",
+    "r-sb-zone": "sb-zone",
+    "r-sb-region": "sb-region",
+    "r-sb-data": "sb-data",
+    "r-eh-zone": "eh-zone",
+    "r-eh-region": "eh-region",
+    "r-eh-data": "eh-data",
+    "r-fabric-zone": "fabric-zone",
+    "r-fabric-region": "fabric-region",
+    "r-fabric-data": "fabric-data",
+    "r-routing-frontdoor": "routing-frontdoor",
+    "r-routing-tm": "routing-tm",
+    "r-synapse-region": "synapse-region",
+    "r-synapse-restore": "synapse-restore"
   }
 }

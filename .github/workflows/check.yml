@@ -17,6 +17,24 @@ jobs:
           for t in wizards/*/tree.json; do python3 -I scripts/wizards_engine.py validate "$t"; done
       - name: unit tests
         run: python3 -I tests/test_wizards_engine.py
+  diagrams:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/diagrams
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/diagrams/package-lock.json
+      - run: npm ci
+      - name: spec matches the tree and committed SVGs are fresh
+        run: npm run check
+      - name: tests
+        run: npm test
   web-tests:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
