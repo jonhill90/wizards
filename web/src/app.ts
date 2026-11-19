@@ -33,6 +33,17 @@ const text = (s: string, size = "300", weight = "regular", extra: Attrs = {}): H
 const heading = (tag: "h1" | "h2", s: string, size: string, id: string): HTMLElement =>
   h(tag, { id, class: "heading" }, h("fluent-text", { block: true, size, weight: "semibold" }, s));
 
+// One authored check mark (24 grid, 2px round stroke) in place of a text glyph.
+function checkIcon(): SVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("width", "14"); svg.setAttribute("height", "14"); svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M5 12.5l4.5 4.5L19 7.5"); path.setAttribute("fill", "none"); path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", "2.5"); path.setAttribute("stroke-linecap", "round"); path.setAttribute("stroke-linejoin", "round");
+  svg.append(path);
+  return svg as unknown as SVGElement;
+}
+
 function readAnswers(): string[] {
   const m = /(?:^#|&)a=([^&]*)/.exec(location.hash);
   const raw = m?.[1];
@@ -90,7 +101,7 @@ async function main(): Promise<void> {
   applyTheme();
 
   const [tree, spec] = await Promise.all([loadJson<Tree>(`${base}/tree.json`), loadJson<{ nodes: Record<string, string> }>(`${base}/diagrams/diagrams.spec.json`)]);
-  if (!tree) { root.replaceChildren(h("fluent-message-bar", { intent: "error", class: "error" }, `Could not load the wizard "${slug}".`)); return; }
+  if (!tree) { root.replaceChildren(h("fluent-message-bar", { intent: "error", class: "error" }, `Could not load the wizard "${slug}". Check the name in the address, or `, h("a", { href: "?w=azure-resiliency" }, "open the Azure resiliency wizard"), ".")); return; }
   document.title = `${tree.title} · wizard`;
 
   // Header
@@ -126,7 +137,7 @@ async function main(): Promise<void> {
       if (i >= shownCount) enter(li, 8);
       ribbon.append(li);
     });
-    const last = h("li", { class: pos.node.type === "result" ? "now final" : "now" }, h("span", { class: "num", "aria-hidden": "true" }, pos.node.type === "result" ? "✓" : String(done + 1)), h("span", { class: "lbl" }, pos.node.type === "result" ? "Your answer" : "You are here"));
+    const last = h("li", { class: pos.node.type === "result" ? "now final" : "now" }, h("span", { class: "num", "aria-hidden": "true" }, pos.node.type === "result" ? checkIcon() : String(done + 1)), h("span", { class: "lbl" }, pos.node.type === "result" ? "Your answer" : "You are here"));
     enter(last, 8);
     ribbon.append(last);
     shownCount = done;
@@ -168,7 +179,7 @@ async function main(): Promise<void> {
     const pick = spec && dg ? dg.forPath(spec, pos.path, { animate: true }) : null;
     if (!pick) {
       shownDiagram = "";
-      canvas.replaceChildren(h("p", { class: "placeholder", id: "diagram-placeholder" }, "The picture appears here as you answer."));
+      canvas.replaceChildren(h("p", { class: "placeholder", id: "diagram-placeholder" }, "Your diagram builds here as you answer. Pick an option on the left to begin."));
       caption.replaceChildren();
       return;
     }

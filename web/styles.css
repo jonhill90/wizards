@@ -16,48 +16,55 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--fontFamilyBase, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif); font-size: 14px; line-height: 20px; }
-.loading { padding: 24px; }
+.skeleton { max-width: 1280px; margin: 0 auto; padding: 40px 24px; display: grid; gap: 16px; }
+.skeleton i { display: block; height: 20px; border-radius: var(--r-ctl); background: linear-gradient(90deg, var(--line) 25%, transparent 50%, var(--line) 75%) var(--line); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+.skeleton i:first-child { width: 40%; height: 28px; } .skeleton i:nth-child(2) { width: 70%; } .skeleton i:nth-child(3) { width: 55%; }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 .top { max-width: 1280px; margin: 0 auto; padding: 24px 24px 8px; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
 .title { display: grid; gap: 4px; }
 .tools { display: flex; gap: 16px; align-items: center; }
 .switch { display: inline-flex; gap: 8px; align-items: center; }
 .subtle { color: var(--muted); }
 .small { font-size: 12px; line-height: 16px; }
-.grid { max-width: 1280px; margin: 0 auto; padding: 16px 24px 32px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+.grid { max-width: 1280px; margin: 0 auto; padding: 16px 24px 32px; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 24px; align-items: start; }
 @media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } .top, .grid { padding-inline: 16px; } }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); padding: 24px; margin: 0; }
 @media (min-width: 901px) { .right { position: sticky; top: 16px; } }
 
 /* step ribbon: Microsoft's green numbered circles, one per answer, growing as the person answers */
 .ribbon { list-style: none; margin: 0 0 20px; padding: 0 0 0 4px; display: grid; gap: 0; position: relative; }
-.ribbon li { display: flex; gap: 12px; align-items: center; min-height: 28px; position: relative; }
-.ribbon li:not(:last-child)::after { content: ""; position: absolute; left: 11px; top: 26px; width: 2px; height: calc(100% - 22px); background: var(--green); opacity: .5; }
+.ribbon li { display: flex; gap: 12px; align-items: flex-start; min-height: 28px; padding-block: 2px; position: relative; }
+.ribbon .lbl { line-height: 20px; }
+.ribbon li:not(:last-child)::after { content: ""; position: absolute; left: 11px; top: 28px; width: 2px; height: calc(100% - 24px); background: var(--green); opacity: .5; }
 .num { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 600; font-size: 12px; display: grid; place-items: center; }
 .now .num { background: var(--card); color: var(--brand); box-shadow: inset 0 0 0 2px var(--brand); }
 .final .num { background: var(--green); color: #fff; box-shadow: none; }
-.lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lbl { min-width: 0; padding-block: 2px; }
 .now .lbl { color: var(--muted); }
 
 .content { outline: none; max-width: 60ch; } /* Windows type guidance: 50 to 60 characters a line */
 .heading { margin: 0; font: inherit; }
-.content h2 { margin: 0 0 8px; }
+.content h2 { margin: 0 0 8px; text-wrap: balance; }
+.content p, .content li { text-wrap: pretty; }
+.ribbon + .content { margin-top: 24px; } /* more space above a heading than below it */
 .help { margin-bottom: 8px; }
 .options { display: grid; gap: 8px; margin: 16px 0; }
 .options fluent-button { width: 100%; justify-content: flex-start; text-align: left; }
 .summary { margin: 8px 0 16px; }
 .sources { margin-top: 16px; }
 ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
-blockquote { margin: 8px 0; padding-left: 12px; border-left: 3px solid var(--line); }
+blockquote { margin: 8px 0; padding: 8px 12px; background: var(--bg); border-radius: var(--r-ctl); }
 blockquote footer { color: var(--muted); font-size: 12px; line-height: 16px; }
-a { color: var(--colorBrandForegroundLink, #115ea3); }
-.nav { display: flex; gap: 8px; margin-top: 16px; }
+a { color: var(--colorBrandForegroundLink, #115ea3); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.nav { display: flex; gap: 8px; margin: 16px 0 0; }
 
 /* the diagram stays on Microsoft's white canvas in both themes, as the Architecture Center draws it */
-.canvas { background: #fff; border: 1px solid var(--line); border-radius: var(--r-ctl); padding: 12px; display: grid; place-items: center; }
+.right { background: #fff; color: #242424; color-scheme: light; --colorNeutralForeground1: #242424; --colorNeutralForeground2: #424242; --colorNeutralStroke2: #e0e0e0; --muted: #424242; }
+.canvas { display: grid; place-items: center; }
 .drawing { width: 100%; }
 .drawing svg { width: 100%; height: auto; display: block; }
-.placeholder { color: #605e5c; margin: 0; }
-.caption { margin-top: 12px; display: grid; gap: 2px; }
+.placeholder { color: #605e5c; margin: 0; padding: 48px 16px; text-align: center; max-width: 36ch; text-wrap: balance; }
+.caption { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
 .error { margin: 24px; }
 .content:focus-visible { outline: none; }
 :focus-visible { outline: 2px solid var(--colorStrokeFocus2, #000); outline-offset: 2px; }
@@ -73,6 +80,14 @@ a { color: var(--colorBrandForegroundLink, #115ea3); }
   .nav { gap: 8px; }
 }
 @media (forced-colors: active) {
-  .canvas { forced-color-adjust: none; } /* the drawing keeps its own colours on its white canvas; the frame uses system colours */
-  .canvas { border: 1px solid CanvasText; }
+  .canvas { forced-color-adjust: none; } /* the drawing keeps its own colours on its white canvas */
 }
+
+/* Browser surfaces take the palette too: selection, scrollbars, native controls, numerals. */
+:root { color-scheme: light; accent-color: var(--brand); }
+:root[data-theme="dark"] { color-scheme: dark; }
+::selection { background: color-mix(in srgb, var(--brand) 28%, transparent); }
+.canvas { scrollbar-width: thin; scrollbar-color: #8a8886 transparent; }
+.num { font-variant-numeric: tabular-nums; }
+.num svg { display: block; }
+.caption:empty { display: none; }

@@ -53,6 +53,10 @@ npm test
 
 Checked against Microsoft's Learn guidance: [Touch interactions](https://learn.microsoft.com/windows/apps/develop/input/touch-interactions) (touchable is 40 x 40 epx, touch-optimized 44 x 44 with 4 epx between targets) and the [Accessibility checklist](https://learn.microsoft.com/windows/apps/design/accessibility/accessibility-checklist) (names, keyboard, contrast of at least 4.5:1, high contrast, automated checks in CI). The headings are real `h1`/`h2` elements, Back and Start over appear only when there is something to go back to, and on a phone the drawing keeps a readable size and scrolls sideways inside its own focusable box. A manual pass with Narrator and a real phone has not been done: the automated checks cannot replace it.
 
+## Polish pass
+
+Refined (not redesigned) with the Operate-surface guidance of the open-source Impeccable design skill (Apache-2.0, pbakaus/impeccable: `polish`, `operate` and the craft floor), kept inside the Fluent look. What changed: the diagram card is now the white canvas itself instead of a box inside a box, and is wider (4 : 8 columns); a left stripe on quotes became a tinted block (no coloured side borders); the text check mark became a drawn SVG; step labels wrap instead of being cut off; headings balance their lines and have more space above than below; selection colour, native controls, scrollbar, link underline offset and numerals follow the palette; the loading state is a skeleton; the empty diagram and the unknown-wizard error say what to do next. Kept on purpose, where the two sources differ: card elevation plus a 1 px stroke (Windows layering guidance) and the staged diagram animation (asked for by the owner). The Impeccable detector was not run (it downloads a binary and phones home); the checks are the Playwright suite above.
+
 ## Not built yet
 
 A hosted copy (the build above is ready to host, but nothing publishes it); a Narrator and real-device pass; the Fluent 2 design site's own pages (blocked from the build environment, so the design follows Learn and the package source); the layout on a phone puts the drawing below the questions.
