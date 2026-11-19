@@ -1230,7 +1230,14 @@
    "caveats": [
     "After you create an account with continuous mode you cannot switch it to periodic mode.",
     "The 30-day and 35-day tiers are charged for backup storage.",
-    "Point-in-time restore is available for the NoSQL, MongoDB, Table and Gremlin APIs only."
+    "Point-in-time restore is available for the NoSQL, MongoDB, Table and Gremlin APIs only.",
+    "A restore of an account goes into another account, so clients must be pointed at it.",
+    "Firewall, virtual network, data plane role-based access control and private endpoint settings, and stored procedures, triggers and UDFs, are not restored; you add them to the restored account afterwards.",
+    "A restore brings back a container's TTL setting, which can delete data again unless you disable TTL in the restore.",
+    "The backups are not automatically geo-disaster resistant: add another region for the account and the backup.",
+    "Every restore is charged, whatever the tier.",
+    "The analytical store is not included in backups.",
+    "If you do not give a tier, the account gets the 30-day tier, which is charged for backup storage."
    ],
    "sources": [
     {
@@ -1262,6 +1269,54 @@
      "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-resource-model",
      "quote": "Currently, the point-in-time restore feature is available for Azure Cosmos DB accounts that use the API for NoSQL, API for MongoDB, API for Table, or API for Gremlin.",
      "retrieved": "2026-11-18"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "Currently, you can restore an Azure Cosmos DB account (API for NoSQL or MongoDB, API for Table, API for Gremlin) contents at a specific point in time to another account.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "The following configurations aren't restored after the point-in-time recovery:",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "Stored procedures, triggers, UDFs.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "This can result in deletion of data if restore is done without disabling the TTL.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "The backups aren't automatically geo-disaster resistant. Another region should be explicitly added for resiliency of the account and the backup.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "Restore is always charged, regardless of the tier.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Continuous backup with point-in-time restore in Azure Cosmos DB",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-introduction",
+     "quote": "And analytical store isn't included in backups.",
+     "retrieved": "2026-11-19"
+    },
+    {
+     "title": "Resource model for the Azure Cosmos DB point-in-time restore feature",
+     "url": "https://learn.microsoft.com/azure/cosmos-db/continuous-backup-restore-resource-model",
+     "quote": "By default, if you don't provide a tier, Continuous30Days is applied on the account.",
+     "retrieved": "2026-11-19"
     }
    ]
   },
