@@ -5,6 +5,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildWizard } from "../src/build.js";
 import { checkSpec, NO_DIAGRAM_OK } from "../src/check.js";
+import { fileIconSource } from "../src/icons.js";
+import { renderDiagram } from "../src/render.js";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 const WIZARDS = readdirSync(join(REPO, "wizards")).filter((w) => {
@@ -129,5 +131,23 @@ test("animated output has the same shapes, adds a reduced-motion rule, and stays
     assert.equal(mod.render(spec, id, { animate: true }), a, `${id}: animated build is not deterministic`);
     const strip = (x: string) => x.replace(/<style>[\s\S]*?<\/style>\n/, "").replace(/ class="mv-[a-z]+" style="--d:\d+ms"/g, "").replace(/ pathLength="1"/g, "");
     assert.equal(strip(a), plain, `${id}: animation changed the drawing`);
+  }
+});
+
+test("scene examples render, are deterministic and have unique ids", async () => {
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const dir = join(fileURLToPath(import.meta.url), "..", "..", "..", "examples");
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  assert.ok(files.length >= 2);
+  const icons = fileIconSource();
+  for (const f of files) {
+    const entry = JSON.parse(readFileSync(join(dir, f), "utf8"));
+    const a = renderDiagram(entry, icons);
+    assert.equal(a, renderDiagram(entry, icons));
+    assert.match(a, /^<svg /);
+    const ids = [...a.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+    assert.equal(new Set(ids).size, ids.length, `${f}: duplicate ids`);
   }
 });

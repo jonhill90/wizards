@@ -71,3 +71,13 @@ forPath(spec, ["q-service", "q-sqldb-failure", "r-sqldb-zone"], { animate: true 
 ```
 
 `animate: true` adds a small `<style>`: boxes and labels fade in in drawing order and solid arrows draw themselves. It is switched off under `prefers-reduced-motion`. The shapes are identical with or without it, and the tests check that. `forPath` applies the fallback rule: a node with no diagram keeps the last one earlier on the path.
+
+## The `scene` template (free-form drawings)
+
+`scene` is for one-off, detailed drawings that do not fit the four wizard templates. It is not used by the wizard tree. Specs live in `tools/diagrams/examples/*.json`, one diagram entry each (`title`, `alt`, `spec`), and `npm run examples` in `tools/diagrams/` writes `examples/svg/*.svg`; `npm run check` fails if one is stale.
+
+- `width`, `height`: the drawing area in pixels. The notes are drawn below it and add to the height.
+- `groups`: outlined areas drawn in array order, so list a parent before its children. `kind` is `outline`, `blue`, `grey`, `vnet` (dashed blue boundary) or `dashed`.
+- `nodes`: things at a fixed centre `x`, `y`. With `icon` (a name in `icons/manifest.json`) the node is the official icon with its label under it. With `box` it is a plain labelled box. A node with neither is a label only. Never draw a product shape yourself.
+- `edges`: black arrows. Give `from`, `to` (node ids) and optional `via` bends, or exact `points`. `dashed`, `both`, `red`, `label`, `labelAt`, `n` (green numbered circle) and `nAt` are optional.
+- `notes`: one sentence per numbered circle, in order. Each must state only what a cited Learn page says.

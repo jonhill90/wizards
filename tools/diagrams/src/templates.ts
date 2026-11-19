@@ -1,6 +1,6 @@
 import { Canvas, STYLE, wrap } from "./canvas.js";
 import type { IconSource } from "./iconparse.js";
-import type { BackupSpec, Item, OverviewSpec, RegionSpec, Spec, ZoneSpec } from "./model.js";
+import type { BackupSpec, Item, OverviewSpec, RegionSpec, SceneNode, SceneSpec, Spec, ZoneSpec } from "./model.js";
 
 const W = 700;
 const PER_ROW = 3;
@@ -179,12 +179,89 @@ function backup(s: BackupSpec, icons: IconSource, animate: boolean): Canvas {
   return c;
 }
 
+/** Edge point on a node's outline, towards another point (axis-aligned: the longer of dx and dy wins). */
+function edgePoint(n: SceneNode, toward: [number, number]): [number, number] {
+  const hw = n.box ? n.box.w / 2 : 19;
+  const hh = n.box ? n.box.h / 2 : 19;
+  const dx = toward[0] - n.x;
+  const dy = toward[1] - n.y;
+  if (Math.abs(dx) * hh > Math.abs(dy) * hw) return [n.x + Math.sign(dx) * (hw + 2), n.y];
+  return [n.x, n.y + Math.sign(dy || 1) * (hh + 2)];
+}
+
+function scene(s: SceneSpec, icons: IconSource, animate: boolean): Canvas {
+  const notes = s.notes ?? [];
+  const noteChars = Math.floor((s.width - 90) / 5.4);
+  const noteLines = notes.map((t) => wrap(t, noteChars));
+  const notesH = notes.length ? 16 + noteLines.reduce((a, l) => a + l.length * 12 + 8, 0) : 0;
+  const c = new Canvas(s.width, s.height + notesH, icons, animate);
+  for (const g of s.groups) {
+    const kind = g.kind ?? "outline";
+    if (kind === "vnet") c.boundary(g.x, g.y, g.w, g.h);
+    else if (kind === "blue") c.box(g.x, g.y, g.w, g.h, { fill: STYLE.subnetFill, stroke: STYLE.subnetStroke });
+    else if (kind === "grey") c.box(g.x, g.y, g.w, g.h, { fill: STYLE.panelFill, stroke: STYLE.panelStroke });
+    else if (kind === "dashed") c.box(g.x, g.y, g.w, g.h, { fill: "none", dash: "4.5,4.5" });
+    else c.box(g.x, g.y, g.w, g.h, { rx: 0 });
+    if (g.title) {
+      const mid = g.titleAnchor === "middle";
+      c.text(mid ? g.x + g.w / 2 : g.x + 8, g.y + 14, g.title, { size: g.titleSize ?? STYLE.label, bold: true, anchor: mid ? "middle" : "start" });
+    }
+  }
+  const byId = new Map(s.nodes.map((n) => [n.id, n]));
+  const need = (id: string): SceneNode => {
+    const n = byId.get(id);
+    if (!n) throw new Error(`scene edge names unknown node "${id}"`);
+    return n;
+  };
+  for (const e of s.edges) {
+    let pts: [number, number][];
+    if (e.points) pts = e.points;
+    else {
+      const a = need(e.from ?? "");
+      const b = need(e.to ?? "");
+      const via = e.via ?? [];
+      const first: [number, number] = via[0] ?? [b.x, b.y];
+      const last: [number, number] = via[via.length - 1] ?? [a.x, a.y];
+      pts = [edgePoint(a, first), ...via, edgePoint(b, last)];
+    }
+    c.line(pts, { start: e.both, dash: e.dashed ? "4.5,4.5" : undefined, red: e.red });
+  }
+  for (const n of s.nodes) {
+    if (n.box) {
+      c.box(n.x - n.box.w / 2, n.y - n.box.h / 2, n.box.w, n.box.h, { fill: n.grey ? STYLE.panelFill : "#ffffff", stroke: n.grey ? STYLE.panelStroke : STYLE.ink });
+      const lines = wrap(n.label, Math.floor((n.box.w - 8) / 5.4));
+      c.text(n.x, n.y - ((lines.length - 1) * 12) / 2 + 3.5, lines.join("\n"), { size: STYLE.label, fill: n.grey ? STYLE.grey : STYLE.ink });
+    } else {
+      c.item(n.x, n.y - 16, { icon: n.icon, label: n.label }, n.grey ?? false, n.maxChars ?? 16);
+    }
+  }
+  for (const e of s.edges) {
+    if (e.label) {
+      const at = e.labelAt ?? [0, 0];
+      c.text(at[0], at[1], wrap(e.label, 22).join("\n"), { size: STYLE.small, anchor: e.labelAnchor ?? "middle" });
+    }
+    if (e.n !== undefined) {
+      const at = e.nAt ?? e.points?.[0] ?? [0, 0];
+      c.number(at[0], at[1], e.n);
+    }
+  }
+  let y = s.height + 12;
+  notes.forEach((t, i) => {
+    c.number(40, y + 6, i + 1);
+    const lines = noteLines[i] ?? [];
+    c.text(58, y + 9.5, lines.join("\n"), { size: STYLE.label, anchor: "start" });
+    y += lines.length * 12 + 8;
+  });
+  return c;
+}
+
 export function draw(spec: Spec, icons: IconSource, animate = false): Canvas {
   switch (spec.template) {
     case "overview": return overview(spec, icons, animate);
     case "zone": return zone(spec, icons, animate);
     case "region": return region(spec, icons, animate);
     case "backup": return backup(spec, icons, animate);
+    case "scene": return scene(spec, icons, animate);
     default: {
       const never: never = spec;
       throw new Error(`unknown template ${JSON.stringify(never)}`);
