@@ -24,7 +24,7 @@ Never edit the SVGs or `diagrams.json` by hand. The tests fail if they differ fr
 ```
 
 - `id` is a lowercase slug.
-- `title` is a short name. `alt` is a sentence of at least six words that describes the picture; it becomes the SVG `desc` for screen readers.
+- `title` is a short name. `alt` is a sentence of at least six words that describes the picture; it becomes the start of the SVG `desc` for screen readers. The generator appends sentences on structure, arrows and colour (the legend), so do not repeat those in `alt`.
 - Every diagram must be used by at least one node, and every key in `nodes` must be a node of the tree.
 - Every result node needs a diagram, or must be listed in `NO_DIAGRAM_OK` in `tools/diagrams/src/check.ts`. A listed node is a stated gap and a front end keeps the previous diagram on the path.
 
