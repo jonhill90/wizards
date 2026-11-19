@@ -10,6 +10,7 @@ The owner asked for a basic front end that walks a tree and shows a diagram that
 
 - **TypeScript**, compiled with `tsc` straight to ES modules. No bundler and no UI framework, so the whole front end is about 250 lines and easy to throw away.
 - **Playwright Test** for every test: unit-style checks run in Node, and the end-to-end checks drive a real browser. One runner and one tool for both.
+- **Fluent UI Web Components** (Microsoft, MIT) for the controls and theme, loaded as plain ES modules from `node_modules`, and the diagram generator in `tools/diagrams` for the picture, drawn live in the browser.
 - The Python engine stays the reference. The TypeScript evaluator is a second reader of the same JSON, and a parity test proves both give the same steps and result for all of the tree's paths.
 - **.NET** was not used: nothing here needs a server, and the .NET SDK was not on the machine that built this. A later back end or CLI may use it.
 

@@ -24,7 +24,7 @@ python3 -I scripts/wizards_engine.py paths wizards/azure-resiliency/tree.json
 
 ## Use it in a browser
 
-A basic front end walks the tree and shows a diagram that updates with each answer. It is temporary. See [docs/reference/web-front-end.md](docs/reference/web-front-end.md).
+A basic front end walks the tree in Fluent UI styling and draws a Microsoft-style diagram live that grows with each answer. It is temporary. See [docs/reference/web-front-end.md](docs/reference/web-front-end.md).
 
 ```text
 cd web && npm ci && npm run build && npm run serve

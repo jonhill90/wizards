@@ -6,7 +6,10 @@ export interface DiagramEntry { file: string; title: string; alt: string }
 export interface DiagramManifest { version: number; diagrams: Record<string, DiagramEntry>; nodes: Record<string, string> }
 export interface DiagramChoice { id: string; entry: DiagramEntry; fromNode: string }
 
-export function pickDiagram(manifest: DiagramManifest | null, path: readonly string[]): DiagramChoice | null {
+/** Anything with a node map and a diagram table: diagrams.json (static) or diagrams.spec.json (live). */
+export interface NodeMap<T> { diagrams: Record<string, T>; nodes: Record<string, string> }
+
+export function pickDiagram<T = DiagramEntry>(manifest: NodeMap<T> | null, path: readonly string[]): { id: string; entry: T; fromNode: string } | null {
   if (!manifest) return null;
   for (let i = path.length - 1; i >= 0; i--) {
     const nodeId = path[i];

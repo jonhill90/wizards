@@ -1,30 +1,63 @@
-:root { --blue:#0078d4; --ink:#201f1e; --muted:#605e5c; --line:#c8c6c4; --bg:#faf9f8; --card:#fff; }
-@media (prefers-color-scheme: dark) { :root { --ink:#f3f2f1; --muted:#c8c6c4; --line:#484644; --bg:#1b1a19; --card:#292827; --blue:#4da3ec; } }
+/* Colours, radii, shadow and type come from the Fluent 2 theme tokens that setTheme() puts on the page
+   (@fluentui/tokens). Fallbacks are the light theme so the page is readable before the tokens load.
+   Geometry and elevation follow learn.microsoft.com/windows/apps/design/signature-experiences/geometry and /layering:
+   4px controls, 8px cards, card elevation 8, 1px stroke. Type: 14/20 body, 20/28 and 28/36 titles. */
+:root {
+  --bg: var(--colorNeutralBackground2, #fafafa);
+  --card: var(--colorNeutralBackground1, #fff);
+  --ink: var(--colorNeutralForeground1, #242424);
+  --muted: var(--colorNeutralForeground2, #424242);
+  --line: var(--colorNeutralStroke2, #e0e0e0);
+  --brand: var(--colorBrandBackground, #0f6cbd);
+  --green: #107c10; /* the numbered-circle green Microsoft uses in Architecture Center diagrams */
+  --r-ctl: var(--borderRadiusMedium, 4px);
+  --r-card: var(--borderRadiusXLarge, 8px);
+  --shadow: var(--shadow8, 0 0 2px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.14));
+}
 * { box-sizing: border-box; }
-body { margin:0; font-family:"Segoe UI","Segoe UI Variable",system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.5; }
-header, main { max-width:1200px; margin:0 auto; padding:16px; }
-h1 { font-size:1.4rem; margin:0 0 4px; font-weight:600; }
-.note { color:var(--muted); margin:0; font-size:.9rem; }
-main { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:20px; align-items:start; }
-@media (max-width:800px) { main { grid-template-columns:1fr; } }
-.panel, .diagram { background:var(--card); border:1px solid var(--line); border-radius:4px; padding:16px; margin:0; }
-h2 { font-size:1.2rem; margin:12px 0 8px; font-weight:600; }
-h3 { font-size:1rem; margin:16px 0 4px; }
-.help, .caption, .placeholder, .q { color:var(--muted); }
-.options { display:grid; gap:8px; margin:12px 0; }
-button { font:inherit; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:2px; padding:8px 12px; cursor:pointer; text-align:left; }
-button.option { border-color:var(--blue); }
-button:hover:not(:disabled) { background:color-mix(in srgb, var(--blue) 12%, var(--card)); }
-button:focus-visible, summary:focus-visible, a:focus-visible, .panel:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
-button:disabled { opacity:.5; cursor:default; }
-.nav { display:flex; gap:8px; margin-top:16px; }
-.trail { padding-left:20px; margin:0; font-size:.9rem; }
-.sources { margin-top:12px; font-size:.9rem; }
-blockquote { margin:8px 0; padding-left:12px; border-left:3px solid var(--line); }
-blockquote footer { color:var(--muted); font-size:.85rem; }
-a { color:var(--blue); }
-.diagram img { width:100%; height:auto; background:#fff; border:1px solid var(--line); }
-.caption { margin:8px 0 0; font-size:.85rem; }
-.error { color:#d13438; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--fontFamilyBase, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif); font-size: 14px; line-height: 20px; }
+.loading { padding: 24px; }
+.top { max-width: 1280px; margin: 0 auto; padding: 24px 24px 8px; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.title { display: grid; gap: 4px; }
+.tools { display: flex; gap: 16px; align-items: center; }
+.switch { display: inline-flex; gap: 8px; align-items: center; }
+.subtle { color: var(--muted); }
+.small { font-size: 12px; line-height: 16px; }
+.grid { max-width: 1280px; margin: 0 auto; padding: 16px 24px 32px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .top, .grid { padding-inline: 16px; } }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); padding: 24px; margin: 0; }
+@media (min-width: 901px) { .right { position: sticky; top: 16px; } }
 
-@media (min-width:801px) { .diagram { position:sticky; top:16px; } }
+/* step ribbon: Microsoft's green numbered circles, one per answer, growing as the person answers */
+.ribbon { list-style: none; margin: 0 0 20px; padding: 0 0 0 4px; display: grid; gap: 0; position: relative; }
+.ribbon li { display: flex; gap: 12px; align-items: center; min-height: 28px; position: relative; }
+.ribbon li:not(:last-child)::after { content: ""; position: absolute; left: 11px; top: 26px; width: 2px; height: calc(100% - 22px); background: var(--green); opacity: .5; }
+.num { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 600; font-size: 12px; display: grid; place-items: center; }
+.now .num { background: var(--card); color: var(--brand); box-shadow: inset 0 0 0 2px var(--brand); }
+.final .num { background: var(--green); color: #fff; box-shadow: none; }
+.lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now .lbl { color: var(--muted); }
+
+.content { outline: none; max-width: 60ch; } /* Windows type guidance: 50 to 60 characters a line */
+.content h2, .content [id="question"], .content [id="result-title"] { margin: 0 0 8px; }
+.help { margin-bottom: 8px; }
+.options { display: grid; gap: 8px; margin: 16px 0; }
+.options fluent-button { width: 100%; justify-content: flex-start; text-align: left; }
+.summary { margin: 8px 0 16px; }
+.sources { margin-top: 16px; }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+blockquote { margin: 8px 0; padding-left: 12px; border-left: 3px solid var(--line); }
+blockquote footer { color: var(--muted); font-size: 12px; line-height: 16px; }
+a { color: var(--colorBrandForegroundLink, #115ea3); }
+.nav { display: flex; gap: 8px; margin-top: 16px; }
+
+/* the diagram stays on Microsoft's white canvas in both themes, as the Architecture Center draws it */
+.canvas { background: #fff; border: 1px solid var(--line); border-radius: var(--r-ctl); padding: 12px; display: grid; place-items: center; }
+.drawing { width: 100%; }
+.drawing svg { width: 100%; height: auto; display: block; }
+.placeholder { color: #605e5c; margin: 0; }
+.caption { margin-top: 12px; display: grid; gap: 2px; }
+.error { margin: 24px; }
+.content:focus-visible { outline: none; }
+:focus-visible { outline: 2px solid var(--colorStrokeFocus2, #000); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

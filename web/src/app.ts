@@ -1,32 +1,34 @@
 import { walk, WalkError, type Position, type Source, type Tree } from "./evaluator.js";
-import { pickDiagram, type DiagramManifest } from "./diagrams.js";
 
-// The wizard to show: ?w=<slug>, default azure-resiliency. Trees and diagrams are read from the repository root.
+// Which wizard: ?w=<slug>, default azure-resiliency. Trees and diagram specs are read from the repository root.
 const slug = new URLSearchParams(location.search).get("w") ?? "azure-resiliency";
 const base = `../wizards/${encodeURIComponent(slug)}`;
 
-function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLElementTagNameMap[K]> & { class?: string } = {}, ...kids: (Node | string)[]): HTMLElementTagNameMap[K] {
+// Fluent UI Web Components (Microsoft, MIT) supply the controls and theme tokens; the diagram generator in
+// tools/diagrams draws the picture live. Both load as plain ES modules from the repository, no bundler.
+const FLUENT = new URL("../node_modules/@fluentui/web-components/dist/web-components-all.min.js", import.meta.url).href;
+const TOKENS = new URL("../node_modules/@fluentui/tokens/lib/index.js", import.meta.url).href;
+const DIAGRAMS = new URL("../../tools/diagrams/web/diagrams.mjs", import.meta.url).href;
+
+interface DiagramApi {
+  forPath(spec: unknown, path: readonly string[], o?: { animate?: boolean }): { id: string; title: string; alt: string; svg: string; fromNode: string } | null;
+}
+interface Ui { light: Record<string, string | number>; dark: Record<string, string | number> }
+
+const reduced = (): boolean => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+type Attrs = Record<string, string | boolean | undefined>;
+function h(tag: string, attrs: Attrs = {}, ...kids: (Node | string)[]): HTMLElement {
   const node = document.createElement(tag);
-  const { class: cls, ...rest } = props;
-  if (cls) node.className = cls;
-  Object.assign(node, rest);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === undefined || v === false) continue;
+    node.setAttribute(k, v === true ? "" : v);
+  }
   for (const k of kids) node.append(k);
   return node;
 }
-
-function sourcesBlock(sources: Source[]): HTMLElement {
-  const details = el("details", { class: "sources" }, el("summary", {}, `Sources (${sources.length})`));
-  for (const s of sources) {
-    details.append(el("blockquote", {}, `“${s.quote}”`, el("footer", {}, el("a", { href: s.url, target: "_blank", rel: "noopener noreferrer" }, s.title), ` · read ${s.retrieved}`)));
-  }
-  return details;
-}
-
-function list(items: string[]): HTMLElement {
-  const ul = el("ul");
-  for (const i of items) ul.append(el("li", {}, i));
-  return ul;
-}
+const text = (s: string, size = "300", weight = "regular", extra: Attrs = {}): HTMLElement =>
+  h("fluent-text", { block: true, size, weight, ...extra }, s);
 
 function readAnswers(): string[] {
   const m = /(?:^#|&)a=([^&]*)/.exec(location.hash);
@@ -36,84 +38,158 @@ function readAnswers(): string[] {
 function writeAnswers(answers: string[]): void {
   location.hash = answers.length ? `a=${encodeURIComponent(answers.join(","))}` : "";
 }
-
 async function loadJson<T>(url: string): Promise<T | null> {
-  try {
-    const r = await fetch(url);
-    return r.ok ? ((await r.json()) as T) : null;
-  } catch { return null; }
+  try { const r = await fetch(url); return r.ok ? ((await r.json()) as T) : null; } catch { return null; }
+}
+function savedTheme(): "light" | "dark" {
+  try { const v = localStorage.getItem("wizard-theme"); if (v === "light" || v === "dark") return v; } catch { /* storage may be blocked */ }
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function renderDiagram(host: HTMLElement, manifest: DiagramManifest | null, pos: Position): void {
-  host.replaceChildren();
-  const choice = pickDiagram(manifest, pos.path);
-  if (!choice) {
-    host.append(el("p", { class: "placeholder", id: "diagram-placeholder" }, "No diagram for this step yet. Diagrams appear here as the wizard gets them."));
-    return;
-  }
-  const img = el("img", { src: `${base}/diagrams/${choice.entry.file}`, alt: choice.entry.alt });
-  img.dataset.diagram = choice.id;
-  host.append(img, el("p", { class: "caption" }, choice.entry.title + (choice.fromNode === pos.nodeId ? "" : " (from an earlier step)")));
+/** Windows motion: Direct Entrance, 250 ms, cubic-bezier(0,0,0,1) (learn.microsoft.com/windows/apps/design/signature-experiences/motion). */
+function enter(node: Element, dy = 12): void {
+  if (reduced()) return;
+  node.animate([{ opacity: 0, transform: `translateY(${dy}px)` }, { opacity: 1, transform: "none" }], { duration: 250, easing: "cubic-bezier(0,0,0,1)", fill: "backwards" });
 }
 
-function renderPanel(host: HTMLElement, tree: Tree, pos: Position, answers: string[]): void {
-  host.replaceChildren();
-  const trail = el("ol", { class: "trail", ariaLabel: "Your answers" } as Partial<HTMLOListElement>);
-  for (const s of pos.steps) trail.append(el("li", {}, el("span", { class: "q" }, s.question), " ", el("strong", {}, s.label)));
-  if (pos.steps.length) host.append(trail);
-
-  const node = pos.node;
-  if (node.type === "question") {
-    host.append(el("h2", { id: "question" }, node.text));
-    if (node.help) host.append(el("p", { class: "help" }, node.help));
-    const opts = el("div", { class: "options", role: "group" });
-    for (const o of node.options) {
-      const b = el("button", { type: "button", class: "option" }, o.label);
-      b.dataset.option = o.id;
-      b.addEventListener("click", () => writeAnswers([...answers, o.id]));
-      opts.append(b);
-    }
-    host.append(opts, sourcesBlock(node.sources));
-  } else {
-    host.append(el("h2", { id: "result-title" }, node.title), el("p", { class: "summary" }, node.summary));
-    if (node.actions.length) host.append(el("h3", {}, "What to do"), list(node.actions));
-    if (node.caveats.length) host.append(el("h3", {}, "Keep in mind"), list(node.caveats));
-    host.append(sourcesBlock(node.sources));
+function sourcesBody(sources: Source[]): HTMLElement {
+  const wrap = h("div", { class: "quotes" });
+  for (const s of sources) {
+    wrap.append(h("blockquote", {}, `“${s.quote}”`, h("footer", {}, h("a", { href: s.url, target: "_blank", rel: "noopener noreferrer" }, s.title), ` · read ${s.retrieved}`)));
   }
-
-  const nav = el("div", { class: "nav" });
-  const back = el("button", { type: "button", id: "back", disabled: answers.length === 0 }, "Back");
-  back.addEventListener("click", () => writeAnswers(answers.slice(0, -1)));
-  const restart = el("button", { type: "button", id: "restart", disabled: answers.length === 0 }, "Start over");
-  restart.addEventListener("click", () => writeAnswers([]));
-  nav.append(back, restart);
-  host.append(nav);
+  return wrap;
+}
+function item(heading: string, body: Node, expanded = false): HTMLElement {
+  return h("fluent-accordion-item", { expanded }, h("span", { slot: "heading" }, heading), body);
+}
+function list(items: string[]): HTMLElement {
+  const ul = h("ul", { class: "plain" });
+  for (const i of items) ul.append(h("li", {}, i));
+  return ul;
 }
 
 async function main(): Promise<void> {
-  const app = document.getElementById("app");
-  if (!app) return;
-  const [tree, manifest] = await Promise.all([loadJson<Tree>(`${base}/tree.json`), loadJson<DiagramManifest>(`${base}/diagrams/diagrams.json`)]);
-  if (!tree) { app.replaceChildren(el("p", { class: "error" }, `Could not load the wizard "${slug}".`)); return; }
-  document.title = `${tree.title} · wizard`;
-  document.getElementById("title")!.textContent = tree.title;
+  const root = document.getElementById("app");
+  if (!root) return;
 
-  const panel = el("section", { class: "panel", id: "panel", ariaLive: "polite" } as Partial<HTMLElement>);
-  const figure = el("figure", { class: "diagram", id: "diagram" });
-  app.replaceChildren(panel, figure);
+  const [wc, tokens, dg] = await Promise.all([
+    import(FLUENT).catch(() => null),
+    import(TOKENS).catch(() => null),
+    import(DIAGRAMS).catch(() => null),
+  ]) as [Record<string, unknown> | null, Record<string, unknown> | null, DiagramApi | null];
+  const ui: Ui | null = wc && tokens ? { light: tokens.webLightTheme as Ui["light"], dark: tokens.webDarkTheme as Ui["dark"] } : null;
+  let theme = savedTheme();
+  // Same effect as the library's setTheme(): the theme's tokens become CSS custom properties on the page.
+  const applyTheme = (): void => {
+    if (ui) for (const [k, v] of Object.entries(theme === "dark" ? ui.dark : ui.light)) document.documentElement.style.setProperty(`--${k}`, String(v));
+    document.documentElement.dataset.theme = theme;
+  };
+  applyTheme();
+
+  const [tree, spec] = await Promise.all([loadJson<Tree>(`${base}/tree.json`), loadJson<{ nodes: Record<string, string> }>(`${base}/diagrams/diagrams.spec.json`)]);
+  if (!tree) { root.replaceChildren(h("fluent-message-bar", { intent: "error", class: "error" }, `Could not load the wizard "${slug}".`)); return; }
+  document.title = `${tree.title} · wizard`;
+
+  // Header
+  const dark = h("fluent-switch", { id: "theme", checked: theme === "dark" });
+  dark.addEventListener("change", () => {
+    theme = (dark as unknown as { checked: boolean }).checked ? "dark" : "light";
+    try { localStorage.setItem("wizard-theme", theme); } catch { /* ignore */ }
+    applyTheme();
+  });
+  const header = h("header", { class: "top" },
+    h("div", { class: "title" }, text(tree.title, "600", "semibold", { as: "h1", id: "title" }),
+      text("Answer a few plain questions. The same answers always give the same result; no AI runs.", "300", "regular", { class: "subtle" })),
+    h("div", { class: "tools" }, h("fluent-badge", { appearance: "tint", color: "brand" }, "Temporary front end"), h("label", { class: "switch" }, "Dark", dark)));
+
+  const ribbon = h("ol", { class: "ribbon", "aria-label": "Your answers", id: "ribbon" });
+  const content = h("div", { class: "content", id: "panel", "aria-live": "polite", tabindex: "-1" });
+  const nav = h("div", { class: "nav" });
+  const left = h("section", { class: "card left" }, ribbon, content, nav);
+
+  const canvas = h("div", { class: "canvas", id: "diagram" });
+  const caption = h("figcaption", { class: "caption" });
+  const right = h("figure", { class: "card right" }, canvas, caption);
+  root.replaceChildren(header, h("main", { class: "grid" }, left, right));
+
+  let shownCount = 0;
+  let shownDiagram = "";
+
+  function renderRibbon(pos: Position): void {
+    const done = pos.steps.length;
+    ribbon.replaceChildren();
+    pos.steps.forEach((s, i) => {
+      const li = h("li", { class: "done" }, h("span", { class: "num", "aria-hidden": "true" }, String(i + 1)), h("span", { class: "lbl" }, s.label));
+      if (i >= shownCount) enter(li, 8);
+      ribbon.append(li);
+    });
+    const last = h("li", { class: pos.node.type === "result" ? "now final" : "now" }, h("span", { class: "num", "aria-hidden": "true" }, pos.node.type === "result" ? "✓" : String(done + 1)), h("span", { class: "lbl" }, pos.node.type === "result" ? "Your answer" : "You are here"));
+    enter(last, 8);
+    ribbon.append(last);
+    shownCount = done;
+  }
+
+  function renderContent(pos: Position, answers: string[]): void {
+    content.replaceChildren();
+    const node = pos.node;
+    if (node.type === "question") {
+      content.append(text(node.text, "500", "semibold", { id: "question", as: "h2" }));
+      if (node.help) content.append(text(node.help, "300", "regular", { class: "subtle help" }));
+      const opts = h("div", { class: "options", role: "group", "aria-labelledby": "question" });
+      for (const o of node.options) {
+        const b = h("fluent-button", { appearance: "outline", size: "large", "data-option": o.id }, o.label);
+        b.addEventListener("click", () => writeAnswers([...answers, o.id]));
+        opts.append(b);
+      }
+      content.append(opts, h("fluent-accordion", { class: "sources" }, item(`Sources (${node.sources.length})`, sourcesBody(node.sources))));
+    } else {
+      content.append(text(node.title, "500", "semibold", { id: "result-title", as: "h2" }), h("fluent-message-bar", { intent: "success", shape: "square", class: "summary" }, node.summary));
+      const acc = h("fluent-accordion", { class: "sources" });
+      if (node.actions.length) acc.append(item("What to do", list(node.actions), true));
+      if (node.caveats.length) acc.append(item("Keep in mind", list(node.caveats), true));
+      acc.append(item(`Sources (${node.sources.length})`, sourcesBody(node.sources)));
+      content.append(acc);
+    }
+    enter(content);
+
+    nav.replaceChildren();
+    const back = h("fluent-button", { appearance: "subtle", id: "back", disabled: answers.length === 0 }, "Back");
+    back.addEventListener("click", () => writeAnswers(answers.slice(0, -1)));
+    const restart = h("fluent-button", { appearance: "subtle", id: "restart", disabled: answers.length === 0 }, "Start over");
+    restart.addEventListener("click", () => writeAnswers([]));
+    nav.append(back, restart);
+  }
+
+  async function renderDiagram(pos: Position): Promise<void> {
+    const pick = spec && dg ? dg.forPath(spec, pos.path, { animate: true }) : null;
+    if (!pick) {
+      shownDiagram = "";
+      canvas.replaceChildren(h("p", { class: "placeholder", id: "diagram-placeholder" }, "The picture appears here as you answer."));
+      caption.replaceChildren();
+      return;
+    }
+    if (pick.id === shownDiagram) return;
+    shownDiagram = pick.id;
+    const old = canvas.firstElementChild;
+    if (old && !reduced()) await old.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 83, easing: "linear", fill: "forwards" }).finished.catch(() => undefined);
+    if (shownDiagram !== pick.id) return; // a newer step already replaced it
+    const svg = document.importNode(new DOMParser().parseFromString(pick.svg, "image/svg+xml").documentElement, true) as unknown as SVGSVGElement;
+    svg.removeAttribute("width"); svg.removeAttribute("height");
+    const holder = h("div", { class: "drawing", "data-diagram": pick.id, "data-mode": "live" });
+    holder.append(svg);
+    canvas.replaceChildren(holder);
+    caption.replaceChildren(text(pick.title + (pick.fromNode === pos.nodeId ? "" : " (from an earlier step)"), "300", "semibold"),
+      h("span", { class: "subtle small" }, "Drawn in your browser from the diagram spec, in Microsoft Architecture Center style."));
+  }
 
   const render = (): void => {
     const answers = readAnswers();
     let pos: Position;
-    try { pos = walk(tree, answers); }
-    catch (e) {
-      if (e instanceof WalkError) { writeAnswers([]); return; }
-      throw e;
-    }
-    renderPanel(panel, tree, pos, answers);
-    renderDiagram(figure, manifest, pos);
-    document.getElementById("progress")!.textContent = pos.node.type === "question" ? `Question ${pos.steps.length + 1}` : "Answer";
-    (panel.querySelector<HTMLElement>(".option, #restart") ?? panel).focus({ preventScroll: true });
+    try { pos = walk(tree, answers); } catch (e) { if (e instanceof WalkError) { writeAnswers([]); return; } throw e; }
+    renderRibbon(pos);
+    renderContent(pos, answers);
+    void renderDiagram(pos);
+    (content.querySelector<HTMLElement>("[data-option]") ?? content).focus({ preventScroll: true });
   };
   window.addEventListener("hashchange", render);
   render();

@@ -13,7 +13,7 @@ const expectedDiagram = (answers: string[]): string | null => pickDiagram(manife
 async function expectDiagram(page: import("@playwright/test").Page, answers: string[]): Promise<void> {
   const id = expectedDiagram(answers);
   if (id === null) await expect(page.locator("#diagram-placeholder")).toBeVisible();
-  else await expect(page.locator("#diagram img")).toHaveAttribute("data-diagram", id);
+  else await expect(page.locator("#diagram [data-diagram]")).toHaveAttribute("data-diagram", id);
 }
 
 test("walk by clicking: targets, VM, region gives Site Recovery and the diagram the manifest names", async ({ page }) => {
@@ -28,9 +28,9 @@ test("walk by clicking: targets, VM, region gives Site Recovery and the diagram 
   await expect(page.locator("#result-title")).toHaveText("Replicate the VMs to a second region with Azure Site Recovery");
   expect(expectedDiagram(["yes", "vm", "region"])).not.toBeNull();
   await expectDiagram(page, ["yes", "vm", "region"]);
-  await expect(page.locator("#diagram img")).toBeVisible();
-  expect(await page.locator("#diagram img").evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
-  await expect(page.locator(".sources summary").first()).toContainText("Sources (");
+  await expect(page.locator("#diagram [data-mode=live] svg")).toBeVisible();
+  expect(await page.locator("#diagram svg").evaluate((s) => s.children.length)).toBeGreaterThan(10);
+  await expect(page.locator(".sources fluent-accordion-item").last()).toContainText("Sources (");
   await expect(page).toHaveURL(/#a=yes%2Cvm%2Cregion$/);
 });
 
@@ -41,7 +41,7 @@ test("back and start over", async ({ page }) => {
   await expect(page.locator("#question")).toContainText("which failure");
   await page.locator("#restart").click();
   await expect(page.locator("#question")).toContainText("recovery time objective");
-  await expect(page.locator("#back")).toBeDisabled();
+  await expect(page.locator("#back")).toHaveAttribute("disabled", "");
 });
 
 test("a bad deep link falls back to the start", async ({ page }) => {
@@ -57,7 +57,7 @@ test("every one of the 62 paths renders a result with sources", async ({ page })
     const node = tree.nodes[p.result];
     if (node?.type !== "result") throw new Error("not a result");
     await expect(page.locator("#result-title"), p.result).toHaveText(node.title);
-    await expect(page.locator(".sources summary")).toBeVisible();
+    await expect(page.locator(".sources fluent-accordion-item").last()).toBeVisible();
     await expectDiagram(page, p.answers);
   }
 });
@@ -74,4 +74,46 @@ test("no page errors while walking", async ({ page }) => {
 test("unknown wizard shows a plain error", async ({ page }) => {
   await page.goto("/web/index.html?w=does-not-exist");
   await expect(page.locator(".error")).toContainText("Could not load");
+});
+
+test("the step ribbon grows one numbered step per answer", async ({ page }) => {
+  await page.goto("/web/index.html");
+  await expect(page.locator("#ribbon li")).toHaveCount(1);
+  await page.locator('[data-option="yes"]').click();
+  await expect(page.locator("#ribbon li")).toHaveCount(2);
+  await page.locator('[data-option="vm"]').click();
+  await page.locator('[data-option="region"]').click();
+  await expect(page.locator("#ribbon li")).toHaveCount(4);
+  await expect(page.locator("#ribbon li.final")).toContainText("Your answer");
+  await expect(page.locator("#ribbon li.done .num")).toHaveText(["1", "2", "3"]);
+});
+
+test("the Fluent theme switch changes the page colours", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/web/index.html");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  const light = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await page.locator("#theme").click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).not.toBe(light);
+});
+
+test("the live drawing is the generator's own output: same bytes as the committed SVG for every diagram", async ({ page }) => {
+  await page.goto("/web/index.html");
+  const spec = JSON.parse(readFileSync(path.join(dir, "diagrams", "diagrams.spec.json"), "utf8")) as { diagrams: Record<string, unknown> };
+  const live = await page.evaluate(async (ids) => {
+    const mod = await import("/tools/diagrams/web/diagrams.mjs");
+    const s = await (await fetch("/wizards/azure-resiliency/diagrams/diagrams.spec.json")).json();
+    return Object.fromEntries(ids.map((id) => [id, mod.render(s, id)]));
+  }, Object.keys(spec.diagrams));
+  let n = 0;
+  for (const [id, svg] of Object.entries(live)) { expect(svg, id).toBe(readFileSync(path.join(dir, "diagrams", `${id}.svg`), "utf8")); n++; }
+  expect(n).toBeGreaterThan(70);
+});
+
+test("reduced motion still shows every step", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/web/index.html#a=yes,vm,region");
+  await expect(page.locator("#result-title")).toBeVisible();
+  await expectDiagram(page, ["yes", "vm", "region"]);
 });

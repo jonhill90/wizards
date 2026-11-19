@@ -14,5 +14,9 @@
     "@playwright/test": "1.65.1",
     "@types/node": "22.10.2",
     "typescript": "5.7.2"
+  },
+  "dependencies": {
+    "@fluentui/tokens": "1.0.0-alpha.24",
+    "@fluentui/web-components": "3.2.1"
   }
 }
